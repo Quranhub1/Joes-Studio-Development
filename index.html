@@ -582,7 +582,7 @@
           </div>
           <div class="relative">
             <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input id="templateSearch" type="search" placeholder="Search certificates, student IDs, logos, letterheads…" class="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
+            <input id="templateSearch" type="search" placeholder="Search certificates, student IDs, exam cards, logos, letterheads…" class="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
           </div>
           <div id="templateCategoryBar" class="flex flex-wrap gap-2" aria-label="Template categories"></div>
           <div class="flex items-center justify-between gap-2 text-xs text-slate-500">
@@ -9972,7 +9972,7 @@
             const count = document.getElementById("templateGalleryCount");
             if (!grid || !categoryBar) return;
 
-            const categoryOrder = ["All", "Start Here", "Certificates", "Student IDs & Badges", "Official Documents", "Logos & Branding"];
+            const categoryOrder = ["All", "Start Here", "Certificates", "Student IDs & Badges", "Examination Cards", "Official Documents", "Logos & Branding"];
             const available = new Set(this.data.map((item) => item.category || "Official Documents"));
             const categories = categoryOrder.filter((name) => name === "All" || available.has(name));
             categoryBar.innerHTML = "";
