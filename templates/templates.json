@@ -112,6 +112,64 @@
     "style": "Red accent"
   },
   {
+    "id": "examination-card-kshs-teal",
+    "name": "KSHS Examination Card — Teal",
+    "desc": "130 × 60 mm landscape examination card with editable student details, passport-photo placeholder and badge placeholder. Uses system fonts only; insert an approved local KSHS badge when needed.",
+    "category": "Examination Cards",
+    "type": "template",
+    "thumbnail": "./templates/previews/examination-card-kshs-teal.svg",
+    "url": "./templates/examination_card_kshs_teal.json",
+    "tags": [
+      "examination",
+      "exam card",
+      "KSHS",
+      "student",
+      "passport photo",
+      "registration number",
+      "teal",
+      "130x60mm"
+    ],
+    "style": "Light teal with black rules"
+  },
+  {
+    "id": "examination-card-kshs-white",
+    "name": "KSHS Examination Card — White",
+    "desc": "A white-background variant of the KSHS 130 × 60 mm examination card, with editable name, registration number, sex, sitting, course and issuer fields. Uses system fonts only.",
+    "category": "Examination Cards",
+    "type": "template",
+    "thumbnail": "./templates/previews/examination-card-kshs-white.svg",
+    "url": "./templates/examination_card_kshs_white.json",
+    "tags": [
+      "examination",
+      "exam card",
+      "KSHS",
+      "student",
+      "white",
+      "passport photo",
+      "registration number"
+    ],
+    "style": "White with teal accent"
+  },
+  {
+    "id": "examination-card-generic-teal",
+    "name": "Editable Examination Card — Any Institution",
+    "desc": "Customisable 130 × 60 mm examination card with generic institution text, editable student fields and photo/badge placeholders. Suitable as a starting point for other schools.",
+    "category": "Examination Cards",
+    "type": "template",
+    "thumbnail": "./templates/previews/examination-card-generic-teal.svg",
+    "url": "./templates/examination_card_generic_teal.json",
+    "tags": [
+      "examination",
+      "exam card",
+      "custom school",
+      "student",
+      "passport photo",
+      "registration number",
+      "generic"
+    ],
+    "style": "Custom institution teal"
+  },
+  {
     "id": "letterhead-official",
     "name": "Official A4 Letterhead",
     "desc": "Institution letterhead with logo placement, reference, subject, signature and contact footer.",

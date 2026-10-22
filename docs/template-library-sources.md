@@ -4,7 +4,7 @@
 
 The templates in `templates/` with `.paper` or JSON project data are original Joes Studio starter designs built from editable canvas objects. They are not downloaded copies of third-party Canva, Adobe or Microsoft templates. Local SVG files under `templates/previews/` are purpose-made gallery previews. The starter designs use placeholder text so the institution name, recipient, course, reference, date and signature information can be replaced in Joes Studio.
 
-Current categories: Start Here; Certificates; Student IDs & Badges; Official Documents; Logos & Branding.
+Current categories: Start Here; Certificates; Student IDs & Badges; Examination Cards; Official Documents; Logos & Branding;
 
 ## External template inspiration and template-making tools
 
@@ -34,3 +34,8 @@ Logo assets are fetched when the user selects Insert into current canvas, then e
 ## Adding and maintaining assets
 
 Update `templates/templates.json` to add, remove, or recategorize a gallery item. Each item should include a unique `id`, clear `name` and `desc`, a `category`, a `type`, and a thumbnail. Editable templates use a repository-relative `url`; logo items use `src`, `sourceName`, and `sourceUrl`. Prefer official image hosts. If the artwork is not hosted by the institution, say so in the description and identify it as unverified where appropriate. Do not commit private marks or third-party artwork without permission.
+
+
+## Examination cards
+
+The three examination-card templates are original editable Fabric-canvas designs in 130 × 60 mm landscape label dimensions: KSHS teal, KSHS white, and a generic institution variant. They use only common installed/system font families (Arial and Georgia) and do not load Google Fonts or any other remote font files. The badge is a placeholder; insert locally approved institutional artwork from Logos & Branding when authorised. Remote assets are not required to open or edit these card templates.
