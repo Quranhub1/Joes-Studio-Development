@@ -9424,19 +9424,55 @@
                 App.ui.hideLoading();
                 Utils.toast("Project loaded successfully");
               };
-              // Legacy hand-authored Paper files may omit Fabric's serialized IText styles array.
-              // Fabric 5 stylesToArray expects a styles object; an absent value can crash save/export.
+              // Normalize legacy/imported Fabric text objects before enlivening them.
+              // Fabric 5 expects IText.styles to be a line -> character -> style object map,
+              // never an array. Malformed maps can crash stylesToArray during toObject().
               if (data.canvasData && Array.isArray(data.canvasData.objects)) {
                 const normalizeTextStyles = (objects) => {
                   objects.forEach((object) => {
                     if (!object || typeof object !== "object") return;
-                    if (["i-text", "textbox", "text"].includes(object.type)) {
-                      if (object.styles === undefined || object.styles === null) object.styles = [];
-                      if (object.textBaseline === "alphabetical") object.textBaseline = "alphabetic";
+
+                    // CanvasTextBaseline accepts "alphabetic", not "alphabetical".
+                    if (object.textBaseline === "alphabetical") {
+                      object.textBaseline = "alphabetic";
                     }
-                    // Imported Fabric groups can contain nested text objects too.
+
+                    if (["i-text", "textbox", "text"].includes(object.type)) {
+                      if (
+                        !object.styles ||
+                        typeof object.styles !== "object" ||
+                        Array.isArray(object.styles)
+                      ) {
+                        object.styles = {};
+                      } else {
+                        // Keep valid character styles while removing malformed line/character maps.
+                        for (const [line, characters] of Object.entries(object.styles)) {
+                          if (
+                            !characters ||
+                            typeof characters !== "object" ||
+                            Array.isArray(characters)
+                          ) {
+                            delete object.styles[line];
+                            continue;
+                          }
+                          for (const [character, style] of Object.entries(characters)) {
+                            if (
+                              !style ||
+                              typeof style !== "object" ||
+                              Array.isArray(style)
+                            ) {
+                              delete characters[character];
+                            }
+                          }
+                        }
+                      }
+                    }
+
+                    // Recurse through groups and nested clipping paths.
                     if (Array.isArray(object.objects)) normalizeTextStyles(object.objects);
-                    if (object.clipPath && Array.isArray(object.clipPath.objects)) normalizeTextStyles(object.clipPath.objects);
+                    if (object.clipPath && Array.isArray(object.clipPath.objects)) {
+                      normalizeTextStyles(object.clipPath.objects);
+                    }
                   });
                 };
                 normalizeTextStyles(data.canvasData.objects);
