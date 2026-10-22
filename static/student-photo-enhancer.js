@@ -11,7 +11,7 @@
             baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite"},
             runningMode:"IMAGE",
             outputCategoryMask:true,
-            outputConfidenceMasks:false
+            outputConfidenceMasks:true
           });
         })().catch(error=>{this.segmenterPromise=null;throw error;});
       }
