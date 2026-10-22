@@ -123,7 +123,12 @@
       const jpegQuality = Number.isFinite(Number(opt.jpegQuality))
         ? clamp(Number(opt.jpegQuality), 0.5, 0.95)
         : (max <= 1000 ? 0.78 : 0.9);
-      return c.toDataURL(transparentOutput ? "image/png" : "image/jpeg", jpegQuality);
+      const processedUrl = c.toDataURL(transparentOutput ? "image/png" : "image/jpeg", jpegQuality);
+      if (opt.aiUpscale === true && !transparentOutput && window.JoesStudentAIUpscaler?.process) {
+        const restored = await window.JoesStudentAIUpscaler.process(processedUrl);
+        if (restored && restored.skipped !== true && restored.image) return restored.image;
+      }
+      return processedUrl;
     },
     calculate(s,mode){
       const natural=mode==="natural",strong=mode==="strong";
