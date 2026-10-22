@@ -42,3 +42,11 @@ Record browser/version, template name, failures, screenshots, and the exported P
 - [ ] Verify student name, registration number, sex, sitting and course fields, photo placeholder, note and issuer line fit inside the card.
 - [ ] Insert an authorised local KSHS badge from Logos & Branding; save/reopen the paper and check that the image is embedded.
 - [ ] Export/print to PDF and measure one physical card; confirm no text or border is clipped at 100% scale.
+
+
+## Fabric text rendering and serialization
+
+- [ ] Open each local template and confirm the console has no `CanvasTextBaseline` warnings for `alphabetical`.
+- [ ] Save a project containing text and verify no `stylesToArray` exception is thrown.
+- [ ] Insert an image/logo while a text-containing template is open; confirm image insertion, layer updates, undo/redo and save/reopen still work.
+- [ ] Open a legacy or imported project with missing `styles` on text objects, including inside groups; confirm loader normalization allows it to render and serialize.
