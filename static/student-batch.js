@@ -2042,6 +2042,10 @@
           })));
         };
 
+        // Copies of the same student are adjacent. Build/export their source
+        // image once and clone the prepared DOM for subsequent copies.
+        let cachedBuiltRowIndex = -1;
+        let cachedBuilt = null;
         for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
           const page = printDoc.createElement("div");
           page.className = "student-batch-print-page";
@@ -2051,7 +2055,12 @@
 
           for (let cardNumber = startCard; cardNumber < endCard; cardNumber++) {
             const sourceRowIndex = Math.floor(cardNumber / copies);
-            const built = await this.buildHtmlCard(this.state.rows[sourceRowIndex]);
+            if (sourceRowIndex !== cachedBuiltRowIndex) {
+              cachedBuilt = await this.buildHtmlCard(this.state.rows[sourceRowIndex]);
+              await this.prepareExportImages(cachedBuilt.body);
+              cachedBuiltRowIndex = sourceRowIndex;
+            }
+            const built = cachedBuilt;
 
             const slot = cardNumber % layout.perPage;
             const col = slot % layout.cols;
@@ -2077,8 +2086,7 @@
               "scaleX(" + ((layout.card.w * 96 / 25.4) / nativeW) + ") " +
               "scaleY(" + ((layout.card.h * 96 / 25.4) / nativeH) + ")";
 
-            await this.prepareExportImages(built.body);
-                        const cardClone = built.body.cloneNode(true);
+            const cardClone = built.body.cloneNode(true);
             this.sanitizePlaceholderImages(cardClone);
             stage.appendChild(printDoc.importNode(cardClone, true));
             frame.appendChild(stage);
@@ -2149,11 +2157,14 @@
         let cardNumber = 0;
 
         for (let rowIndex = 0; rowIndex < this.state.rows.length; rowIndex++) {
-          for (let copy = 0; copy < copies; copy++) {
-            const canvas = this.state.templateMode === "html"
-              ? await this.renderHtmlCard(this.state.rows[rowIndex])
-              : await this.renderPaperCard(rowIndex);
+          // Render each student's card once regardless of the number of copies.
+          const canvas = this.state.templateMode === "html"
+            ? await this.renderHtmlCard(this.state.rows[rowIndex])
+            : await this.renderPaperCard(rowIndex);
+          const image = canvas.toDataURL("image/png", 1);
+          const imageAlias = "joes-student-row-" + rowIndex;
 
+          for (let copy = 0; copy < copies; copy++) {
             if (cardNumber > 0 && cardNumber % layout.perPage === 0) {
               pdf.addPage([layout.sheet.w, layout.sheet.h], layout.sheet.w > layout.sheet.h ? "l" : "p");
             }
@@ -2165,13 +2176,16 @@
             const cellY = Number(this.state.margin) + row * (layout.cellH + Number(this.state.gapY));
             const x = cellX + (layout.cellW - layout.card.w) / 2;
             const y = cellY + (layout.cellH - layout.card.h) / 2;
-            const image = canvas.toDataURL("image/png", 1);
-            pdf.addImage(image, "PNG", x, y, layout.card.w, layout.card.h, undefined, "FAST");
+            pdf.addImage(image, "PNG", x, y, layout.card.w, layout.card.h, imageAlias, "FAST");
             cardNumber++;
             if (cardNumber === 1 || cardNumber % Math.max(1, Math.floor(totalCards / 20)) === 0 || cardNumber === totalCards) {
               App.ui.showLoading("Generating card " + cardNumber + " of " + totalCards + "...");
             }
           }
+
+          // Release the working canvas after jsPDF has copied the pixel data.
+          canvas.width = 0;
+          canvas.height = 0;
         }
 
         const safeName = (this.state.templateName || "student_cards")
