@@ -1806,6 +1806,7 @@
             " Excel record" + (previewRows.length === 1 ? "" : "s") + " • " +
             layout.cols + " × " + layout.rows + " • " + this.state.orientation;
         } catch (e) {
+          if (generation !== this._previewGeneration) return;
           console.error("Student batch preview failed", e);
           host.innerHTML =
             '<div class="flex flex-col items-center justify-center min-h-[220px] text-sm text-red-500 text-center p-4">' +
