@@ -90,7 +90,8 @@
         "fontStyle": "normal",
         "lineHeight": 1.05,
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -120,7 +121,8 @@
         "fontStyle": "normal",
         "lineHeight": 1.05,
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -150,7 +152,8 @@
         "fontStyle": "normal",
         "lineHeight": 1.05,
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -180,7 +183,8 @@
         "fontStyle": "normal",
         "lineHeight": 1.05,
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "rect",
@@ -252,7 +256,8 @@
         "fontStyle": "normal",
         "lineHeight": 1.05,
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -288,7 +293,8 @@
           "sheet": "Sheet1",
           "field": "Student Name"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -324,7 +330,8 @@
           "sheet": "Sheet1",
           "field": "Student Name"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "rect",
@@ -381,7 +388,8 @@
           "sheet": "Sheet1",
           "field": "Registration Number"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -417,7 +425,8 @@
           "sheet": "Sheet1",
           "field": "Registration Number"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "rect",
@@ -474,7 +483,8 @@
           "sheet": "Sheet1",
           "field": "Sex"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -510,7 +520,8 @@
           "sheet": "Sheet1",
           "field": "Sex"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "rect",
@@ -567,7 +578,8 @@
           "sheet": "Sheet1",
           "field": "Sitting"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -603,7 +615,8 @@
           "sheet": "Sheet1",
           "field": "Sitting"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "rect",
@@ -660,7 +673,8 @@
           "sheet": "Sheet1",
           "field": "Course"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -696,7 +710,8 @@
           "sheet": "Sheet1",
           "field": "Course"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "rect",
@@ -747,7 +762,8 @@
         "fontStyle": "normal",
         "lineHeight": 1.05,
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -777,7 +793,8 @@
         "fontStyle": "normal",
         "lineHeight": 1.05,
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -807,7 +824,8 @@
         "fontStyle": "normal",
         "lineHeight": 1.05,
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       }
     ]
   },
