@@ -226,7 +226,7 @@
     "id": "blank-a4-gallery",
     "name": "Blank A4 Canvas",
     "desc": "Start from a clean editable A4 page when you want to design from scratch.",
-    "category": "Official Documents",
+    "category": "Start Here",
     "type": "blank",
     "thumbnail": "./templates/previews/letterhead.svg",
     "tags": [
