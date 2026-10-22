@@ -43,3 +43,10 @@ JSZip is bundled locally under `static/jszip.min.js` so ZIP-based workbook/templ
 ## Performance regression checks
 
 Before a production release, follow [the performance regression checklist](tests/performance-regression-checklist.md). In particular, compare live-preview responsiveness with export quality, then generate and print batches with repeated copies. JavaScript syntax checks alone are not a substitute for a browser test or a visual portrait comparison.
+
+
+## Curated template library
+
+The Start from Template gallery is organised into **Certificates**, **Student IDs & Badges**, **Official Documents**, and **Logos & Branding**. The local certificate, letterhead, memo and ID layouts are editable Joes Studio templates. The logo category includes source-attributed NDA, UHPAB, KSHS and UVTAB image assets, plus an option to upload an approved local logo. Logo insertion downloads and embeds the image, so remote logo insertion requires internet access; all assets can instead be supplied locally using **Add Your Own Logo**.
+
+The gallery also links to Canva, Microsoft Create, Adobe Express and SketchValley for more template inspiration. These links open third-party sites; their own usage and licensing terms apply. See [template-library sources and usage](docs/template-library-sources.md) for source attribution, verification notes and contribution guidance.
