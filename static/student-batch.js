@@ -59,6 +59,8 @@
         },
       },
       enhancedPhotoCache: new Map(),
+      enhancedPhotoCacheBytes: 0,
+      enhancedPhotoCacheBudget: 64 * 1024 * 1024,
     },
 
     notify(msg, type = "info") {
@@ -103,9 +105,20 @@
       root.setAttribute("data-student-batch-background", color);
     },
 
-    photoCacheKey(dataUrl) {
-      // Keep cache keys compact: embedding a base64 photo in a Map key retains a
-      // large string for every cached setting/photo combination.
+    clearPhotoCache() {
+      this.state.enhancedPhotoCache.clear();
+      this.state.enhancedPhotoCacheBytes = 0;
+    },
+
+    hasManualPhotoAdjustments() {
+      const manual = this.state.photoEnhancement.manual || {};
+      const defaults = { cropScale: 100, opacity: 100 };
+      return Object.entries(manual).some(([key, value]) =>
+        Number(value) !== (Object.prototype.hasOwnProperty.call(defaults, key) ? defaults[key] : 0)
+      );
+    },
+
+    photoCacheKey(dataUrl, maxSide) {
       let a = 0x811c9dc5;
       let b = 0x9e3779b9;
       for (let i = 0; i < dataUrl.length; i++) {
@@ -114,31 +127,48 @@
         b = Math.imul(b ^ (code + i), 0x85ebca6b);
       }
       return dataUrl.length + ":" + (a >>> 0).toString(36) + ":" +
-        (b >>> 0).toString(36) + "|" + JSON.stringify(this.state.photoEnhancement);
+        (b >>> 0).toString(36) + "|" + maxSide + "|" +
+        JSON.stringify(this.state.photoEnhancement);
     },
 
-    async enhanceStudentPhoto(dataUrl) {
-      if (!dataUrl || (!this.state.photoEnhancement.enabled && !this.state.photoEnhancement.whiteBackground)) return dataUrl;
-      const key = this.photoCacheKey(dataUrl);
+    async enhanceStudentPhoto(dataUrl, options = {}) {
+      if (!dataUrl) return dataUrl;
+      const settings = this.state.photoEnhancement;
+      const isPreview = options.quality === "preview";
+      const maxSide = isPreview ? 900 : 2400;
+      if (!(settings.enabled || settings.whiteBackground || this.hasManualPhotoAdjustments())) return dataUrl;
+      if (!/^(?:data:image\/|blob:)/i.test(dataUrl)) return dataUrl;
+
+      const key = this.photoCacheKey(dataUrl, maxSide);
       const cache = this.state.enhancedPhotoCache;
       const cached = cache.get(key);
       if (cached) {
-        // Refresh insertion order so frequently used preview photos remain cached.
         cache.delete(key);
         cache.set(key, cached);
-        return cached;
+        return cached.value;
       }
       try {
         if (window.JoesStudentPhotoEnhancer?.process) {
           const out = await window.JoesStudentPhotoEnhancer.process(dataUrl, {
-            auto: this.state.photoEnhancement.enabled,
-            strength: this.state.photoEnhancement.strength,
-            whiteBackground: this.state.photoEnhancement.whiteBackground,
-            manual: this.state.photoEnhancement.manual
+            auto: settings.enabled,
+            strength: settings.strength,
+            whiteBackground: settings.whiteBackground,
+            manual: settings.manual,
+            maxSide,
+            jpegQuality: isPreview ? 0.76 : 0.9
           });
-          cache.set(key, out);
-          // Bound memory for large student batches; Map preserves LRU order.
-          while (cache.size > 24) cache.delete(cache.keys().next().value);
+          const bytes = out.length * 2;
+          const budget = this.state.enhancedPhotoCacheBudget;
+          if (bytes <= budget) {
+            cache.set(key, { value: out, bytes });
+            this.state.enhancedPhotoCacheBytes += bytes;
+            while (cache.size > 24 || this.state.enhancedPhotoCacheBytes > budget) {
+              const oldestKey = cache.keys().next().value;
+              const oldest = cache.get(oldestKey);
+              cache.delete(oldestKey);
+              this.state.enhancedPhotoCacheBytes = Math.max(0, this.state.enhancedPhotoCacheBytes - (oldest?.bytes || 0));
+            }
+          }
           return out;
         }
       } catch (e) {
@@ -146,11 +176,12 @@
       }
       return dataUrl;
     },
+
     setPhotoEnhancement(options={}) {
       if("enabled" in options)this.state.photoEnhancement.enabled=!!options.enabled;
       if("whiteBackground" in options)this.state.photoEnhancement.whiteBackground=!!options.whiteBackground;
       if(options.strength)this.state.photoEnhancement.strength=String(options.strength);
-      this.state.enhancedPhotoCache.clear(); this.syncPhotoEnhancementControls(); this.syncPhotoManualControls(); this.refresh();
+      this.clearPhotoCache(); this.syncPhotoEnhancementControls(); this.syncPhotoManualControls(); this.refresh();
     },
     syncPhotoEnhancementControls() {
       const a=document.getElementById("studentBatchAutoEnhance"),w=document.getElementById("studentBatchWhiteBackground"),s=document.getElementById("studentBatchEnhancementStrength");
@@ -188,7 +219,7 @@
       };
       const range = ranges[key] || [-100, 100];
       this.state.photoEnhancement.manual[key] = Math.min(range[1], Math.max(range[0], numeric));
-      this.state.enhancedPhotoCache.clear();
+      this.clearPhotoCache();
       this.syncPhotoManualControls();
       this.schedulePhotoPreview();
     },
@@ -198,7 +229,7 @@
         contrast: 0, saturation: 0, temperature: 0, sharpness: 0,
         faceLighting: 0, cropScale: 100, positionX: 0, positionY: 0, opacity: 100
       };
-      this.state.enhancedPhotoCache.clear();
+      this.clearPhotoCache();
       this.syncPhotoManualControls();
       this.schedulePhotoPreview();
     },
