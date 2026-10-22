@@ -343,6 +343,23 @@
       this.refresh();
     },
 
+    applyWatermarkToCanvas(canvas) {
+      if (!canvas || !this.state.watermarkEnabled || !this.state.watermarkText) return canvas;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return canvas;
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((Number(this.state.watermarkRotation) || 0) * Math.PI / 180);
+      ctx.globalAlpha = Math.min(0.5, Math.max(0.02, Number(this.state.watermarkOpacity) || 0.12));
+      ctx.fillStyle = this.state.watermarkColor || "#334155";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "800 " + Math.max(16, Math.round((Number(this.state.watermarkSize) || 24) * 2)) + "px Arial, sans-serif";
+      ctx.fillText(String(this.state.watermarkText).slice(0, 80), 0, 0, canvas.width * 0.9);
+      ctx.restore();
+      return canvas;
+    },
+
     applyWatermark(root) {
       if (!root || !this.state.watermarkEnabled || !this.state.watermarkText) return;
       root.querySelectorAll(".joes-custom-watermark").forEach(el => el.remove());
@@ -2276,6 +2293,7 @@
       image.width = exportCanvas.getWidth() * 2;
       image.height = exportCanvas.getHeight() * 2;
       image.getContext("2d").drawImage(exportCanvas.lowerCanvasEl, 0, 0, image.width, image.height);
+      this.applyWatermarkToCanvas(image);
       exportCanvas.dispose();
       App.state.dataSource.data = oldData;
       App.state.dataSource.headers = oldHeaders;
