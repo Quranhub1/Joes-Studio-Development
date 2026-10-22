@@ -10031,7 +10031,7 @@
               });
 
               const preview = document.createElement("div");
-              preview.className = "h-32 sm:h-36 rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 border border-slate-100";
+              preview.className = "relative h-32 sm:h-36 rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 border border-slate-100";
               const image = document.createElement("img");
               image.src = item.thumbnail || "./templates/previews/letterhead.svg";
               image.alt = item.name + " preview";
@@ -10047,15 +10047,11 @@
               preview.appendChild(image);
 
               const type = document.createElement("span");
-              type.className = "self-start rounded-full px-2 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold uppercase tracking-wide";
+              type.className = "absolute bottom-2 left-2 rounded-full px-2 py-0.5 bg-white/95 text-slate-600 text-[9px] font-bold uppercase tracking-wide border border-slate-200 shadow-sm";
               type.textContent = item.type === "logo-asset" ? "Official logo asset" :
                 item.type === "logo-upload" ? "Your own logo" :
                 item.type === "blank" ? "Blank canvas" : (item.category || "Template");
               preview.appendChild(type);
-              type.style.position = "relative";
-              type.style.marginTop = "-1.65rem";
-              type.style.marginLeft = "0.5rem";
-              type.style.alignSelf = "flex-start";
 
               const title = document.createElement("h3");
               title.className = "text-sm font-bold text-slate-800 leading-snug";
