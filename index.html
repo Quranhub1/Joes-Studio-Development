@@ -10161,14 +10161,14 @@
             input.addEventListener("change", () => {
               const file = input.files && input.files[0];
               if (!file) return;
-              if (!/^image\\/(?:png|jpeg|webp|svg\\+xml)$/i.test(file.type) &&
-                  !/\\.(?:png|jpe?g|webp|svg)$/i.test(file.name)) {
+              if (!/^image\/(?:png|jpeg|webp|svg\+xml)$/i.test(file.type) &&
+                  !/\.(?:png|jpe?g|webp|svg)$/i.test(file.name)) {
                 Utils.toast("Choose a PNG, JPG, WebP or SVG logo image.", "error");
                 return;
               }
               const reader = new FileReader();
               reader.onload = () => {
-                this.insertLogoAsset({ name: file.name.replace(/\\.[^.]+$/, ""), src: "local-upload" }, reader.result);
+                this.insertLogoAsset({ name: file.name.replace(/\.[^.]+$/, ""), src: "local-upload" }, reader.result);
               };
               reader.onerror = () => Utils.toast("The selected logo could not be read.", "error");
               reader.readAsDataURL(file);
