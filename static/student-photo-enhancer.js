@@ -1,6 +1,53 @@
 /* Automatic, browser-local student portrait preprocessing. */
 (function(){
   const E={
+    segmenterPromise:null,
+    async getSegmenter(){
+      if(!this.segmenterPromise){
+        this.segmenterPromise=(async()=>{
+          const vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs");
+          const fileset=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm");
+          return vision.ImageSegmenter.createFromOptions(fileset,{
+            baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite"},
+            runningMode:"IMAGE",
+            outputCategoryMask:true,
+            outputConfidenceMasks:false
+          });
+        })().catch(error=>{this.segmenterPromise=null;throw error;});
+      }
+      return this.segmenterPromise;
+    },
+    async makeBackgroundMask(image,w,h,fallbackData){
+      try{
+        const segmenter=await this.getSegmenter();
+        let result;
+        segmenter.segment(image,value=>{result=value;});
+        const mask=result?.categoryMask;
+        if(!mask)return this.mask(fallbackData,w,h);
+        const values=mask.getAsUint8Array();
+        const mw=mask.width,mh=mask.height;
+        if(!values||!mw||!mh||values.length<mw*mh)return this.mask(fallbackData,w,h);
+        // MediaPipe's selfie model uses 0=background and 1=person.
+        // Our processing pipeline uses 1=background, so invert its person mask.
+        const out=new Float32Array(w*h);
+        for(let y=0;y<h;y++){
+          const sy=(y/(h-1||1))*(mh-1),y0=Math.floor(sy),y1=Math.min(mh-1,y0+1),fy=sy-y0;
+          for(let x=0;x<w;x++){
+            const sx=(x/(w-1||1))*(mw-1),x0=Math.floor(sx),x1=Math.min(mw-1,x0+1),fx=sx-x0;
+            const p00=values[y0*mw+x0]>=1?1:0,p10=values[y0*mw+x1]>=1?1:0;
+            const p01=values[y1*mw+x0]>=1?1:0,p11=values[y1*mw+x1]>=1?1:0;
+            const person=(p00*(1-fx)+p10*fx)*(1-fy)+(p01*(1-fx)+p11*fx)*fy;
+            // Soft edge transition avoids a hard cut around hair and shoulders.
+            const alpha=Math.max(0,Math.min(1,(person-.12)/.76));
+            out[y*w+x]=1-alpha;
+          }
+        }
+        return out;
+      }catch(error){
+        console.warn("AI portrait segmentation unavailable; using colour-based fallback.",error);
+        return this.mask(fallbackData,w,h);
+      }
+    },
     async process(src,opt={}){
       const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src;});
       // Preview and export can request different resolutions to avoid doing
@@ -10,7 +57,7 @@
       const w=Math.max(1,Math.round((im.naturalWidth||im.width)*scale)),h=Math.max(1,Math.round((im.naturalHeight||im.height)*scale));
       const c=document.createElement("canvas");c.width=w;c.height=h;
       const ctx=c.getContext("2d",{willReadFrequently:true});ctx.drawImage(im,0,0,w,h);
-      const srcData=ctx.getImageData(0,0,w,h),mask=this.mask(srcData.data,w,h);
+      const srcData=ctx.getImageData(0,0,w,h),mask=await this.makeBackgroundMask(im,w,h,srcData.data);
       const stats=this.stats(srcData.data,w,h,mask);
       const auto=opt.auto===false ? {exposure:0,shadows:0,deepShadows:0,gamma:1,complexionLift:0,highlights:0,contrast:1,saturation:1,temperature:0,sharpness:0} : this.calculate(stats,String(opt.strength||"natural").toLowerCase());
       const m=opt.manual||{};
@@ -80,18 +127,24 @@
     },
     calculate(s,mode){
       const natural=mode==="natural",strong=mode==="strong";
-      const target=.52,gap=target-s.mean;
+      const target=.49,gap=target-s.mean;
+      const strength=natural?.72:strong?1.08:1;
+      // Lift underexposed portraits, recover bright highlights, and avoid
+      // globally overexposing already-bright faces.
+      const exposure=Math.max(-.035,Math.min(.19,gap*.48+(s.darkFraction-.18)*.075))*strength;
+      const shadows=Math.max(0,Math.min(.24,(s.shadowMean<.42?.13:.045)+(s.darkFraction-.18)*.15))*strength;
+      const gamma=s.mean<.28?0.82:s.mean<.38?0.88:s.mean<.46?0.94:s.mean>.78?1.035:1;
       return {
-        exposure:Math.max(-.03,Math.min(.22,gap*.45+(s.darkFraction-.20)*.10))*(natural?.65:strong?1.12:1),
-        shadows:Math.max(0,Math.min(.28,(s.shadowMean<.46?.14:.06)+(s.darkFraction-.20)*.18))*(natural?.65:strong?1.12:1),
-        deepShadows:0,
-        gamma:1,
-        complexionLift:0,
-        highlights:Math.max(.04,Math.min(.12,(s.highlightFraction*.18)+.03))*(natural?.7:strong?1.1:1),
-        contrast:Math.max(.98,Math.min(1.04,1+(target-s.mean)*.10+(s.std<.16?.015:0)))*(natural?.75:strong?1.08:1),
-        saturation:Math.max(.96,Math.min(1.04,1+(s.saturation<.30?.02:.006)))*(natural?.82:strong?1.05:1),
+        exposure,
+        shadows,
+        deepShadows:Math.max(0,Math.min(.10,(.30-s.mean)*.22))*strength,
+        gamma,
+        complexionLift:s.mean<.48?.025*strength:0,
+        highlights:Math.max(.025,Math.min(.13,s.highlightFraction*.20+.025))*strength,
+        contrast:Math.max(.98,Math.min(1.075,1+(target-s.mean)*.13+(s.std<.15?.025:0)))*(natural?.96:strong?1.035:1),
+        saturation:Math.max(.97,Math.min(1.075,1+(s.saturation<.24?.045:.012)))*(natural?.94:strong?1.035:1),
         temperature:0,
-        sharpness:Math.max(.04,Math.min(.18,.08+(s.std<.14?.04:0)))
+        sharpness:Math.max(.035,Math.min(.15,.055+(s.std<.14?.045:0)))
       };
     },
     stats(data,w,h,mask){
