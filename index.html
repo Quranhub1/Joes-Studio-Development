@@ -1017,6 +1017,10 @@
           </div>
         </div>
 
+        <button onclick="App.tools.openWatermarkDialog()" class="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 font-medium transition text-gray-600" title="Add or customise watermark">
+          <i class="ph ph-stamp text-lg"></i> Watermark
+        </button>
+
         <button onclick="document.getElementById('imgUpload').click()" class="flex items-center gap-1 px-3 py-1.5 rounded hover:bg-gray-100 font-medium transition text-gray-600">
           <i class="ph ph-image text-lg"></i> Image
         </button>
@@ -2428,6 +2432,7 @@
         "syncMode",
         "imgDirId",
         "imgDirName",
+        "isWatermark",
       ];
       const DATE_FMT_OPTS = [
         {
@@ -5814,6 +5819,78 @@
                 suffix: "",
               }),
             );
+          },
+
+          openWatermarkDialog: function () {
+            const dialog = document.getElementById("watermarkModal");
+            if (!dialog) {
+              Utils.toast("Watermark controls are unavailable.", "error");
+              return;
+            }
+            const existing = App.canvas.getObjects().find((obj) => obj.isWatermark);
+            const textInput = document.getElementById("watermarkText");
+            const colorInput = document.getElementById("watermarkColor");
+            const opacityInput = document.getElementById("watermarkOpacity");
+            const sizeInput = document.getElementById("watermarkSize");
+            const angleInput = document.getElementById("watermarkAngle");
+            if (existing) {
+              textInput.value = existing.text || "WATERMARK";
+              colorInput.value = /^#[0-9a-f]{6}$/i.test(existing.fill) ? existing.fill : "#808080";
+              opacityInput.value = String(Math.round((existing.opacity ?? 0.18) * 100));
+              sizeInput.value = String(Math.max(8, Math.round(Utils.px2pt(existing.fontSize || 48))));
+              angleInput.value = String(existing.angle ?? -30);
+            } else {
+              textInput.value = textInput.value || "WATERMARK";
+            }
+            document.getElementById("watermarkOpacityValue").textContent = opacityInput.value + "%";
+            App.ui.showModal("watermarkModal");
+          },
+
+          applyWatermark: function () {
+            const text = (document.getElementById("watermarkText").value || "").trim();
+            if (!text) {
+              Utils.toast("Enter watermark text first.", "error");
+              return;
+            }
+            const color = document.getElementById("watermarkColor").value || "#808080";
+            const opacity = Math.max(0, Math.min(100, Number(document.getElementById("watermarkOpacity").value) || 0)) / 100;
+            const sizePt = Math.max(8, Math.min(240, Number(document.getElementById("watermarkSize").value) || 48));
+            const angle = Math.max(-180, Math.min(180, Number(document.getElementById("watermarkAngle").value) || 0));
+            const existing = App.canvas.getObjects().find((obj) => obj.isWatermark);
+            const options = {
+              ...this._getCenter(),
+              fill: color,
+              opacity,
+              fontSize: Utils.pt2px(sizePt),
+              fontFamily: "Arial",
+              fontWeight: "bold",
+              textAlign: "center",
+              originX: "center",
+              originY: "center",
+              angle,
+              selectable: true,
+              evented: true,
+              editable: true,
+              isWatermark: true,
+              objectCaching: false,
+            };
+
+            if (existing) {
+              existing.set({ ...options, text });
+              existing.setCoords();
+              App.canvas.setActiveObject(existing);
+            } else {
+              const watermark = new fabric.IText(text, options);
+              App.canvas.add(watermark);
+              App.canvas.setActiveObject(watermark);
+            }
+            App.canvas.requestRenderAll();
+            App.ui.updateLayerList();
+            App.ui.updateInspector();
+            App.history.saveState();
+            App.state.hasUnsavedChanges = true;
+            App.ui.hideModal("watermarkModal");
+            Utils.toast("Watermark applied. Save the project to keep your changes.");
           },
 
           addParagraph: function () {
@@ -10604,5 +10681,46 @@
         }
       };
     </script>
+
+    <div id="watermarkModal" class="hidden fixed inset-0 z-[80] flex items-center justify-center modal-backdrop p-3" role="dialog" aria-modal="true" aria-labelledby="watermarkModalTitle">
+      <div class="w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <div>
+            <h2 id="watermarkModalTitle" class="font-bold text-slate-900">Watermark settings</h2>
+            <p class="text-xs text-slate-500 mt-1">Choose your text, colour and transparency.</p>
+          </div>
+          <button type="button" onclick="App.ui.hideModal('watermarkModal')" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500" aria-label="Close watermark settings"><i class="ph ph-x text-lg"></i></button>
+        </div>
+        <div class="p-5 space-y-4">
+          <label class="block text-sm font-medium text-slate-700">Watermark text
+            <input id="watermarkText" type="text" maxlength="120" value="WATERMARK" placeholder="e.g. CONFIDENTIAL" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none" />
+          </label>
+          <div class="grid grid-cols-2 gap-4">
+            <label class="block text-sm font-medium text-slate-700">Watermark colour
+              <div class="mt-1 flex items-center gap-2">
+                <input id="watermarkColor" type="color" value="#808080" class="h-10 w-14 cursor-pointer rounded border border-slate-300 p-1" />
+                <span class="text-xs text-slate-500">Any colour</span>
+              </div>
+            </label>
+            <label class="block text-sm font-medium text-slate-700">Font size (pt)
+              <input id="watermarkSize" type="number" min="8" max="240" value="48" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+            </label>
+          </div>
+          <label class="block text-sm font-medium text-slate-700">Transparency
+            <div class="mt-2 flex items-center gap-3">
+              <input id="watermarkOpacity" type="range" min="5" max="100" step="1" value="18" class="flex-1" oninput="document.getElementById('watermarkOpacityValue').textContent=this.value+'%'" />
+              <span id="watermarkOpacityValue" class="w-12 text-right text-xs tabular-nums text-slate-600">18%</span>
+            </div>
+          </label>
+          <label class="block text-sm font-medium text-slate-700">Rotation (degrees)
+            <input id="watermarkAngle" type="number" min="-180" max="180" value="-30" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          </label>
+        </div>
+        <div class="flex justify-end gap-2 px-5 py-4 border-t border-slate-200 bg-slate-50">
+          <button type="button" onclick="App.ui.hideModal('watermarkModal')" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Cancel</button>
+          <button type="button" onclick="App.tools.applyWatermark()" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Apply watermark</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
