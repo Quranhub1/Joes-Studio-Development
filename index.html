@@ -10018,7 +10018,7 @@
 
             filtered.forEach((item) => {
               const card = document.createElement("div");
-              card.className = "template-card group bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md cursor-pointer transition flex flex-col gap-2 p-2.5";
+              card.className = "template-card group bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition flex flex-col gap-2 p-2.5";
               card.tabIndex = 0;
               card.setAttribute("role", "button");
               card.setAttribute("aria-label", (item.type === "logo-asset" ? "Insert " : item.type === "logo-upload" ? "Add " : "Open ") + item.name);
@@ -10074,6 +10074,7 @@
                 source.className = "text-[10px] text-slate-400 hover:text-blue-700 hover:underline";
                 source.textContent = "Source: " + item.sourceName;
                 source.addEventListener("click", (event) => event.stopPropagation());
+                source.addEventListener("keydown", (event) => event.stopPropagation());
                 card.appendChild(source);
               }
               grid.appendChild(card);
