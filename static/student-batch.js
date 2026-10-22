@@ -36,6 +36,7 @@
       badgeDataUrl: "",
       watermarkEnabled: false,
       watermarkText: "JOES STUDIO",
+      watermarkColor: "#334155",
       watermarkOpacity: 0.12,
       watermarkSize: 24,
       watermarkRotation: -25,
@@ -319,6 +320,10 @@
       if (Object.prototype.hasOwnProperty.call(options, "text")) {
         this.state.watermarkText = String(options.text ?? "").trim().slice(0, 80);
       }
+      if (Object.prototype.hasOwnProperty.call(options, "color")) {
+        const color = String(options.color || "").trim();
+        if (/^#[0-9a-f]{6}$/i.test(color)) this.state.watermarkColor = color.toLowerCase();
+      }
       if (Object.prototype.hasOwnProperty.call(options, "opacity")) {
         const value = Number(options.opacity);
         if (Number.isFinite(value)) this.state.watermarkOpacity = Math.min(0.5, Math.max(0.02, value));
@@ -365,7 +370,7 @@
         "font-weight:800",
         "letter-spacing:2px",
         "line-height:1",
-        "color:#334155",
+        "color:" + this.state.watermarkColor,
         "opacity:" + this.state.watermarkOpacity,
         "mix-blend-mode:multiply"
       ].join(";");
@@ -375,6 +380,7 @@
     syncWatermarkControls() {
       const enabled = document.getElementById("studentBatchWatermarkEnabled");
       const text = document.getElementById("studentBatchWatermarkText");
+      const color = document.getElementById("studentBatchWatermarkColor");
       const opacity = document.getElementById("studentBatchWatermarkOpacity");
       const size = document.getElementById("studentBatchWatermarkSize");
       const rotation = document.getElementById("studentBatchWatermarkRotation");
@@ -383,6 +389,7 @@
       const rotationValue = document.getElementById("studentBatchWatermarkRotationValue");
       if (enabled) enabled.checked = this.state.watermarkEnabled;
       if (text && text.value !== this.state.watermarkText) text.value = this.state.watermarkText;
+      if (color && color.value !== this.state.watermarkColor) color.value = this.state.watermarkColor;
       if (opacity) opacity.value = String(Math.round(this.state.watermarkOpacity * 100));
       if (size) size.value = String(this.state.watermarkSize);
       if (rotation) rotation.value = String(this.state.watermarkRotation);
@@ -411,6 +418,9 @@
           '<label class="text-[10px] font-medium text-slate-600">Watermark text' +
             '<input id="studentBatchWatermarkText" type="text" maxlength="80" placeholder="JOES STUDIO" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white">' +
           '</label>' +
+          '<label class="text-[10px] font-medium text-slate-600">Watermark colour' +
+            '<input id="studentBatchWatermarkColor" type="color" value="#334155" class="mt-1 w-full h-9 border border-slate-200 rounded-lg bg-white">' +
+          '</label>' +
           '<label class="text-[10px] font-medium text-slate-600">Opacity <span id="studentBatchWatermarkOpacityValue" class="float-right text-slate-400">12%</span>' +
             '<input id="studentBatchWatermarkOpacity" type="range" min="2" max="50" value="12" class="mt-2 w-full">' +
           '</label>' +
@@ -431,6 +441,7 @@
         this.setWatermark({ enabled: e.target.checked });
       });
       bind("studentBatchWatermarkText", e => this.setWatermark({ text: e.target.value }));
+      bind("studentBatchWatermarkColor", e => this.setWatermark({ color: e.target.value }));
       bind("studentBatchWatermarkOpacity", e => this.setWatermark({ opacity: Number(e.target.value) / 100 }));
       bind("studentBatchWatermarkSize", e => this.setWatermark({ size: Number(e.target.value) }));
       bind("studentBatchWatermarkRotation", e => this.setWatermark({ rotation: Number(e.target.value) }));
