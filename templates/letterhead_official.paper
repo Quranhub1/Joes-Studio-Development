@@ -106,7 +106,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -153,7 +154,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -200,7 +202,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "rect",
@@ -270,7 +273,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -317,7 +321,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -364,7 +369,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -411,7 +417,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -458,7 +465,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -505,7 +513,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -552,7 +561,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -599,7 +609,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -646,7 +657,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -693,7 +705,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       },
       {
         "type": "rect",
@@ -763,7 +776,8 @@
         "pathSide": "left",
         "pathAlign": "baseline",
         "selectable": true,
-        "evented": true
+        "evented": true,
+        "styles": []
       }
     ]
   }
