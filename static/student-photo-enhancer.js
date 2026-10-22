@@ -14,7 +14,6 @@
       const m=opt.manual||{};
       const n=(v,d=0)=>Number.isFinite(Number(v))?Number(v):d;
       const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-      const manualActive=Object.keys(m).some(k=>n(m[k],0)!==0 && k!=="cropScale");
       const v={
         exposure:auto.exposure+(n(m.exposure)/100)*.45+(n(m.brightness)/100)*.55,
         shadows:auto.shadows+(n(m.shadows)/100)*.45,
@@ -58,7 +57,9 @@
         out[i+3]=clamp(srcData.data[i+3]*(n(m.opacity,100)/100),0,255);
       }
       ctx.putImageData(new ImageData(out,w,h),0,0);
-      if(v.sharpness>0 && (!manualActive || opt.auto!==false)) this.sharpen(ctx,w,h,v.sharpness,mask);
+      // The combined sharpness value already accounts for auto/manual mode.
+      // Do not gate this on unrelated manual defaults such as opacity:100.
+      if(v.sharpness>0) this.sharpen(ctx,w,h,v.sharpness,mask);
       const cropScale=clamp(n(m.cropScale,100)/100,1,1.8);
       const posX=clamp(n(m.positionX,0),-35,35)/100;
       const posY=clamp(n(m.positionY,0),-35,35)/100;
