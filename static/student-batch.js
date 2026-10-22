@@ -138,6 +138,25 @@
       const isPreview = options.quality === "preview";
       const maxSide = isPreview ? 900 : 2400;
       if (!(settings.enabled || settings.whiteBackground || this.hasManualPhotoAdjustments())) return dataUrl;
+
+      // URL-based photo fields were previously passed straight through because
+      // the pixel processor only accepts data/blob URLs. Resolve remote images
+      // to local data first (via the same CORS-friendly proxy used for export).
+      if (/^https?:\/\//i.test(String(dataUrl))) {
+        try {
+          const remote = this.normalizeExternalImageUrl(dataUrl);
+          const proxy = /^https?:\/\/images\.weserv\.nl\//i.test(remote)
+            ? remote
+            : "https://images.weserv.nl/?url=" + encodeURIComponent(remote);
+          const response = await fetch(proxy, { mode: "cors", credentials: "omit", cache: "force-cache" });
+          if (!response.ok) throw new Error("Photo proxy HTTP " + response.status);
+          const blob = await response.blob();
+          dataUrl = await this.fileToDataUrl(blob);
+        } catch (error) {
+          console.warn("Remote photo could not be prepared for enhancement; preserving source.", error);
+          return dataUrl;
+        }
+      }
       if (!/^(?:data:image\/|blob:)/i.test(dataUrl)) return dataUrl;
 
       const key = this.photoCacheKey(dataUrl, maxSide);
@@ -319,6 +338,15 @@
     applyWatermark(root) {
       if (!root || !this.state.watermarkEnabled || !this.state.watermarkText) return;
       root.querySelectorAll(".joes-custom-watermark").forEach(el => el.remove());
+
+      // Absolutely-positioned watermark must be anchored to the card itself,
+      // not the page or the hidden export wrapper.
+      const view = root.ownerDocument.defaultView;
+      if (!view || view.getComputedStyle(root).position === "static") {
+        root.style.setProperty("position", "relative", "important");
+      }
+      root.style.setProperty("isolation", "isolate");
+      root.style.setProperty("overflow", "hidden");
 
       const watermark = root.ownerDocument.createElement("div");
       watermark.className = "joes-custom-watermark";
@@ -1368,7 +1396,6 @@
       }
       if (!body) throw new Error("The selected HTML template has no card content.");
       this.applyCardBackground(body);
-      this.applyWatermark(body);
 
       for (const img of Array.from(body.querySelectorAll("img"))) {
         const srcAttr = String(img.getAttribute("src") || "");
@@ -1479,6 +1506,9 @@
       // Final guard: no unresolved image placeholder may reach the DOM.
       this.sanitizePlaceholderImages(body);
       this.proxyExternalPreviewImages(body);
+      // Apply last: assigning body.innerHTML above rebuilds its descendants and
+      // would otherwise silently delete a watermark inserted at the start.
+      this.applyWatermark(body);
       return { doc, body };
     },
 
