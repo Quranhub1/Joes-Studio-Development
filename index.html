@@ -9401,24 +9401,52 @@
                 App.paper.drawGrid();
                 App.ui.hideModal("welcomeModal");
                 App.ui.updateLayerList();
-                App.canvas.getObjects().forEach((o) => {
-                  if (!o.isGrid) {
-                    o.set({
-                      selectable: true,
-                      evented: true,
-                    });
-                  }
 
-                  if (["i-text", "textbox", "text"].includes(o.type)) {
-                    const isDynamic = o.isDynamicDate || o.isDynamicPageNum || o.isSerialNumber || (o.dataBinding && o.dataBinding.type === "variable") || o.syncMode === "ref";
-                    o.set("editable", !isDynamic);
-                  }
+                // Templates must open as editable designs, not as locked artwork.
+                // Unlock nested objects too, since many imported designs store their
+                // text, logos and decorations inside Fabric groups.
+                const makeTemplateObjectsEditable = (objects) => {
+                  (objects || []).forEach((o) => {
+                    if (!o || typeof o !== "object") return;
 
-                  if (o.isDynamicDate && o.dateConfig) {
-                    o.rawContent = Utils.formatDate(new Date(), null, o.dateConfig);
-                    App.content.render(o);
-                  }
-                });
+                    if (!o.isGrid) {
+                      o.set({
+                        selectable: true,
+                        evented: true,
+                        lockMovementX: false,
+                        lockMovementY: false,
+                        lockScalingX: false,
+                        lockScalingY: false,
+                        lockRotation: false,
+                      });
+
+                      if (o.type === "group") {
+                        // Permit Fabric to hit-test group members individually.
+                        o.set({ subTargetCheck: true, interactive: true });
+                      }
+
+                      if (["i-text", "textbox", "text"].includes(o.type)) {
+                        const isDynamic = o.isDynamicDate || o.isDynamicPageNum || o.isSerialNumber ||
+                          (o.dataBinding && o.dataBinding.type === "variable") || o.syncMode === "ref";
+                        o.set("editable", !isDynamic);
+                      }
+                    }
+
+                    if (o.isDynamicDate && o.dateConfig) {
+                      o.rawContent = Utils.formatDate(new Date(), null, o.dateConfig);
+                      App.content.render(o);
+                    }
+
+                    if (o._objects && Array.isArray(o._objects)) {
+                      makeTemplateObjectsEditable(o._objects);
+                    } else if (Array.isArray(o.objects)) {
+                      makeTemplateObjectsEditable(o.objects);
+                    }
+                  });
+                };
+                makeTemplateObjectsEditable(App.canvas.getObjects());
+                App.canvas.requestRenderAll();
+                App.ui.updateLayerList();
                 App.history.reset();
                 App.state.hasUnsavedChanges = false;
                 App.ui.hideLoading();
