@@ -103,16 +103,47 @@
       root.setAttribute("data-student-batch-background", color);
     },
 
+    photoCacheKey(dataUrl) {
+      // Keep cache keys compact: embedding a base64 photo in a Map key retains a
+      // large string for every cached setting/photo combination.
+      let a = 0x811c9dc5;
+      let b = 0x9e3779b9;
+      for (let i = 0; i < dataUrl.length; i++) {
+        const code = dataUrl.charCodeAt(i);
+        a = Math.imul(a ^ code, 0x01000193);
+        b = Math.imul(b ^ (code + i), 0x85ebca6b);
+      }
+      return dataUrl.length + ":" + (a >>> 0).toString(36) + ":" +
+        (b >>> 0).toString(36) + "|" + JSON.stringify(this.state.photoEnhancement);
+    },
+
     async enhanceStudentPhoto(dataUrl) {
       if (!dataUrl || (!this.state.photoEnhancement.enabled && !this.state.photoEnhancement.whiteBackground)) return dataUrl;
-      const key=dataUrl+"|"+JSON.stringify(this.state.photoEnhancement);
-      const cached=this.state.enhancedPhotoCache.get(key); if(cached)return cached;
+      const key = this.photoCacheKey(dataUrl);
+      const cache = this.state.enhancedPhotoCache;
+      const cached = cache.get(key);
+      if (cached) {
+        // Refresh insertion order so frequently used preview photos remain cached.
+        cache.delete(key);
+        cache.set(key, cached);
+        return cached;
+      }
       try {
-        if(window.JoesStudentPhotoEnhancer?.process){
-          const out=await window.JoesStudentPhotoEnhancer.process(dataUrl,{auto:this.state.photoEnhancement.enabled,strength:this.state.photoEnhancement.strength,whiteBackground:this.state.photoEnhancement.whiteBackground,manual:this.state.photoEnhancement.manual});
-          this.state.enhancedPhotoCache.set(key,out); return out;
+        if (window.JoesStudentPhotoEnhancer?.process) {
+          const out = await window.JoesStudentPhotoEnhancer.process(dataUrl, {
+            auto: this.state.photoEnhancement.enabled,
+            strength: this.state.photoEnhancement.strength,
+            whiteBackground: this.state.photoEnhancement.whiteBackground,
+            manual: this.state.photoEnhancement.manual
+          });
+          cache.set(key, out);
+          // Bound memory for large student batches; Map preserves LRU order.
+          while (cache.size > 24) cache.delete(cache.keys().next().value);
+          return out;
         }
-      } catch(e){console.warn("Photo enhancement failed; using original.",e);}
+      } catch (e) {
+        console.warn("Photo enhancement failed; using original.", e);
+      }
       return dataUrl;
     },
     setPhotoEnhancement(options={}) {
@@ -159,7 +190,7 @@
       this.state.photoEnhancement.manual[key] = Math.min(range[1], Math.max(range[0], numeric));
       this.state.enhancedPhotoCache.clear();
       this.syncPhotoManualControls();
-      this.previewBatch();
+      this.schedulePhotoPreview();
     },
     resetPhotoManual() {
       this.state.photoEnhancement.manual = {
@@ -169,7 +200,16 @@
       };
       this.state.enhancedPhotoCache.clear();
       this.syncPhotoManualControls();
-      this.previewBatch();
+      this.schedulePhotoPreview();
+    },
+    schedulePhotoPreview() {
+      if (this._photoPreviewTimer) clearTimeout(this._photoPreviewTimer);
+      // Invalidate any preview already rendering while the user drags a slider.
+      this._previewGeneration = (this._previewGeneration || 0) + 1;
+      this._photoPreviewTimer = setTimeout(() => {
+        this._photoPreviewTimer = null;
+        this.previewBatch();
+      }, 180);
     },
     syncPhotoManualControls() {
       const m = this.state.photoEnhancement.manual;
@@ -1642,20 +1682,26 @@
     },
 
     async previewBatch() {
+      // Every refresh supersedes earlier work, including renders already awaiting
+      // image enhancement. This prevents older slider states overwriting newer previews.
+      const generation = (this._previewGeneration = (this._previewGeneration || 0) + 1);
       const host = document.getElementById("studentBatchPrintPreview");
       if (!host || this.state.templateMode !== "html" || !this.state.htmlText) {
+        if (this._previewTimer) clearTimeout(this._previewTimer);
         if (host) host.innerHTML = "";
         return;
       }
 
       if (this._previewTimer) clearTimeout(this._previewTimer);
       this._previewTimer = setTimeout(async () => {
+        if (generation !== this._previewGeneration) return;
         try {
           host.innerHTML = '<div class="flex items-center justify-center min-h-[220px] text-sm text-slate-400">Generating live print preview…</div>';
 
           const layout = this.layout();
           const previewCount = Math.max(1, Math.min(layout.perPage, this.previewCardCount()));
           if (!this.state.rows.length) {
+            if (generation !== this._previewGeneration) return;
             this.renderTemplatePreview();
             const status = document.getElementById("studentBatchPreviewStatus");
             if (status) status.textContent = "Template preview • import Excel data to populate cards";
@@ -1674,8 +1720,10 @@
           const builtCards = [];
           for (const rowData of previewRows) {
             const result = await this.buildHtmlCard(rowData);
+            if (generation !== this._previewGeneration) return;
             builtCards.push(result.body);
           }
+          if (generation !== this._previewGeneration) return;
 
           const maxPageWidth = Math.min(900, Math.max(420, host.clientWidth - 24));
           const pageScale = maxPageWidth / layout.sheet.w;
@@ -1758,6 +1806,7 @@
             " Excel record" + (previewRows.length === 1 ? "" : "s") + " • " +
             layout.cols + " × " + layout.rows + " • " + this.state.orientation;
         } catch (e) {
+          if (generation !== this._previewGeneration) return;
           console.error("Student batch preview failed", e);
           host.innerHTML =
             '<div class="flex flex-col items-center justify-center min-h-[220px] text-sm text-red-500 text-center p-4">' +
