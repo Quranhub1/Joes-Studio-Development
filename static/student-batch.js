@@ -1353,11 +1353,20 @@
     },
 
     async buildHtmlCard(row, options = {}) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(this.state.htmlText, "text/html");
-      doc.querySelectorAll("script, iframe, object, embed").forEach(el => el.remove());
-
-      const body = this.findHtmlCardRoot(doc);
+      // The selected template root is parsed and sanitised at load time. Clone
+      // that cached DOM instead of reparsing the full template for every row.
+      let doc;
+      let body;
+      if (this.state.htmlRoot) {
+        body = this.state.htmlRoot.cloneNode(true);
+        doc = body.ownerDocument || document;
+      } else {
+        const parser = new DOMParser();
+        doc = parser.parseFromString(this.state.htmlText, "text/html");
+        doc.querySelectorAll("script, iframe, object, embed").forEach(el => el.remove());
+        body = this.findHtmlCardRoot(doc);
+      }
+      if (!body) throw new Error("The selected HTML template has no card content.");
       this.applyCardBackground(body);
       this.applyWatermark(body);
 
