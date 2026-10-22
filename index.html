@@ -9424,6 +9424,15 @@
                 App.ui.hideLoading();
                 Utils.toast("Project loaded successfully");
               };
+              // Legacy hand-authored Paper files may omit Fabric's serialized IText styles array.
+              // Fabric 5 stylesToArray expects a styles object; an absent value can crash save/export.
+              if (data.canvasData && Array.isArray(data.canvasData.objects)) {
+                data.canvasData.objects.forEach((object) => {
+                  if (!object || !["i-text", "textbox", "text"].includes(object.type)) return;
+                  if (object.styles === undefined || object.styles === null) object.styles = [];
+                  if (object.textBaseline === "alphabetical") object.textBaseline = "alphabetic";
+                });
+              }
               data.canvasData ? App.canvas.loadFromJSON(data.canvasData, done) : done();
             } catch (e) {
               console.error(e);
