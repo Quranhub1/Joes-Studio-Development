@@ -4,13 +4,18 @@
 
 The templates in `templates/` with `.paper` or JSON project data are original Joes Studio starter designs built from editable canvas objects. They are not downloaded copies of third-party Canva, Adobe or Microsoft templates. Local SVG files under `templates/previews/` are purpose-made gallery previews. The starter designs use placeholder text so the institution name, recipient, course, reference, date and signature information can be replaced in Joes Studio.
 
-Current categories: Certificates; Student IDs & Badges; Official Documents; Logos & Branding.
+Current categories: Start Here; Certificates; Student IDs & Badges; Official Documents; Logos & Branding.
 
 ## External template inspiration and template-making tools
 
-- Canva certificate templates: https://www.canva.com/certificates/templates/
+- Canva certificates: https://www.canva.com/certificates/templates/
+- Canva ID cards and badges: https://www.canva.com/id-cards/templates/
+- Canva letterheads: https://www.canva.com/letterheads/templates/
 - Microsoft Create certificate maker: https://powerpoint.cloud.microsoft/create/en/certificate-maker/
-- Adobe Express certificate templates: https://www.adobe.com/express/templates/certificate
+- Adobe Express certificates: https://www.adobe.com/express/templates/certificate
+- Adobe Express employee ID cards: https://www.adobe.com/express/templates/id-card/employee
+- Adobe Express letterheads: https://www.adobe.com/express/templates/letterhead
+- Adobe Express logo templates: https://www.adobe.com/express/templates/logo
 - SketchValley free template library: https://sketchvalley.com/free-templates/
 
 These links open external websites. Joes Studio does not copy or re-host their designs in this repository; the destination site's license, attribution, and commercial-use terms apply to anything downloaded there.
