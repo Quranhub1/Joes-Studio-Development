@@ -32,3 +32,13 @@ Run these checks in a browser against the development build before a production 
 - [ ] Disconnect the network and confirm local templates and local image uploads still work; expect online organization-logo downloads to need internet unless previously embedded or uploaded locally.
 
 Record browser/version, template name, failures, screenshots, and the exported PDF for any issue. Syntax and JSON checks are useful, but do not replace visual browser validation or print testing.
+
+
+## Examination card templates
+
+- [ ] Confirm the Examination Cards category appears and all three examination-card cards load the local SVG preview.
+- [ ] Open the KSHS teal and white cards; verify the label is 130 × 60 mm, landscape, with four rows per A4 page and no online font requests.
+- [ ] Open the generic institution card; change the institution name and footer and confirm both remain editable.
+- [ ] Verify student name, registration number, sex, sitting and course fields, photo placeholder, note and issuer line fit inside the card.
+- [ ] Insert an authorised local KSHS badge from Logos & Branding; save/reopen the paper and check that the image is embedded.
+- [ ] Export/print to PDF and measure one physical card; confirm no text or border is clipped at 100% scale.
