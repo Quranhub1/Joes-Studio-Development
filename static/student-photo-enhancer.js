@@ -23,25 +23,25 @@
         let result;
         segmenter.segment(image,value=>{result=value;});
         const mask=result?.categoryMask;
-        if(!mask)return this.mask(fallbackData,w,h);
-        const values=mask.getAsUint8Array();
-        const mw=mask.width,mh=mask.height;
+        const confidence=result?.confidenceMasks?.[1];
+        const soft=confidence?.getAsFloat32Array?.();
+        const values=soft||mask?.getAsUint8Array?.();
+        const mw=soft?confidence.width:mask?.width,mh=soft?confidence.height:mask?.height;
         if(!values||!mw||!mh||values.length<mw*mh)return this.mask(fallbackData,w,h);
-        // MediaPipe's selfie model uses 0=background and 1=person.
-        // Our processing pipeline uses 1=background, so invert its person mask.
         const out=new Float32Array(w*h);
+        let coverage=0;
         for(let y=0;y<h;y++){
           const sy=(y/(h-1||1))*(mh-1),y0=Math.floor(sy),y1=Math.min(mh-1,y0+1),fy=sy-y0;
           for(let x=0;x<w;x++){
             const sx=(x/(w-1||1))*(mw-1),x0=Math.floor(sx),x1=Math.min(mw-1,x0+1),fx=sx-x0;
-            const p00=values[y0*mw+x0]>=1?1:0,p10=values[y0*mw+x1]>=1?1:0;
-            const p01=values[y1*mw+x0]>=1?1:0,p11=values[y1*mw+x1]>=1?1:0;
-            const person=(p00*(1-fx)+p10*fx)*(1-fy)+(p01*(1-fx)+p11*fx)*fy;
-            // Soft edge transition avoids a hard cut around hair and shoulders.
-            const alpha=Math.max(0,Math.min(1,(person-.12)/.76));
-            out[y*w+x]=1-alpha;
+            const person=(values[y0*mw+x0]*(1-fx)+values[y0*mw+x1]*fx)*(1-fy)+(values[y1*mw+x0]*(1-fx)+values[y1*mw+x1]*fx)*fy;
+            const p=soft?Math.max(0,Math.min(1,person)):(person>=1?1:0);
+            const t=Math.max(0,Math.min(1,(p-.18)/.64)),alpha=t*t*(3-2*t);
+            out[y*w+x]=1-alpha;coverage+=alpha;
           }
         }
+        coverage/=w*h;
+        if(coverage<.02||coverage>.995)return this.mask(fallbackData,w,h);
         return out;
       }catch(error){
         console.warn("AI portrait segmentation unavailable; using colour-based fallback.",error);
