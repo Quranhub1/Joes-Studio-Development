@@ -9967,7 +9967,7 @@
             const count = document.getElementById("templateGalleryCount");
             if (!grid || !categoryBar) return;
 
-            const categoryOrder = ["All", "Certificates", "Student IDs & Badges", "Official Documents", "Logos & Branding"];
+            const categoryOrder = ["All", "Start Here", "Certificates", "Student IDs & Badges", "Official Documents", "Logos & Branding"];
             const available = new Set(this.data.map((item) => item.category || "Official Documents"));
             const categories = categoryOrder.filter((name) => name === "All" || available.has(name));
             categoryBar.innerHTML = "";
