@@ -3,7 +3,9 @@
   const E={
     async process(src,opt={}){
       const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src;});
-      const max=Math.max(1200,Math.min(2400,Number(opt.maxSide)||2400));
+      // Preview and export can request different resolutions to avoid doing
+      // full print-quality pixel work every time a slider moves.
+      const max=Math.max(480,Math.min(2400,Number(opt.maxSide)||2400));
       const scale=Math.min(1,max/Math.max(im.naturalWidth||im.width,im.naturalHeight||im.height));
       const w=Math.max(1,Math.round((im.naturalWidth||im.width)*scale)),h=Math.max(1,Math.round((im.naturalHeight||im.height)*scale));
       const c=document.createElement("canvas");c.width=w;c.height=h;
@@ -71,7 +73,10 @@
       if(cropScale!==1||posX!==0||posY!==0) this.reframe(c,w,h,cropScale,posX,posY);
       // JPEG discards alpha. Use PNG whenever source transparency or manual
       // opacity requires it; keep compact JPEG output for fully opaque photos.
-      return c.toDataURL(transparentOutput ? "image/png" : "image/jpeg", .85);
+      const jpegQuality = Number.isFinite(Number(opt.jpegQuality))
+        ? clamp(Number(opt.jpegQuality), 0.5, 0.95)
+        : (max <= 1000 ? 0.78 : 0.9);
+      return c.toDataURL(transparentOutput ? "image/png" : "image/jpeg", jpegQuality);
     },
     calculate(s,mode){
       const natural=mode==="natural",strong=mode==="strong";
