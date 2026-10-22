@@ -9934,71 +9934,327 @@
         
         templates: {
           data: [],
+          activeCategory: "All",
+          searchTerm: "",
+
           init: async function () {
             try {
-              this.data = await (await fetch("./templates/templates.json")).json();
-              const grid = document.getElementById("templateGrid");
-              if (grid) {
-                grid.innerHTML = "";
-                this.data.forEach((t) => {
-                  const d = document.createElement("div");
-                  d.className = "template-card bg-white p-3 rounded-xl border border-gray-200 cursor-pointer transition flex flex-col gap-2";
-                  d.innerHTML = `<div class="h-36 bg-gray-50 rounded-lg overflow-hidden flex items-center justify-center border border-gray-100">${
-                    t.thumbnail ? `<img src="${t.thumbnail}" class="h-full w-auto object-contain">` : '<i class="ph ph-file-plus text-3xl text-gray-300"></i>'
-                  }</div><div><h3 class="font-bold text-slate-700 text-sm">${t.name}</h3><p class="text-slate-400 text-xs">${t.desc || "No description"}</p></div>`;
-                  d.onclick = () => this.load(t.id);
-                  grid.appendChild(d);
+              const response = await fetch("./templates/templates.json", { cache: "no-cache" });
+              if (!response.ok) throw new Error("Template catalogue HTTP " + response.status);
+              const items = await response.json();
+              if (!Array.isArray(items)) throw new Error("Template catalogue has an invalid format.");
+              this.data = items;
+              const search = document.getElementById("templateSearch");
+              if (search && !search.dataset.bound) {
+                search.dataset.bound = "true";
+                search.addEventListener("input", (event) => {
+                  this.searchTerm = String(event.target.value || "").trim().toLowerCase();
+                  this.renderGallery();
                 });
               }
-            } catch {
+              this.renderGallery();
+            } catch (error) {
+              console.error("Template catalogue loading failed", error);
+              const grid = document.getElementById("templateGrid");
+              if (grid) grid.innerHTML = '<p class="col-span-full p-6 text-sm text-red-600">The template library could not be loaded. Check the local templates folder and reload.</p>';
               Utils.toast("Template loading failed", "error");
             }
           },
 
-          load: async function (id) {
-            if (id === "blank_a4" || !this.data.find((i) => i.id === id)?.url) {
-              App.dataSource.close();
-              App.ui.showLoading("Creating...");
-              setTimeout(() => {
-                App.paper.changeType("blank", true);
-                const defaults = {
-                  paperSize: "A4",
-                  paperOrientation: false,
-                  marginTop: 25,
-                  marginBottom: 25,
-                  marginLeft: 20,
-                  marginRight: 20,
-                  paperBgColor: "#ffffff",
-                };
-                Object.entries(defaults).forEach(([k, v]) => {
-                  const el = document.getElementById(k);
-                  if (el) el.type === "checkbox" ? (el.checked = v) : (el.value = v);
-                });
-                App.paper.updateSize();
-                App.canvas.clear();
-                App.paper.drawPaper();
-                App.ui.hideModal("welcomeModal");
-                App.ui.updateLayerList();
-                App.history.reset();
-                App.ui.hideLoading();
-              }, 200);
+          renderGallery: function () {
+            const grid = document.getElementById("templateGrid");
+            const categoryBar = document.getElementById("templateCategoryBar");
+            const count = document.getElementById("templateGalleryCount");
+            if (!grid || !categoryBar) return;
+
+            const categoryOrder = ["All", "Certificates", "Student IDs & Badges", "Official Documents", "Logos & Branding"];
+            const available = new Set(this.data.map((item) => item.category || "Official Documents"));
+            const categories = categoryOrder.filter((name) => name === "All" || available.has(name));
+            categoryBar.innerHTML = "";
+            categories.forEach((category) => {
+              const button = document.createElement("button");
+              button.type = "button";
+              button.textContent = category;
+              const selected = category === this.activeCategory;
+              button.className = "px-3 py-1.5 rounded-full border text-xs font-semibold transition " +
+                (selected
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:text-slate-900");
+              button.setAttribute("aria-pressed", selected ? "true" : "false");
+              button.addEventListener("click", () => {
+                this.activeCategory = category;
+                this.renderGallery();
+              });
+              categoryBar.appendChild(button);
+            });
+
+            const query = this.searchTerm;
+            const filtered = this.data.filter((item) => {
+              if (this.activeCategory !== "All" && item.category !== this.activeCategory) return false;
+              if (!query) return true;
+              const searchText = [
+                item.name, item.desc, item.category, item.sourceName,
+                item.sourceUrl, item.style, ...(item.tags || [])
+              ].join(" ").toLowerCase();
+              return searchText.includes(query);
+            });
+
+            if (count) count.textContent = filtered.length + " items • " + this.data.length + " in library";
+            grid.innerHTML = "";
+            if (!filtered.length) {
+              const empty = document.createElement("div");
+              empty.className = "col-span-full rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center";
+              empty.innerHTML = '<i class="ph ph-magnifying-glass text-3xl text-slate-300"></i>';
+              const title = document.createElement("p");
+              title.className = "mt-2 text-sm font-semibold text-slate-700";
+              title.textContent = "No matching templates";
+              const help = document.createElement("p");
+              help.className = "mt-1 text-xs text-slate-500";
+              help.textContent = "Try another search or choose All.";
+              empty.append(title, help);
+              grid.appendChild(empty);
               return;
             }
 
-            const t = this.data.find((i) => i.id === id);
-            if (t?.url) {
-              App.ui.showLoading("Downloading template...");
-              try {
-                await App.dataSource.close();
-                App.io.loadProjectData(await (await fetch(t.url)).json());
-              } catch {
-                Utils.toast("Loading failed", "error");
-                App.ui.hideLoading();
+            filtered.forEach((item) => {
+              const card = document.createElement("div");
+              card.className = "template-card group bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md cursor-pointer transition flex flex-col gap-2 p-2.5";
+              card.tabIndex = 0;
+              card.setAttribute("role", "button");
+              card.setAttribute("aria-label", (item.type === "logo-asset" ? "Insert " : item.type === "logo-upload" ? "Add " : "Open ") + item.name);
+              card.addEventListener("click", () => this.load(item.id));
+              card.addEventListener("keydown", (event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  this.load(item.id);
+                }
+              });
+
+              const preview = document.createElement("div");
+              preview.className = "h-32 sm:h-36 rounded-lg overflow-hidden flex items-center justify-center bg-slate-50 border border-slate-100";
+              const image = document.createElement("img");
+              image.src = item.thumbnail || "./templates/previews/letterhead.svg";
+              image.alt = item.name + " preview";
+              image.loading = "lazy";
+              image.decoding = "async";
+              image.className = "w-full h-full object-contain";
+              image.onerror = () => {
+                image.onerror = null;
+                image.src = item.type === "logo-asset"
+                  ? "./templates/previews/brand-asset.svg"
+                  : "./templates/previews/letterhead.svg";
+              };
+              preview.appendChild(image);
+
+              const type = document.createElement("span");
+              type.className = "self-start rounded-full px-2 py-0.5 bg-slate-100 text-slate-600 text-[9px] font-bold uppercase tracking-wide";
+              type.textContent = item.type === "logo-asset" ? "Official logo asset" :
+                item.type === "logo-upload" ? "Your own logo" :
+                item.type === "blank" ? "Blank canvas" : (item.category || "Template");
+              preview.appendChild(type);
+              type.style.position = "relative";
+              type.style.marginTop = "-1.65rem";
+              type.style.marginLeft = "0.5rem";
+              type.style.alignSelf = "flex-start";
+
+              const title = document.createElement("h3");
+              title.className = "text-sm font-bold text-slate-800 leading-snug";
+              title.textContent = item.name;
+              const description = document.createElement("p");
+              description.className = "text-[11px] text-slate-500 leading-4";
+              description.textContent = item.desc || "Editable Joes Studio design.";
+              const action = document.createElement("div");
+              action.className = "mt-auto pt-1 text-[11px] font-semibold text-blue-700";
+              action.textContent = item.type === "logo-asset" ? "Insert into current canvas →" :
+                item.type === "logo-upload" ? "Choose an image →" :
+                item.type === "blank" ? "Start designing →" : "Open editable template →";
+
+              card.append(preview, title, description, action);
+              if (item.sourceName && item.sourceUrl) {
+                const source = document.createElement("a");
+                source.href = item.sourceUrl;
+                source.target = "_blank";
+                source.rel = "noopener noreferrer";
+                source.className = "text-[10px] text-slate-400 hover:text-blue-700 hover:underline";
+                source.textContent = "Source: " + item.sourceName;
+                source.addEventListener("click", (event) => event.stopPropagation());
+                card.appendChild(source);
               }
+              grid.appendChild(card);
+            });
+          },
+
+          load: async function (id) {
+            const item = this.data.find((entry) => entry.id === id);
+            if (!item) {
+              Utils.toast("That template is not available in the catalogue.", "error");
+              return;
+            }
+            if (item.type === "logo-asset") {
+              await this.insertLogoAsset(item);
+              return;
+            }
+            if (item.type === "logo-upload") {
+              this.uploadLogoAsset();
+              return;
+            }
+            if (item.type === "blank" || !item.url) {
+              await this.createBlankPage();
+              return;
+            }
+
+            App.ui.showLoading("Opening " + item.name + "...");
+            try {
+              await App.dataSource.close();
+              const response = await fetch(item.url, { cache: "no-cache" });
+              if (!response.ok) throw new Error("Template file HTTP " + response.status);
+              const project = await response.json();
+              await App.io.loadProjectData(project);
+              App.ui.hideModal("welcomeModal");
+              App.ui.updateLayerList();
+              Utils.toast(item.name + " loaded");
+            } catch (error) {
+              console.error("Template loading failed", item.url, error);
+              Utils.toast("Could not open " + item.name + ". " + (error.message || ""), "error");
+            } finally {
+              App.ui.hideLoading();
             }
           },
-        },
 
+          createBlankPage: async function () {
+            App.ui.showLoading("Creating blank A4 canvas...");
+            try {
+              await App.dataSource.close();
+              App.paper.changeType("blank", true);
+              const defaults = {
+                paperSize: "A4",
+                paperOrientation: false,
+                marginTop: 25,
+                marginBottom: 25,
+                marginLeft: 20,
+                marginRight: 20,
+                paperBgColor: "#ffffff"
+              };
+              Object.entries(defaults).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element) element.type === "checkbox" ? (element.checked = value) : (element.value = value);
+              });
+              App.paper.updateSize();
+              App.canvas.clear();
+              App.paper.drawPaper();
+              App.ui.hideModal("welcomeModal");
+              App.ui.updateLayerList();
+              App.ui.updateInspector();
+              App.history.reset();
+            } catch (error) {
+              console.error("Could not create blank page", error);
+              Utils.toast("Could not create a blank page.", "error");
+            } finally {
+              App.ui.hideLoading();
+            }
+          },
+
+          uploadLogoAsset: function () {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/png,image/jpeg,image/webp,image/svg+xml";
+            input.addEventListener("change", () => {
+              const file = input.files && input.files[0];
+              if (!file) return;
+              if (!/^image\\/(?:png|jpeg|webp|svg\\+xml)$/i.test(file.type) &&
+                  !/\\.(?:png|jpe?g|webp|svg)$/i.test(file.name)) {
+                Utils.toast("Choose a PNG, JPG, WebP or SVG logo image.", "error");
+                return;
+              }
+              const reader = new FileReader();
+              reader.onload = () => {
+                this.insertLogoAsset({ name: file.name.replace(/\\.[^.]+$/, ""), src: "local-upload" }, reader.result);
+              };
+              reader.onerror = () => Utils.toast("The selected logo could not be read.", "error");
+              reader.readAsDataURL(file);
+            }, { once: true });
+            input.click();
+          },
+
+          fetchLogoAsDataUrl: async function (sourceUrl) {
+            const candidates = [
+              sourceUrl,
+              "https://images.weserv.nl/?url=" + encodeURIComponent(sourceUrl)
+            ];
+            let lastError = null;
+            for (const candidate of candidates) {
+              try {
+                const response = await fetch(candidate, {
+                  mode: "cors",
+                  credentials: "omit",
+                  cache: "force-cache"
+                });
+                if (!response.ok) throw new Error("Image request HTTP " + response.status);
+                const blob = await response.blob();
+                if (!blob.size || (blob.type && !blob.type.toLowerCase().startsWith("image/"))) {
+                  throw new Error("The source did not return a usable image.");
+                }
+                return await new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(reader.result);
+                  reader.onerror = () => reject(new Error("Could not read the downloaded logo."));
+                  reader.readAsDataURL(blob);
+                });
+              } catch (error) {
+                lastError = error;
+              }
+            }
+            throw new Error("Could not download the logo while online. Try again or choose Add Your Own Logo. " +
+              (lastError && lastError.message ? lastError.message : ""));
+          },
+
+          insertLogoAsset: async function (item, suppliedDataUrl) {
+            App.ui.showLoading("Preparing " + item.name + "...");
+            try {
+              const dataUrl = suppliedDataUrl || await this.fetchLogoAsDataUrl(item.src);
+              await new Promise((resolve, reject) => {
+                fabric.Image.fromURL(dataUrl, (image) => {
+                  try {
+                    if (!image || !image.width || !image.height) {
+                      reject(new Error("The image could not be decoded."));
+                      return;
+                    }
+                    const canvasW = Number(App.state.baseWidth) || 793;
+                    const canvasH = Number(App.state.baseHeight) || 1122;
+                    const scale = Math.min((canvasW * 0.34) / image.width, (canvasH * 0.2) / image.height, 1);
+                    image.scale(scale);
+                    image.set({
+                      left: canvasW / 2,
+                      top: canvasH * 0.14,
+                      originX: "center",
+                      originY: "center",
+                      selectable: true,
+                      evented: true,
+                      sourceName: item.name || "Uploaded logo"
+                    });
+                    App.canvas.add(image);
+                    App.canvas.setActiveObject(image);
+                    App.canvas.requestRenderAll();
+                    App.ui.updateLayerList();
+                    App.ui.updateInspector();
+                    App.history.saveState();
+                    App.state.hasUnsavedChanges = true;
+                    resolve();
+                  } catch (error) {
+                    reject(error);
+                  }
+                });
+              });
+              App.ui.hideModal("welcomeModal");
+              Utils.toast((item.name || "Logo") + " inserted. Drag it into position and resize as needed.");
+            } catch (error) {
+              console.error("Logo insertion failed", error);
+              Utils.toast(error.message || "Could not insert the logo.", "error");
+            } finally {
+              App.ui.hideLoading();
+            }
+          }
+        },
         ruler: {
           h: null,
           v: null,
