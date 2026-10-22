@@ -10100,20 +10100,23 @@
             }
 
             App.ui.showLoading("Opening " + item.name + "...");
+            let projectLoaderOwnsLoading = false;
             try {
               await App.dataSource.close();
               const response = await fetch(item.url, { cache: "no-cache" });
               if (!response.ok) throw new Error("Template file HTTP " + response.status);
               const project = await response.json();
-              await App.io.loadProjectData(project);
-              App.ui.hideModal("welcomeModal");
-              App.ui.updateLayerList();
-              Utils.toast(item.name + " loaded");
+              // loadProjectData completes asynchronously via Fabric's canvas-load callback.
+              // Let that callback close the welcome modal and hide the loading overlay only
+              // after the card/document objects have actually loaded.
+              projectLoaderOwnsLoading = true;
+              App.io.loadProjectData(project);
             } catch (error) {
               console.error("Template loading failed", item.url, error);
               Utils.toast("Could not open " + item.name + ". " + (error.message || ""), "error");
-            } finally {
               App.ui.hideLoading();
+            } finally {
+              if (!projectLoaderOwnsLoading) App.ui.hideLoading();
             }
           },
 
