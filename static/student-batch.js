@@ -17,6 +17,7 @@
       headers: [],
       mapping: {},
       photoFiles: new Map(),
+      photoFilesNormalized: new Map(),
       sheetSize: "A4",
       margin: 5,
       gapX: 3,
@@ -59,6 +60,8 @@
         },
       },
       enhancedPhotoCache: new Map(),
+      enhancedPhotoCacheBytes: 0,
+      enhancedPhotoCacheBudget: 64 * 1024 * 1024,
     },
 
     notify(msg, type = "info") {
@@ -103,9 +106,20 @@
       root.setAttribute("data-student-batch-background", color);
     },
 
-    photoCacheKey(dataUrl) {
-      // Keep cache keys compact: embedding a base64 photo in a Map key retains a
-      // large string for every cached setting/photo combination.
+    clearPhotoCache() {
+      this.state.enhancedPhotoCache.clear();
+      this.state.enhancedPhotoCacheBytes = 0;
+    },
+
+    hasManualPhotoAdjustments() {
+      const manual = this.state.photoEnhancement.manual || {};
+      const defaults = { cropScale: 100, opacity: 100 };
+      return Object.entries(manual).some(([key, value]) =>
+        Number(value) !== (Object.prototype.hasOwnProperty.call(defaults, key) ? defaults[key] : 0)
+      );
+    },
+
+    photoCacheKey(dataUrl, maxSide) {
       let a = 0x811c9dc5;
       let b = 0x9e3779b9;
       for (let i = 0; i < dataUrl.length; i++) {
@@ -114,31 +128,48 @@
         b = Math.imul(b ^ (code + i), 0x85ebca6b);
       }
       return dataUrl.length + ":" + (a >>> 0).toString(36) + ":" +
-        (b >>> 0).toString(36) + "|" + JSON.stringify(this.state.photoEnhancement);
+        (b >>> 0).toString(36) + "|" + maxSide + "|" +
+        JSON.stringify(this.state.photoEnhancement);
     },
 
-    async enhanceStudentPhoto(dataUrl) {
-      if (!dataUrl || (!this.state.photoEnhancement.enabled && !this.state.photoEnhancement.whiteBackground)) return dataUrl;
-      const key = this.photoCacheKey(dataUrl);
+    async enhanceStudentPhoto(dataUrl, options = {}) {
+      if (!dataUrl) return dataUrl;
+      const settings = this.state.photoEnhancement;
+      const isPreview = options.quality === "preview";
+      const maxSide = isPreview ? 900 : 2400;
+      if (!(settings.enabled || settings.whiteBackground || this.hasManualPhotoAdjustments())) return dataUrl;
+      if (!/^(?:data:image\/|blob:)/i.test(dataUrl)) return dataUrl;
+
+      const key = this.photoCacheKey(dataUrl, maxSide);
       const cache = this.state.enhancedPhotoCache;
       const cached = cache.get(key);
       if (cached) {
-        // Refresh insertion order so frequently used preview photos remain cached.
         cache.delete(key);
         cache.set(key, cached);
-        return cached;
+        return cached.value;
       }
       try {
         if (window.JoesStudentPhotoEnhancer?.process) {
           const out = await window.JoesStudentPhotoEnhancer.process(dataUrl, {
-            auto: this.state.photoEnhancement.enabled,
-            strength: this.state.photoEnhancement.strength,
-            whiteBackground: this.state.photoEnhancement.whiteBackground,
-            manual: this.state.photoEnhancement.manual
+            auto: settings.enabled,
+            strength: settings.strength,
+            whiteBackground: settings.whiteBackground,
+            manual: settings.manual,
+            maxSide,
+            jpegQuality: isPreview ? 0.76 : 0.9
           });
-          cache.set(key, out);
-          // Bound memory for large student batches; Map preserves LRU order.
-          while (cache.size > 24) cache.delete(cache.keys().next().value);
+          const bytes = out.length * 2;
+          const budget = this.state.enhancedPhotoCacheBudget;
+          if (bytes <= budget) {
+            cache.set(key, { value: out, bytes });
+            this.state.enhancedPhotoCacheBytes += bytes;
+            while (cache.size > 24 || this.state.enhancedPhotoCacheBytes > budget) {
+              const oldestKey = cache.keys().next().value;
+              const oldest = cache.get(oldestKey);
+              cache.delete(oldestKey);
+              this.state.enhancedPhotoCacheBytes = Math.max(0, this.state.enhancedPhotoCacheBytes - (oldest?.bytes || 0));
+            }
+          }
           return out;
         }
       } catch (e) {
@@ -146,11 +177,12 @@
       }
       return dataUrl;
     },
+
     setPhotoEnhancement(options={}) {
       if("enabled" in options)this.state.photoEnhancement.enabled=!!options.enabled;
       if("whiteBackground" in options)this.state.photoEnhancement.whiteBackground=!!options.whiteBackground;
       if(options.strength)this.state.photoEnhancement.strength=String(options.strength);
-      this.state.enhancedPhotoCache.clear(); this.syncPhotoEnhancementControls(); this.syncPhotoManualControls(); this.refresh();
+      this.clearPhotoCache(); this.syncPhotoEnhancementControls(); this.syncPhotoManualControls(); this.refresh();
     },
     syncPhotoEnhancementControls() {
       const a=document.getElementById("studentBatchAutoEnhance"),w=document.getElementById("studentBatchWhiteBackground"),s=document.getElementById("studentBatchEnhancementStrength");
@@ -188,7 +220,7 @@
       };
       const range = ranges[key] || [-100, 100];
       this.state.photoEnhancement.manual[key] = Math.min(range[1], Math.max(range[0], numeric));
-      this.state.enhancedPhotoCache.clear();
+      this.clearPhotoCache();
       this.syncPhotoManualControls();
       this.schedulePhotoPreview();
     },
@@ -198,7 +230,7 @@
         contrast: 0, saturation: 0, temperature: 0, sharpness: 0,
         faceLighting: 0, cropScale: 100, positionX: 0, positionY: 0, opacity: 100
       };
-      this.state.enhancedPhotoCache.clear();
+      this.clearPhotoCache();
       this.syncPhotoManualControls();
       this.schedulePhotoPreview();
     },
@@ -1086,9 +1118,14 @@
 
     async loadPhotos(files) {
       this.state.photoFiles.clear();
+      this.state.photoFilesNormalized.clear();
       for (const file of Array.from(files || [])) {
         this.state.photoFiles.set(file.name.toLowerCase(), file);
         this.state.photoFiles.set(file.name.replace(/\.[^.]+$/, "").toLowerCase(), file);
+        const normalizedName = this.normalize(file.name.replace(/\.[^.]+$/, ""));
+        if (normalizedName && !this.state.photoFilesNormalized.has(normalizedName)) {
+          this.state.photoFilesNormalized.set(normalizedName, file);
+        }
       }
       this.refresh();
       this.notify(Math.floor(this.state.photoFiles.size / 2) + " photo files indexed • Excel photo fields will be matched automatically");
@@ -1177,13 +1214,9 @@
       }
 
       if (!file) {
-        const target = this.normalize(stem);
-        for (const [key, candidate] of this.state.photoFiles.entries()) {
-          if (this.normalize(key.replace(/\.[^.]+$/, "")) === target) {
-            file = candidate;
-            break;
-          }
-        }
+        // Resolve punctuation/spacing variants in O(1), rather than scanning
+        // every file in the selected folder for each student row.
+        file = this.state.photoFilesNormalized.get(this.normalize(stem)) || null;
       }
 
       return file ? await this.fileToDataUrl(file) : (row?.__embeddedPhoto || "");
@@ -1270,7 +1303,7 @@
     },
 
 
-    async putImageIntoBoundElement(el, value, field, row) {
+    async putImageIntoBoundElement(el, value, field, row, options = {}) {
       const isBadge = this.isBadgeField(field);
       const isPhoto = this.isStudentPhotoField(field);
       if (!isBadge && !isPhoto) return false;
@@ -1284,7 +1317,8 @@
 
       if (!resolved) return false;
 
-      const src = this.imageSourceForTemplate(isPhoto ? await this.enhanceStudentPhoto(resolved) : resolved);
+      const processed = isPhoto ? await this.enhanceStudentPhoto(resolved, options) : resolved;
+      const src = this.imageSourceForTemplate(processed);
       if (!src) return false;
 
       if (el.tagName === "IMG") {
@@ -1318,12 +1352,21 @@
       return false;
     },
 
-    async buildHtmlCard(row) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(this.state.htmlText, "text/html");
-      doc.querySelectorAll("script, iframe, object, embed").forEach(el => el.remove());
-
-      const body = this.findHtmlCardRoot(doc);
+    async buildHtmlCard(row, options = {}) {
+      // The selected template root is parsed and sanitised at load time. Clone
+      // that cached DOM instead of reparsing the full template for every row.
+      let doc;
+      let body;
+      if (this.state.htmlRoot) {
+        body = this.state.htmlRoot.cloneNode(true);
+        doc = body.ownerDocument || document;
+      } else {
+        const parser = new DOMParser();
+        doc = parser.parseFromString(this.state.htmlText, "text/html");
+        doc.querySelectorAll("script, iframe, object, embed").forEach(el => el.remove());
+        body = this.findHtmlCardRoot(doc);
+      }
+      if (!body) throw new Error("The selected HTML template has no card content.");
       this.applyCardBackground(body);
       this.applyWatermark(body);
 
@@ -1357,7 +1400,9 @@
 
           const placeholder = body.querySelector(".photo-placeholder, #photo-placeholder, #out-photo-placeholder");
           if (photoData) {
-            img.setAttribute("src", this.imageSourceForTemplate(photoData));
+            // Apply enhancement to the common image-placeholder path as well.
+            const processedPhoto = await this.enhanceStudentPhoto(photoData, options);
+            img.setAttribute("src", this.imageSourceForTemplate(processedPhoto));
             img.style.display = "block";
             img.removeAttribute("alt");
             if (placeholder) placeholder.style.display = "none";
@@ -1386,12 +1431,12 @@
           const field = idMatch[1].replace(/[-_]+/g, " ");
           if (this.isBadgeField(field)) {
             if (this.state.badgeDataUrl) {
-              await this.putImageIntoBoundElement(el, this.state.badgeDataUrl, field, row);
+              await this.putImageIntoBoundElement(el, this.state.badgeDataUrl, field, row, options);
             }
           } else if (this.isStudentPhotoField(field)) {
             const photoVal = await this.resolvePhoto(this.resolveValue(row, field), row, field);
             if (photoVal) {
-              await this.putImageIntoBoundElement(el, photoVal, field, row);
+              await this.putImageIntoBoundElement(el, photoVal, field, row, options);
             }
           } else if (!/^in[-_]/i.test(el.id)) {
             const textVal = this.displayValue(row, field);
@@ -1403,7 +1448,7 @@
         if (bind) {
           const value = this.resolveValue(row, bind);
           if (this.isImageField(bind)) {
-            await this.putImageIntoBoundElement(el, value, bind, row);
+            await this.putImageIntoBoundElement(el, value, bind, row, options);
           } else {
             el.textContent = this.displayValue(row, bind);
           }
@@ -1719,7 +1764,7 @@
 
           const builtCards = [];
           for (const rowData of previewRows) {
-            const result = await this.buildHtmlCard(rowData);
+            const result = await this.buildHtmlCard(rowData, { quality: "preview" });
             if (generation !== this._previewGeneration) return;
             builtCards.push(result.body);
           }
@@ -2008,6 +2053,10 @@
           })));
         };
 
+        // Copies of the same student are adjacent. Build/export their source
+        // image once and clone the prepared DOM for subsequent copies.
+        let cachedBuiltRowIndex = -1;
+        let cachedBuilt = null;
         for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
           const page = printDoc.createElement("div");
           page.className = "student-batch-print-page";
@@ -2017,7 +2066,12 @@
 
           for (let cardNumber = startCard; cardNumber < endCard; cardNumber++) {
             const sourceRowIndex = Math.floor(cardNumber / copies);
-            const built = await this.buildHtmlCard(this.state.rows[sourceRowIndex]);
+            if (sourceRowIndex !== cachedBuiltRowIndex) {
+              cachedBuilt = await this.buildHtmlCard(this.state.rows[sourceRowIndex]);
+              await this.prepareExportImages(cachedBuilt.body);
+              cachedBuiltRowIndex = sourceRowIndex;
+            }
+            const built = cachedBuilt;
 
             const slot = cardNumber % layout.perPage;
             const col = slot % layout.cols;
@@ -2043,8 +2097,7 @@
               "scaleX(" + ((layout.card.w * 96 / 25.4) / nativeW) + ") " +
               "scaleY(" + ((layout.card.h * 96 / 25.4) / nativeH) + ")";
 
-            await this.prepareExportImages(built.body);
-                        const cardClone = built.body.cloneNode(true);
+            const cardClone = built.body.cloneNode(true);
             this.sanitizePlaceholderImages(cardClone);
             stage.appendChild(printDoc.importNode(cardClone, true));
             frame.appendChild(stage);
@@ -2115,11 +2168,14 @@
         let cardNumber = 0;
 
         for (let rowIndex = 0; rowIndex < this.state.rows.length; rowIndex++) {
-          for (let copy = 0; copy < copies; copy++) {
-            const canvas = this.state.templateMode === "html"
-              ? await this.renderHtmlCard(this.state.rows[rowIndex])
-              : await this.renderPaperCard(rowIndex);
+          // Render each student's card once regardless of the number of copies.
+          const canvas = this.state.templateMode === "html"
+            ? await this.renderHtmlCard(this.state.rows[rowIndex])
+            : await this.renderPaperCard(rowIndex);
+          const image = canvas.toDataURL("image/png", 1);
+          const imageAlias = "joes-student-row-" + rowIndex;
 
+          for (let copy = 0; copy < copies; copy++) {
             if (cardNumber > 0 && cardNumber % layout.perPage === 0) {
               pdf.addPage([layout.sheet.w, layout.sheet.h], layout.sheet.w > layout.sheet.h ? "l" : "p");
             }
@@ -2131,13 +2187,16 @@
             const cellY = Number(this.state.margin) + row * (layout.cellH + Number(this.state.gapY));
             const x = cellX + (layout.cellW - layout.card.w) / 2;
             const y = cellY + (layout.cellH - layout.card.h) / 2;
-            const image = canvas.toDataURL("image/png", 1);
-            pdf.addImage(image, "PNG", x, y, layout.card.w, layout.card.h, undefined, "FAST");
+            pdf.addImage(image, "PNG", x, y, layout.card.w, layout.card.h, imageAlias, "FAST");
             cardNumber++;
             if (cardNumber === 1 || cardNumber % Math.max(1, Math.floor(totalCards / 20)) === 0 || cardNumber === totalCards) {
               App.ui.showLoading("Generating card " + cardNumber + " of " + totalCards + "...");
             }
           }
+
+          // Release the working canvas after jsPDF has copied the pixel data.
+          canvas.width = 0;
+          canvas.height = 0;
         }
 
         const safeName = (this.state.templateName || "student_cards")

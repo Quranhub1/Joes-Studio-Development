@@ -32,3 +32,14 @@ Joes Studio includes a dedicated **Student Batch** workflow for generating many 
 7. Generate one print-ready PDF containing the complete student batch.
 
 The workflow keeps the template and student data in the browser session and only reads files explicitly selected by the user. Browser file access is permission-based rather than unrestricted filesystem access.
+
+
+## Performance and offline operation
+
+The student batch workflow uses a lower-resolution portrait pass for live previews and print-resolution processing for generated output. Manual photo adjustments are applied to embedded local images, and the enhanced-photo cache uses both an entry cap and an estimated-memory budget. Batch PDF generation renders each student card once even when multiple copies are requested; the HTML print path reuses the prepared card for adjacent copies.
+
+JSZip is bundled locally under `static/jszip.min.js` so ZIP-based workbook/template features do not require the JSZip CDN. The application can still contact external image-proxy services when a template contains remote images; local photos and bundled assets are preferred for offline use.
+
+## Performance regression checks
+
+Before a production release, follow [the performance regression checklist](tests/performance-regression-checklist.md). In particular, compare live-preview responsiveness with export quality, then generate and print batches with repeated copies. JavaScript syntax checks alone are not a substitute for a browser test or a visual portrait comparison.
