@@ -1301,7 +1301,7 @@
     },
 
 
-    async putImageIntoBoundElement(el, value, field, row) {
+    async putImageIntoBoundElement(el, value, field, row, options = {}) {
       const isBadge = this.isBadgeField(field);
       const isPhoto = this.isStudentPhotoField(field);
       if (!isBadge && !isPhoto) return false;
@@ -1315,7 +1315,8 @@
 
       if (!resolved) return false;
 
-      const src = this.imageSourceForTemplate(isPhoto ? await this.enhanceStudentPhoto(resolved) : resolved);
+      const processed = isPhoto ? await this.enhanceStudentPhoto(resolved, options) : resolved;
+      const src = this.imageSourceForTemplate(processed);
       if (!src) return false;
 
       if (el.tagName === "IMG") {
@@ -1349,7 +1350,7 @@
       return false;
     },
 
-    async buildHtmlCard(row) {
+    async buildHtmlCard(row, options = {}) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(this.state.htmlText, "text/html");
       doc.querySelectorAll("script, iframe, object, embed").forEach(el => el.remove());
@@ -1388,7 +1389,9 @@
 
           const placeholder = body.querySelector(".photo-placeholder, #photo-placeholder, #out-photo-placeholder");
           if (photoData) {
-            img.setAttribute("src", this.imageSourceForTemplate(photoData));
+            // Apply enhancement to the common image-placeholder path as well.
+            const processedPhoto = await this.enhanceStudentPhoto(photoData, options);
+            img.setAttribute("src", this.imageSourceForTemplate(processedPhoto));
             img.style.display = "block";
             img.removeAttribute("alt");
             if (placeholder) placeholder.style.display = "none";
@@ -1417,12 +1420,12 @@
           const field = idMatch[1].replace(/[-_]+/g, " ");
           if (this.isBadgeField(field)) {
             if (this.state.badgeDataUrl) {
-              await this.putImageIntoBoundElement(el, this.state.badgeDataUrl, field, row);
+              await this.putImageIntoBoundElement(el, this.state.badgeDataUrl, field, row, options);
             }
           } else if (this.isStudentPhotoField(field)) {
             const photoVal = await this.resolvePhoto(this.resolveValue(row, field), row, field);
             if (photoVal) {
-              await this.putImageIntoBoundElement(el, photoVal, field, row);
+              await this.putImageIntoBoundElement(el, photoVal, field, row, options);
             }
           } else if (!/^in[-_]/i.test(el.id)) {
             const textVal = this.displayValue(row, field);
@@ -1434,7 +1437,7 @@
         if (bind) {
           const value = this.resolveValue(row, bind);
           if (this.isImageField(bind)) {
-            await this.putImageIntoBoundElement(el, value, bind, row);
+            await this.putImageIntoBoundElement(el, value, bind, row, options);
           } else {
             el.textContent = this.displayValue(row, bind);
           }
@@ -1750,7 +1753,7 @@
 
           const builtCards = [];
           for (const rowData of previewRows) {
-            const result = await this.buildHtmlCard(rowData);
+            const result = await this.buildHtmlCard(rowData, { quality: "preview" });
             if (generation !== this._previewGeneration) return;
             builtCards.push(result.body);
           }
