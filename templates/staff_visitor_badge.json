@@ -67,7 +67,8 @@
         "fontWeight": "bold",
         "fill": "#991b1b",
         "originX": "center",
-        "originY": "top"
+        "originY": "top",
+        "styles": []
       },
       {
         "type": "i-text",
@@ -78,7 +79,8 @@
         "fontSize": 14,
         "fontFamily": "Arial",
         "fontWeight": "bold",
-        "fill": "#ffffff"
+        "fill": "#ffffff",
+        "styles": []
       },
       {
         "type": "i-text",
@@ -95,7 +97,8 @@
           "sheet": "Sheet1",
           "field": "Student Name"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -112,7 +115,8 @@
           "sheet": "Sheet1",
           "field": "Registration Number"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -128,7 +132,8 @@
           "sheet": "Sheet1",
           "field": "Course"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -144,7 +149,8 @@
           "sheet": "Sheet1",
           "field": "Year"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       },
       {
         "type": "i-text",
@@ -160,7 +166,8 @@
           "sheet": "Sheet1",
           "field": "Department"
         },
-        "editable": false
+        "editable": false,
+        "styles": []
       }
     ],
     "background": "#ffffff"
