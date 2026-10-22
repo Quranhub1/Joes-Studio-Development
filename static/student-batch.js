@@ -43,6 +43,7 @@
       photoEnhancement: {
         enabled: true,
         whiteBackground: true,
+        aiUpscale: true,
         strength: "strong",
         manual: {
           brightness: 0,
@@ -176,7 +177,8 @@
             whiteBackground: settings.whiteBackground,
             manual: settings.manual,
             maxSide,
-            jpegQuality: isPreview ? 0.76 : 0.9
+            jpegQuality: isPreview ? 0.76 : 0.9,
+            aiUpscale: !isPreview && settings.aiUpscale === true
           });
           const bytes = out.length * 2;
           const budget = this.state.enhancedPhotoCacheBudget;
@@ -201,6 +203,7 @@
     setPhotoEnhancement(options={}) {
       if("enabled" in options)this.state.photoEnhancement.enabled=!!options.enabled;
       if("whiteBackground" in options)this.state.photoEnhancement.whiteBackground=!!options.whiteBackground;
+      if("aiUpscale" in options)this.state.photoEnhancement.aiUpscale=!!options.aiUpscale;
       if(options.strength)this.state.photoEnhancement.strength=String(options.strength);
       this.clearPhotoCache(); this.syncPhotoEnhancementControls(); this.syncPhotoManualControls(); this.refresh();
     },
@@ -211,7 +214,7 @@
     ensurePhotoEnhancementControls() {
       const modal=document.getElementById("studentBatchModal"); if(!modal||modal.querySelector("#studentBatchPhotoEnhancementPanel"))return;
       const p=document.createElement("section");p.id="studentBatchPhotoEnhancementPanel";p.className="mx-4 mb-4 rounded-xl border border-slate-200 bg-white p-4";
-      p.innerHTML='<div class="mb-3"><div class="text-sm font-semibold text-slate-800">Automatic Photo Enhancement</div><div class="text-[10px] text-slate-500">Photos are processed locally in your browser.</div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-3"><label class="flex items-center gap-2 text-xs font-medium text-slate-700"><input id="studentBatchAutoEnhance" type="checkbox" class="h-4 w-4">Auto enhance</label><label class="flex items-center gap-2 text-xs font-medium text-slate-700"><input id="studentBatchWhiteBackground" type="checkbox" class="h-4 w-4">Whiten background</label><label class="text-[10px] font-medium text-slate-600">Strength<select id="studentBatchEnhancementStrength" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white"><option value="natural">Natural</option><option value="strong">Strong</option></select></label></div>';
+      p.innerHTML='<div class="mb-3"><div class="text-sm font-semibold text-slate-800">Automatic Photo Enhancement</div><div class="text-[10px] text-slate-500">Photos are processed locally in your browser.</div></div><div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3"><label class="flex items-center gap-2 text-xs font-medium text-slate-700"><input id="studentBatchAutoEnhance" type="checkbox" class="h-4 w-4">Auto enhance</label><label class="flex items-center gap-2 text-xs font-medium text-slate-700"><input id="studentBatchWhiteBackground" type="checkbox" class="h-4 w-4">Whiten background</label><label class="flex items-center gap-2 text-xs font-medium text-slate-700"><input id="studentBatchAIUpscale" type="checkbox" class="h-4 w-4">AI detail recovery (4× on export)</label><label class="text-[10px] font-medium text-slate-600">Strength<select id="studentBatchEnhancementStrength" class="mt-1 w-full border border-slate-200 rounded-lg px-3 py-2 text-xs bg-white"><option value="natural">Natural</option><option value="strong">Strong</option></select></label></div><p class="mt-2 text-[10px] text-slate-500">AI restoration runs on your device after its model loads. It is skipped for already-large photos to keep exports manageable.</p>';
       const a=modal.querySelector("#studentBatchWatermarkPanel")||modal.querySelector("#studentBatchFields"); if(a&&a.parentElement)a.parentElement.insertAdjacentElement("beforebegin",p);else modal.appendChild(p);
       document.getElementById("studentBatchAutoEnhance")?.addEventListener("change",e=>this.setPhotoEnhancement({enabled:e.target.checked}));
       document.getElementById("studentBatchWhiteBackground")?.addEventListener("change",e=>this.setPhotoEnhancement({whiteBackground:e.target.checked}));
