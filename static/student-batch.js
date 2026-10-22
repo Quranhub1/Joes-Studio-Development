@@ -17,6 +17,7 @@
       headers: [],
       mapping: {},
       photoFiles: new Map(),
+      photoFilesNormalized: new Map(),
       sheetSize: "A4",
       margin: 5,
       gapX: 3,
@@ -1117,9 +1118,14 @@
 
     async loadPhotos(files) {
       this.state.photoFiles.clear();
+      this.state.photoFilesNormalized.clear();
       for (const file of Array.from(files || [])) {
         this.state.photoFiles.set(file.name.toLowerCase(), file);
         this.state.photoFiles.set(file.name.replace(/\.[^.]+$/, "").toLowerCase(), file);
+        const normalizedName = this.normalize(file.name.replace(/\.[^.]+$/, ""));
+        if (normalizedName && !this.state.photoFilesNormalized.has(normalizedName)) {
+          this.state.photoFilesNormalized.set(normalizedName, file);
+        }
       }
       this.refresh();
       this.notify(Math.floor(this.state.photoFiles.size / 2) + " photo files indexed • Excel photo fields will be matched automatically");
@@ -1208,13 +1214,9 @@
       }
 
       if (!file) {
-        const target = this.normalize(stem);
-        for (const [key, candidate] of this.state.photoFiles.entries()) {
-          if (this.normalize(key.replace(/\.[^.]+$/, "")) === target) {
-            file = candidate;
-            break;
-          }
-        }
+        // Resolve punctuation/spacing variants in O(1), rather than scanning
+        // every file in the selected folder for each student row.
+        file = this.state.photoFilesNormalized.get(this.normalize(stem)) || null;
       }
 
       return file ? await this.fileToDataUrl(file) : (row?.__embeddedPhoto || "");
