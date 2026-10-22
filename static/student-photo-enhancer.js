@@ -27,6 +27,7 @@
         sharpness:clamp(auto.sharpness+(n(m.sharpness)/100)*.25,0,.18)
       };
       const out=new Uint8ClampedArray(srcData.data);
+      let transparentOutput = false;
       for(let p=0;p<w*h;p++){
         const i=p*4,fg=1-mask[p];
         let r=srcData.data[i],g=srcData.data[i+1],b=srcData.data[i+2];
@@ -54,7 +55,11 @@
           const a=mask[p];r=r*(1-a)+255*a;g=g*(1-a)+255*a;b=b*(1-a)+255*a;
         }
         out[i]=clamp(r,0,255);out[i+1]=clamp(g,0,255);out[i+2]=clamp(b,0,255);
-        out[i+3]=clamp(srcData.data[i+3]*(n(m.opacity,100)/100),0,255);
+        // White-background mode should flatten transparent source pixels onto
+        // the estimated background; otherwise preserve source alpha and opacity.
+        const baseAlpha = opt.whiteBackground === true ? 255 : srcData.data[i+3];
+        out[i+3]=clamp(baseAlpha*(n(m.opacity,100)/100),0,255);
+        if(out[i+3] < 255) transparentOutput = true;
       }
       ctx.putImageData(new ImageData(out,w,h),0,0);
       // The combined sharpness value already accounts for auto/manual mode.
@@ -64,7 +69,9 @@
       const posX=clamp(n(m.positionX,0),-35,35)/100;
       const posY=clamp(n(m.positionY,0),-35,35)/100;
       if(cropScale!==1||posX!==0||posY!==0) this.reframe(c,w,h,cropScale,posX,posY);
-      return c.toDataURL("image/jpeg",.85);
+      // JPEG discards alpha. Use PNG whenever source transparency or manual
+      // opacity requires it; keep compact JPEG output for fully opaque photos.
+      return c.toDataURL(transparentOutput ? "image/png" : "image/jpeg", .85);
     },
     calculate(s,mode){
       const natural=mode==="natural",strong=mode==="strong";
