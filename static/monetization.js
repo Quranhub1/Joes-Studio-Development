@@ -1,6 +1,6 @@
 (function(){
 "use strict";
-const AUTH="/api/auth",BILLING="/api/billing",ADMIN="kaigwaakram123@gmail.com";
+const API_BASE=String(window.JOES_STUDIO_API_BASE||"").trim().replace(/\\/+$/,"");const AUTH=API_BASE+"/api/auth",BILLING=API_BASE+"/api/billing",ADMIN="kaigwaakram123@gmail.com";
 const state={session:null,status:null,mode:"login",busy:false};
 try{state.session=JSON.parse(sessionStorage.getItem("joesStudioSession")||"null");}catch(_){}
 const make=(tag,attrs,text)=>{const n=document.createElement(tag);Object.entries(attrs||{}).forEach(([k,v])=>{if(k==="class")n.className=v;else n.setAttribute(k,v);});if(text!==undefined)n.textContent=text;return n;};
