@@ -4,7 +4,20 @@ const API_BASE=String(window.JOES_STUDIO_API_BASE||"").trim().replace(/\/+$/,"")
 const state={session:null,status:null,mode:"login",busy:false};
 try{state.session=JSON.parse(localStorage.getItem("joesStudioSession")||sessionStorage.getItem("joesStudioSession")||"null");}catch(_){}
 const make=(tag,attrs,text)=>{const n=document.createElement(tag);Object.entries(attrs||{}).forEach(([k,v])=>{if(k==="class")n.className=v;else n.setAttribute(k,v);});if(text!==undefined)n.textContent=text;return n;};
-function toast(m,t){if(window.Utils?.toast)window.Utils.toast(m,t);else alert(m);}
+function toast(m,t){
+ if(window.Utils?.toast){window.Utils.toast(m,t);return;}
+ let host=document.getElementById("jsmToastHost");
+ if(!host){host=document.createElement("div");host.id="jsmToastHost";host.setAttribute("aria-live","polite");host.setAttribute("aria-atomic","true");host.style.cssText="position:fixed;top:20px;right:20px;z-index:2147483647;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 32px));pointer-events:none;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";document.body.appendChild(host);}
+ const item=document.createElement("div"),isError=t==="error";
+ item.style.cssText="pointer-events:auto;display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:1px solid "+(isError?"#fecaca":"#bbf7d0")+";border-radius:14px;background:"+(isError?"#fff7f7":"#f0fdf4")+";color:"+(isError?"#991b1b":"#166534")+";box-shadow:0 12px 35px rgba(15,23,42,.16);opacity:0;transform:translateY(-8px);transition:opacity .2s ease,transform .2s ease";
+ const icon=document.createElement("span");icon.setAttribute("aria-hidden","true");icon.textContent=isError?"!":"✓";icon.style.cssText="flex:0 0 26px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;font-size:15px;background:"+(isError?"#fee2e2":"#dcfce7")+";color:"+(isError?"#b91c1c":"#15803d");
+ const body=document.createElement("div");body.style.cssText="flex:1;min-width:0";
+ const title=document.createElement("div");title.textContent=isError?"Something needs attention":"Joes Studio";title.style.cssText="font-size:13px;font-weight:750;line-height:1.35;margin:1px 0 3px";
+ const message=document.createElement("div");message.textContent=String(m??"");message.style.cssText="font-size:13px;line-height:1.45;overflow-wrap:anywhere";
+ const close=document.createElement("button");close.type="button";close.textContent="×";close.setAttribute("aria-label","Dismiss notification");close.style.cssText="border:0;background:transparent;color:inherit;opacity:.65;font-size:21px;line-height:1;padding:0 0 4px 6px;cursor:pointer";
+ body.append(title,message);item.append(icon,body,close);host.appendChild(item);
+ let timer;const remove=()=>{if(!item.isConnected)return;clearTimeout(timer);item.style.opacity="0";item.style.transform="translateY(-8px)";setTimeout(()=>item.remove(),220);};close.addEventListener("click",remove);requestAnimationFrame(()=>{item.style.opacity="1";item.style.transform="translateY(0)";});timer=setTimeout(remove,isError?6000:3200);
+}
 function money(n){return Number(n||0).toLocaleString("en-UG")+" UGX";}
 async function api(url,body,method){method=method||"POST";const headers={"Content-Type":"application/json"};if(state.session?.access_token)headers.Authorization="Bearer "+state.session.access_token;const r=await fetch(url+(method==="GET"?"?action=me":""),{method,headers,body:method==="GET"?undefined:JSON.stringify(body||{})});const d=await r.json().catch(()=>({error:"Unexpected server response."}));if(!r.ok)throw new Error(d.error||"Request failed.");return d;}
 function addField(parent,label,name,type,placeholder,auto){const l=make("label",{},label),i=make("input",{name,type,placeholder:placeholder||"",autocomplete:auto||"off",required:"required"});l.appendChild(i);parent.appendChild(l);return i;}
