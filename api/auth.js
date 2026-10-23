@@ -5,6 +5,13 @@ module.exports=async function(req,res){
  if(req.method!=="POST"&&!(req.method==="GET"&&action==="me"))return L.json(res,405,{error:"Method not allowed."});
  if(!L.configured())return L.json(res,503,{error:"Authentication is not configured yet. Add the Supabase environment variables to the development deployment."});
  try{
+  if(action==="reset_password"){
+   if(req.method!=="POST")return L.json(res,405,{error:"Method not allowed."});
+   const b=L.bodyOf(req),email=String(b.email||"").trim().toLowerCase();
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return L.json(res,400,{error:"Enter a valid email address."});
+   await L.supa("/auth/v1/recover",{service:false,method:"POST",body:{email}});
+   return L.json(res,200,{message:"If an account exists for that email, a password-reset link has been sent."});
+  }
   if(action==="signup"){
    if(req.method!=="POST")return L.json(res,405,{error:"Method not allowed."});
    const b=L.bodyOf(req),email=String(b.email||"").trim().toLowerCase(),phone=String(b.phone||"").trim(),password=String(b.password||""),fullName=String(b.full_name||"").trim();
