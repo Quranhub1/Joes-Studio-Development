@@ -8,7 +8,7 @@ module.exports=async function(req,res){
   if(action==="reset_password"){
    if(req.method!=="POST")return L.json(res,405,{error:"Method not allowed."});
    const b=L.bodyOf(req),email=String(b.email||"").trim().toLowerCase();
-   if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return L.json(res,400,{error:"Enter a valid email address."});
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return L.json(res,400,{error:"Enter a valid email address."});
    await L.supa("/auth/v1/recover",{service:false,method:"POST",body:{email}});
    return L.json(res,200,{message:"If an account exists for that email, a password-reset link has been sent."});
   }
