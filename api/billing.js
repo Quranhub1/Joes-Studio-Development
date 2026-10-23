@@ -1,5 +1,6 @@
 const L=require("./_lib");
 module.exports=async function(req,res){
+ if(L.handleCors(req,res))return;
  if(req.method!=="POST")return L.json(res,405,{error:"Method not allowed."});
  if(!L.configured())return L.json(res,503,{error:"Billing is not configured yet. Add the Supabase environment variables to the development deployment."});
  try{
