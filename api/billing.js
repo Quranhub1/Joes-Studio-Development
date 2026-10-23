@@ -40,7 +40,7 @@ module.exports=async function(req,res){
     L.db("subscriptions?select=*&limit=500")
    ]);
    const byUser=Object.fromEntries((subscriptions||[]).map(s=>[s.user_id,s]));
-   return L.json(res,200,{users:(profiles||[]).map(p=>({...p,subscription:byUser[p.id]||null}))});
+   return L.json(res,200,{users:(profiles||[]).map(p=>({...p,is_admin:String(p.email||"").toLowerCase()===L.ADMIN_EMAIL,subscription:byUser[p.id]||null}))});
   }
   if(action==="admin_set_subscription"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
