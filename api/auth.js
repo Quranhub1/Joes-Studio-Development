@@ -1,5 +1,6 @@
 const L=require("./_lib");
 module.exports=async function(req,res){
+ if(L.handleCors(req,res))return;
  const action=String(req.query?.action||L.bodyOf(req).action||"");
  if(req.method!=="POST"&&!(req.method==="GET"&&action==="me"))return L.json(res,405,{error:"Method not allowed."});
  if(!L.configured())return L.json(res,503,{error:"Authentication is not configured yet. Add the Supabase environment variables to the development deployment."});
