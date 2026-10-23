@@ -2,7 +2,7 @@ const SUPABASE_URL = String(process.env.SUPABASE_URL || "").replace(/\/$/, "");
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "";
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const ADMIN_EMAIL = "kaigwaakram123@gmail.com", PAYMENT_PHONE = "0749846848", PAYMENT_RECIPIENT = "KABALI MADINA";
-const WEEKLY_PRICE_UGX = Number(process.env.WEEKLY_PRICE_UGX || 0) || null;
+const WEEKLY_PRICE_UGX = Number(process.env.WEEKLY_PRICE_UGX || 10000) || null;
 const ALLOWED_ORIGINS = String(process.env.ALLOWED_ORIGINS || "").split(",").map(x=>x.trim()).filter(Boolean);
 function handleCors(req,res){
  const origin=String(req.headers.origin||"").replace(/\/$/,"");
