@@ -5,7 +5,7 @@ const ADMIN_EMAIL = "kaigwaakram123@gmail.com", PAYMENT_PHONE = "0749846848", PA
 const WEEKLY_PRICE_UGX = Number(process.env.WEEKLY_PRICE_UGX || 0) || null;
 const ALLOWED_ORIGINS = String(process.env.ALLOWED_ORIGINS || "").split(",").map(x=>x.trim()).filter(Boolean);
 function handleCors(req,res){
- const origin=String(req.headers.origin||"").replace(/\\/$/,"");
+ const origin=String(req.headers.origin||"").replace(/\/$/,"");
  if(origin){
   let sameOrigin=false;try{sameOrigin=new URL(origin).host===String(req.headers.host||"");}catch(_){}
   if(!sameOrigin&&!ALLOWED_ORIGINS.includes(origin)){json(res,403,{error:"This website is not allowed to use the Joes Studio API."});return true;}
