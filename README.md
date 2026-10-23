@@ -63,6 +63,8 @@ The development app now includes a Supabase-backed account and billing foundatio
 
 ### Required backend setup (development only)
 
+The API handlers under `api/` require a serverless host such as Vercel; GitHub Pages cannot execute them. If the frontend stays on GitHub Pages, set `window.JOES_STUDIO_API_BASE` in `static/monetization-config.js` to the development API origin and configure the API host's `ALLOWED_ORIGINS` to include `https://quranhub1.github.io`. For a same-origin Vercel deployment, leave the API base empty. A Vercel project must be linked to this Development repository, not the production repository.
+
 1. Create a Supabase project and run [the monetisation SQL](supabase/monetization.sql) in the Supabase SQL Editor.
 2. Add `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` as **server-side environment variables** for the development deployment. Never put the service-role key in browser code.
 3. Enable email/password signup and email verification in Supabase Auth. The phone number is stored as signup metadata; SMS OTP verification requires an SMS provider and is not enabled merely by collecting a phone number.
