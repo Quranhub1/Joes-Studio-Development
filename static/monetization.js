@@ -57,9 +57,16 @@ async function renderAdminUsers(){
   const d=await api(BILLING,{action:"admin_users"});host.replaceChildren();
   if(!d.users?.length){host.append(make("p",{class:"muted"},"No registered profiles found yet."));return;}
   d.users.forEach(u=>{
-   const s=u.subscription||{},active=s.status==="active"&&s.expires_at&&new Date(s.expires_at).getTime()>Date.now()&&s.plan!=="free";
+   const s=u.subscription||{},isPermanentAdmin=!!u.is_admin,active=s.status==="active"&&s.expires_at&&new Date(s.expires_at).getTime()>Date.now()&&s.plan!=="free";
    const card=make("div",{class:"jsm-admin-user"});
-   card.append(make("h3",{},u.email||"Unknown user"),make("p",{class:"muted"},"Phone: "+(u.phone||"Not supplied")));
+   card.append(make("h3",{},isPermanentAdmin?"Joes Studio Administrator":(u.email||"Unknown user")));
+   if(isPermanentAdmin){
+    card.append(make("span",{class:"pill"},"ADMINISTRATOR"));
+    card.append(make("p",{class:"status"},"Permanent access — no subscription expiry or payment required."));
+    card.append(make("p",{class:"muted"},"Administrator account · Full access"));
+    host.append(card);return;
+   }
+   card.append(make("p",{class:"muted"},"Phone: "+(u.phone||"Not supplied")));
    card.append(make("p",{class:"status"},active?String(s.plan).toUpperCase()+" active until "+new Date(s.expires_at).toLocaleDateString():"No active paid subscription"));
    const controls=make("div",{class:"jsm-admin-controls"}),plan=make("select",{"aria-label":"Plan for "+(u.email||"user"),name:"admin_plan"});
    [["daily","Daily"],["weekly","Weekly"],["monthly","Monthly"]].forEach(([v,label])=>plan.append(make("option",{value:v},label)));
