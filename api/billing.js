@@ -33,6 +33,24 @@ module.exports=async function(req,res){
    const byId=Object.fromEntries((profiles||[]).map(p=>[p.id,p]));
    return L.json(res,200,{requests:(rows||[]).map(r=>({...r,profile:byId[r.user_id]||null})),pricing:{daily:5000,weekly:L.WEEKLY_PRICE_UGX,monthly:25000}});
   }
+  if(action==="admin_users"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const[profiles,subscriptions]=await Promise.all([
+    L.db("profiles?select=id,email,phone,updated_at&order=updated_at.desc&limit=300"),
+    L.db("subscriptions?select=*&limit=500")
+   ]);
+   const byUser=Object.fromEntries((subscriptions||[]).map(s=>[s.user_id,s]));
+   return L.json(res,200,{users:(profiles||[]).map(p=>({...p,subscription:byUser[p.id]||null}))});
+  }
+  if(action==="admin_set_subscription"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const userId=String(b.user_id||"").trim(),plan=String(b.plan||""),duration=Number(b.duration_days||({"daily":1,"weekly":7,"monthly":30}[plan]||0));
+   if(!userId||!["daily","weekly","monthly"].includes(plan)||!Number.isInteger(duration)||duration<1||duration>365)return L.json(res,400,{error:"Choose a valid plan and a duration from 1 to 365 days."});
+   const now=new Date(),current=await L.subscriptionFor(userId),base=current.status==="active"&&current.plan!=="free"&&current.expires_at&&new Date(current.expires_at)>now?new Date(current.expires_at):now;
+   const expires=new Date(base.getTime()+duration*86400000).toISOString();
+   await L.db("subscriptions?on_conflict=user_id",{method:"POST",prefer:"resolution=merge-duplicates,return=representation",body:{user_id:userId,plan,status:"active",starts_at:current.starts_at||now.toISOString(),expires_at:expires,custom_templates_enabled:true,custom_watermark_enabled:true,updated_at:now.toISOString()}});
+   return L.json(res,200,{ok:true,user_id:userId,plan,expires_at:expires,message:"Subscription updated successfully."});
+  }
   if(action==="admin_review"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
    const id=String(b.request_id||""),decision=String(b.decision||""),note=String(b.note||"").slice(0,500);
