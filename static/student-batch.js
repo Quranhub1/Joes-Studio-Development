@@ -468,10 +468,18 @@
         );
         if (!entries.length) throw new Error("No supported images were found in this ZIP.");
         if (entries.length > maxImages) throw new Error("This ZIP contains more than 1,500 images. Split it into smaller archives.");
+        // JSZip exposes the uncompressed size from the archive directory. Use
+        // it for a preflight check so ZIP bombs are rejected before extraction.
+        const declaredBytes = entries.reduce((sum, entry) => sum + Math.max(0, Number(entry._data?.uncompressedSize) || 0), 0);
+        if (declaredBytes > maxTotalBytes) throw new Error("Extracted images exceed 200 MB. Split the ZIP into smaller archives.");
+        const safeEntries = entries.filter(entry => {
+          const declaredSize = Number(entry._data?.uncompressedSize);
+          return !Number.isFinite(declaredSize) || declaredSize <= 0 || declaredSize <= maxFileBytes;
+        });
         let totalBytes = 0;
         let loaded = 0;
         const files = [];
-        for (const entry of entries) {
+        for (const entry of safeEntries) {
           const blob = await entry.async("blob");
           if (blob.size > maxFileBytes) continue;
           totalBytes += blob.size;
