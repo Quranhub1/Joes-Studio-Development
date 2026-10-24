@@ -847,10 +847,8 @@
       if (aliasMatches.length === 1) return aliasMatches[0];
 
       // Suggestions are advisory only; low-confidence guesses are not applied.
-      const tokenSet = value => {
-        const normalized = this.normalize(value);
-        return normalized.match(/[a-z]+|[0-9]+/g) || [normalized];
-      };
+      const tokenSet = value =>
+        String(value ?? "").toLowerCase().match(/[a-z0-9]+/g) || [];
       const scored = headers.map(header => {
         const value = this.normalize(header);
         if (!value) return { header, score: 0 };
