@@ -1,8 +1,19 @@
 {
   "name": "joes-studio-development",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "engines": {
-    "node": ">=20"
+  "dependencies": {
+    "fabricjs": "^12.6.0",
+    "tailwindcss": "^3.4.0",
+    "jspdf": "^0.32.8",
+    "svg2pdf": "^0.3.0",
+    "idb-keyval": "^5.0.0",
+    "hotkeys-js": "^1.0.0",
+    "toastify": "^2.10.0",
+    "xlsx": "^2.9.7",
+    "jszip": "^4.4.0"
+  },
+  "devDependencies": {
+    "zustand": "^4.4.0"
   }
 }
