@@ -91,18 +91,19 @@ module.exports=async function(req,res){
   }
   if(action==="admin_analytics"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
-   const[requests,subscriptions]=await Promise.all([
+   const[requests,subscriptions,creditRequests]=await Promise.all([
     L.db("payment_requests?select=user_id,plan,amount_ugx,status,requested_at,reviewed_at&order=requested_at.desc&limit=5000"),
-    L.db("subscriptions?select=user_id,plan,status,expires_at&limit=5000")
+    L.db("subscriptions?select=user_id,plan,status,expires_at&limit=5000"),
+    L.db("credit_requests?select=user_id,amount_ugx,status,requested_at&order=requested_at.desc&limit=5000")
    ]);
-   const reqs=Array.isArray(requests)?requests:[],subs=Array.isArray(subscriptions)?subscriptions:[];
+   const reqs=Array.isArray(requests)?requests:[],subs=Array.isArray(subscriptions)?subscriptions:[],creditReqs=Array.isArray(creditRequests)?creditRequests:[];
    const now=Date.now(),active=subs.filter(x=>x.plan!=="free"&&x.status==="active"&&x.expires_at&&new Date(x.expires_at).getTime()>now);
    const approved=reqs.filter(x=>x.status==="approved"),rejected=reqs.filter(x=>x.status==="rejected"),pending=reqs.filter(x=>x.status==="pending");
    const approvedByUser={};approved.forEach(x=>approvedByUser[x.user_id]=(approvedByUser[x.user_id]||0)+1);
    const byPlan={pro:{requests:0,approved:0,rejected:0,revenue_ugx:0},business:{requests:0,approved:0,rejected:0,revenue_ugx:0},institution:{requests:0,approved:0,rejected:0,revenue_ugx:0}};
    reqs.forEach(x=>{if(!byPlan[x.plan])return;const p=byPlan[x.plan];p.requests++;if(x.status==="approved"){p.approved++;p.revenue_ugx+=Number(x.amount_ugx||0);}if(x.status==="rejected")p.rejected++;});
-   const totalRevenue=approved.reduce((sum,x)=>sum+Number(x.amount_ugx||0),0),repeatPayers=Object.values(approvedByUser).filter(n=>n>1).length,renewals=Object.values(approvedByUser).reduce((sum,n)=>sum+Math.max(0,n-1),0);
-   return L.json(res,200,{generated_at:new Date().toISOString(),total_requests:reqs.length,pending_requests:pending.length,approved_payments:approved.length,rejected_requests:rejected.length,active_subscribers:active.length,total_revenue_ugx:totalRevenue,conversion_rate:reqs.length?Math.round(approved.length/reqs.length*1000)/10:0,repeat_payers:repeatPayers,renewals,by_plan:byPlan,history_limited:reqs.length>=5000||subs.length>=5000});
+   const approvedCredits=creditReqs.filter(x=>x.status==="approved"),pendingCredits=creditReqs.filter(x=>x.status==="pending"),rejectedCredits=creditReqs.filter(x=>x.status==="rejected"),creditRevenue=approvedCredits.reduce((sum,x)=>sum+Number(x.amount_ugx||0),0),totalRevenue=approved.reduce((sum,x)=>sum+Number(x.amount_ugx||0),0)+creditRevenue,repeatPayers=Object.values(approvedByUser).filter(n=>n>1).length,renewals=Object.values(approvedByUser).reduce((sum,n)=>sum+Math.max(0,n-1),0);
+   return L.json(res,200,{generated_at:new Date().toISOString(),total_requests:reqs.length,pending_requests:pending.length,approved_payments:approved.length,rejected_requests:rejected.length,active_subscribers:active.length,total_revenue_ugx:totalRevenue,subscription_revenue_ugx:totalRevenue-creditRevenue,credit_pack_revenue_ugx:creditRevenue,approved_credit_packs:approvedCredits.length,pending_credit_requests:pendingCredits.length,rejected_credit_requests:rejectedCredits.length,conversion_rate:reqs.length?Math.round(approved.length/reqs.length*1000)/10:0,repeat_payers:repeatPayers,renewals,by_plan:byPlan,history_limited:reqs.length>=5000||subs.length>=5000||creditReqs.length>=5000});
   }
   if(action==="admin_list"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
