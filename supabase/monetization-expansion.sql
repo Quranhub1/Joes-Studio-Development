@@ -1,6 +1,8 @@
 -- Run after supabase/monetization.sql in the Supabase SQL Editor.
 -- Existing daily/weekly/monthly subscribers are migrated to Pro so their current
 -- expiry timestamps remain intact. Review historical payment descriptions as needed.
+-- Ensure the composite conflict target used by the usage RPC exists in older deployments.
+create unique index if not exists monthly_usage_user_month_unique on public.monthly_usage(user_id,month_key);
 alter table public.subscriptions drop constraint if exists subscriptions_plan_check;
 update public.subscriptions set plan='pro' where plan in ('daily','weekly','monthly');
 alter table public.subscriptions add constraint subscriptions_plan_check check(plan in ('free','pro','business','institution'));
