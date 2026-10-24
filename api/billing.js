@@ -36,11 +36,22 @@ module.exports=async function(req,res){
   if(action==="admin_users"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
    const[profiles,subscriptions]=await Promise.all([
-    L.db("profiles?select=id,email,phone,updated_at&order=updated_at.desc&limit=300"),
+    L.db("profiles?select=id,email,phone,updated_at,is_banned,ban_reason&order=updated_at.desc&limit=300"),
     L.db("subscriptions?select=*&limit=500")
    ]);
    const byUser=Object.fromEntries((subscriptions||[]).map(s=>[s.user_id,s]));
    return L.json(res,200,{users:(profiles||[]).map(p=>({...p,is_admin:String(p.email||"").toLowerCase()===L.ADMIN_EMAIL,subscription:byUser[p.id]||null}))});
+  }
+  if(action==="admin_set_ban"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const userId=String(b.user_id||"").trim(),banned=Boolean(b.banned),reason=String(b.reason||"").trim().slice(0,300);
+   if(!userId)return L.json(res,400,{error:"Choose a user."});
+   const targets=await L.db("profiles?id=eq."+encodeURIComponent(userId)+"&select=id,email");
+   const target=Array.isArray(targets)?targets[0]:null;
+   if(!target)return L.json(res,404,{error:"User profile not found."});
+   if(String(target.email||"").toLowerCase()===L.ADMIN_EMAIL)return L.json(res,403,{error:"The administrator account cannot be banned."});
+   await L.db("profiles?id=eq."+encodeURIComponent(userId),{method:"PATCH",body:{is_banned:banned,ban_reason:banned?(reason||"Account suspended by administrator"):null,updated_at:new Date().toISOString()}});
+   return L.json(res,200,{ok:true,is_banned:banned,message:banned?"User banned. Their API access is now blocked.":"User unbanned. Access restored."});
   }
   if(action==="admin_set_subscription"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
