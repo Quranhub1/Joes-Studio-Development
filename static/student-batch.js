@@ -2101,6 +2101,112 @@
       host.appendChild(wrapper);
     },
 
+    batchValidationSummary() {
+      const fields = this.state.templateFields || [];
+      const rows = this.state.rows || [];
+      const unmapped = fields.filter(field =>
+        !this.isBadgeField(field) && !this.isStudentPhotoField(field) && !this.state.mapping[field]
+      );
+      const mappedTextFields = fields.filter(field =>
+        !this.isBadgeField(field) && !this.isStudentPhotoField(field) && !!this.state.mapping[field]
+      );
+      const rowsWithMissingValues = new Set();
+      let missingCells = 0;
+      rows.forEach((row, rowIndex) => {
+        mappedTextFields.forEach(field => {
+          const value = this.displayValue(row, field);
+          if (String(value ?? "").trim() === "") {
+            missingCells++;
+            rowsWithMissingValues.add(rowIndex + 1);
+          }
+        });
+      });
+
+      const photoFields = fields.filter(field => this.isStudentPhotoField(field));
+      let rowsWithMissingPhotos = 0;
+      if (photoFields.length && rows.length) {
+        rows.forEach(row => {
+          const embedded = !!row?.__embeddedPhoto;
+          const hasPhoto = photoFields.some(field => {
+            const header = this.state.mapping[field];
+            const raw = header ? String(row?.[header] ?? "").trim() : "";
+            if (!raw) return embedded;
+            if (/^(data:|blob:|https?:\/\/)/i.test(raw)) return true;
+            const clean = raw.split(/[\\/]/).pop().trim().toLowerCase();
+            const stem = clean.replace(/\.[^.]+$/, "");
+            return embedded ||
+              this.state.photoFiles.has(clean) ||
+              this.state.photoFiles.has(stem) ||
+              this.state.photoFilesNormalized.has(this.normalize(stem));
+          });
+          if (!hasPhoto) rowsWithMissingPhotos++;
+        });
+      }
+
+      return {
+        rowCount: rows.length,
+        fieldCount: fields.length,
+        unmapped,
+        missingCells,
+        rowsWithMissingValues: [...rowsWithMissingValues].slice(0, 5),
+        missingValueRowCount: rowsWithMissingValues.size,
+        photoFieldCount: photoFields.length,
+        rowsWithMissingPhotos
+      };
+    },
+
+    ensureBatchValidationPanel() {
+      const modal = document.getElementById("studentBatchModal");
+      if (!modal) return null;
+      let panel = modal.querySelector("#studentBatchValidationPanel");
+      if (!panel) {
+        panel = document.createElement("section");
+        panel.id = "studentBatchValidationPanel";
+        panel.className = "mx-4 mb-4 rounded-xl border border-slate-200 bg-white p-4";
+        panel.setAttribute("aria-live", "polite");
+        panel.innerHTML = '<div class="flex items-center justify-between gap-3"><div class="text-sm font-semibold text-slate-800">Pre-generation check</div><span id="studentBatchValidationStatus" class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600">Waiting for data</span></div><div id="studentBatchValidationDetails" class="mt-2 text-xs text-slate-600">Load a template and spreadsheet to check the batch.</div>';
+        const anchor = modal.querySelector("#studentBatchFields") || modal.querySelector("#studentBatchPrintPreview");
+        if (anchor?.parentElement) anchor.parentElement.insertBefore(panel, anchor);
+        else modal.appendChild(panel);
+      }
+      return panel;
+    },
+
+    renderBatchValidation() {
+      const panel = this.ensureBatchValidationPanel();
+      if (!panel) return;
+      const summary = this.batchValidationSummary();
+      const status = panel.querySelector("#studentBatchValidationStatus");
+      const details = panel.querySelector("#studentBatchValidationDetails");
+      if (!details || !status) return;
+
+      const warnings = [];
+      if (!summary.rowCount) warnings.push("Import a spreadsheet with student records.");
+      if (!this.state.templateFile) warnings.push("Select a template before generating.");
+      if (summary.unmapped.length) {
+        warnings.push(summary.unmapped.length + " template field(s) are not mapped: " + summary.unmapped.slice(0, 4).join(", ") + (summary.unmapped.length > 4 ? "…" : ""));
+      }
+      if (summary.missingCells) {
+        const rows = summary.rowsWithMissingValues.length
+          ? " Example row(s): " + summary.rowsWithMissingValues.join(", ") + (summary.missingValueRowCount > summary.rowsWithMissingValues.length ? "…" : "") + "."
+          : "";
+        warnings.push(summary.missingCells + " mapped text value(s) are blank across " + summary.missingValueRowCount + " row(s)." + rows);
+      }
+      if (summary.photoFieldCount && summary.rowsWithMissingPhotos) {
+        warnings.push(summary.rowsWithMissingPhotos + " row(s) may be missing a student photo. Confirm filenames or import a photo ZIP/folder.");
+      }
+
+      if (warnings.length) {
+        status.textContent = summary.rowCount && this.state.templateFile ? "Review warnings" : "Needs setup";
+        status.className = "rounded-full bg-amber-100 px-2 py-1 text-[10px] font-semibold text-amber-800";
+        details.innerHTML = '<div class="mb-2 text-slate-500">' + summary.rowCount + " record(s) • " + summary.fieldCount + " detected template field(s)</div><ul class=\"list-disc pl-5 space-y-1\">" + warnings.map(warning => "<li>" + escapeHtml(warning) + "</li>").join("") + "</ul><p class=\"mt-2 text-[10px] text-slate-400\">This check identifies likely missing data; it does not guarantee that every template will render correctly.</p>";
+      } else {
+        status.textContent = "Ready to review";
+        status.className = "rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-800";
+        details.innerHTML = '<div class="text-slate-600">' + summary.rowCount + " record(s) checked. No unmapped text fields or obvious missing values were detected.</div><p class=\"mt-2 text-[10px] text-slate-400\">Preview a few records before exporting. Photo matching is filename-based and should be visually confirmed.</p>";
+      }
+    },
+
     refresh() {
       const fileEl = document.getElementById("studentBatchTemplateName");
       const excelEl = document.getElementById("studentBatchExcelName");
@@ -2110,6 +2216,7 @@
       const sizeEl = document.getElementById("studentBatchCardSize");
       const photoEl = document.getElementById("studentBatchPhotoName");
       this.ensurePhotoZipControls();
+      this.renderBatchValidation();
       this.ensureWatermarkControls();
       this.ensurePhotoEnhancementControls();
       this.ensurePhotoManualControls();
