@@ -7,18 +7,68 @@ module.exports=async function(req,res){
   const b=L.bodyOf(req),action=String(b.action||""),{user,isAdmin}=await L.requireUser(req);await L.ensureProfile(user);
   if(action==="status"){const[s,u]=await Promise.all([L.subscriptionFor(user.id),L.usageFor(user.id)]);return L.json(res,200,L.publicStatus(user,isAdmin,s,u));}
   if(action==="request_payment"){
-   const p=L.planInfo(String(b.plan||""));if(!p)return L.json(res,400,{error:"Choose a valid plan."});if(!p.available)return L.json(res,400,{error:"The weekly price has not been configured by the administrator yet."});
+   const p=L.planInfo(String(b.plan||""));if(!p)return L.json(res,400,{error:"Choose a valid plan."});
    const reference=String(b.payment_reference||"").trim().slice(0,120);if(!reference)return L.json(res,400,{error:"Enter the mobile-money transaction/reference ID after sending payment."});
    const pending=await L.db("payment_requests?user_id=eq."+encodeURIComponent(user.id)+"&status=eq.pending&select=id");if(Array.isArray(pending)&&pending.length)return L.json(res,409,{error:"You already have a payment request awaiting admin approval."});
    const rows=await L.db("payment_requests",{method:"POST",body:{user_id:user.id,email:user.email,phone:user.user_metadata?.phone||null,plan:p.plan,amount_ugx:p.amount_ugx,payment_reference:reference,status:"pending"}});
    return L.json(res,200,{request:rows?.[0]||null,message:"Payment request submitted. Your plan remains locked until the administrator approves it."});
   }
   if(action==="consume_batch"){
-   const[s,u]=await Promise.all([L.subscriptionFor(user.id),L.usageFor(user.id)]),paid=isAdmin||(s.plan!=="free"&&s.status==="active"&&new Date(s.expires_at).getTime()>Date.now());
-   if(!paid&&u.batch_actions>=2)return L.json(res,402,{error:"Your 2 free batch actions this month are used. Request a daily, weekly, or monthly plan and wait for admin approval."});
+   const[s,u]=await Promise.all([L.subscriptionFor(user.id),L.usageFor(user.id)]),paid=isAdmin||(s.plan!=="free"&&s.status==="active"&&s.expires_at&&new Date(s.expires_at).getTime()>Date.now());
+   if(!paid&&u.batch_actions>=2&&u.credits<=0)return L.json(res,402,{error:"Your 2 free batch actions and purchased credits are used. Buy a credit pack or request a Pro plan."});
    const result=await L.db("rpc/consume_batch_action",{method:"POST",body:{p_user_id:user.id,p_enforce_limit:!paid}});
-   if(result?.allowed===false)return L.json(res,402,{error:"Your free batch allowance is used for this month. Request a plan and wait for admin approval."});
+   if(result?.allowed===false)return L.json(res,402,{error:"Your free batch allowance and purchased credits are used. Buy a credit pack or request a Pro plan."});
    return L.json(res,200,{ok:true,usage:result});
+  }
+  if(action==="request_credits"){
+   const reference=String(b.payment_reference||"").trim().slice(0,120);
+   if(!reference)return L.json(res,400,{error:"Enter the Mobile Money transaction/reference ID after sending payment."});
+   const pending=await L.db("credit_requests?user_id=eq."+encodeURIComponent(user.id)+"&status=eq.pending&select=id");
+   if(Array.isArray(pending)&&pending.length)return L.json(res,409,{error:"You already have a credit-pack request awaiting admin approval."});
+   const rows=await L.db("credit_requests",{method:"POST",body:{user_id:user.id,email:user.email,phone:user.user_metadata?.phone||null,credits:L.CREDIT_PACK_SIZE,amount_ugx:L.CREDIT_PACK_PRICE_UGX,payment_reference:reference,status:"pending"}});
+   return L.json(res,200,{request:rows?.[0]||null,message:"Credit-pack request submitted. Credits are added only after manual payment verification."});
+  }
+  if(action==="request_commercial"){
+   const kind=String(b.kind||"");
+   if(!["institution","marketplace","service"].includes(kind))return L.json(res,400,{error:"Choose a valid request type."});
+   const subject=String(b.subject||"").trim().slice(0,120),details=String(b.details||"").trim().slice(0,2000),contact=String(b.contact||"").trim().slice(0,120);
+   if(!subject||!details||!contact)return L.json(res,400,{error:"Provide a title, details and contact information."});
+   const rows=await L.db("commercial_requests",{method:"POST",body:{user_id:user.id,email:user.email,kind,subject,details,contact,status:"pending"}});
+   return L.json(res,200,{request:rows?.[0]||null,message:"Request received. The Joes Studio team will review it and contact you; any payment remains manual."});
+  }
+  if(action==="commercial_history"){
+   const rows=await L.db("commercial_requests?user_id=eq."+encodeURIComponent(user.id)+"&select=id,kind,subject,status,requested_at,reviewed_at,admin_note&order=requested_at.desc&limit=100");
+   return L.json(res,200,{requests:rows||[]});
+  }
+  if(action==="admin_credit_list"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const rows=await L.db("credit_requests?select=*&order=requested_at.desc&limit=200");
+   return L.json(res,200,{requests:rows||[]});
+  }
+  if(action==="admin_credit_review"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const id=String(b.request_id||""),decision=String(b.decision||""),note=String(b.note||"").slice(0,500);
+   if(!id||!["approve","reject"].includes(decision))return L.json(res,400,{error:"Invalid credit request review."});
+   const rows=await L.db("credit_requests?id=eq."+encodeURIComponent(id)+"&select=*"),p=Array.isArray(rows)?rows[0]:null;
+   if(!p||p.status!=="pending")return L.json(res,409,{error:"This credit request is missing or already reviewed."});
+   const now=new Date(),status=decision==="approve"?"approved":"rejected";
+   if(decision==="approve")await L.db("rpc/grant_credits",{method:"POST",body:{p_user_id:p.user_id,p_credits:Number(p.credits),p_reference:String(p.payment_reference),p_admin_id:user.id}});
+   await L.db("credit_requests?id=eq."+encodeURIComponent(id),{method:"PATCH",body:{status,reviewed_at:now.toISOString(),reviewed_by:user.id,admin_note:note}});
+   return L.json(res,200,{ok:true,status,message:decision==="approve"?"Credit pack approved and credited.":"Credit request rejected."});
+  }
+  if(action==="admin_commercial_list"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const rows=await L.db("commercial_requests?select=*&order=requested_at.desc&limit=300");
+   return L.json(res,200,{requests:rows||[]});
+  }
+  if(action==="admin_commercial_review"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const id=String(b.request_id||""),status=String(b.status||""),note=String(b.note||"").slice(0,500);
+   if(!id||!["reviewing","contacted","closed","rejected"].includes(status))return L.json(res,400,{error:"Choose a valid request status."});
+   const rows=await L.db("commercial_requests?id=eq."+encodeURIComponent(id)+"&select=id,status");
+   if(!Array.isArray(rows)||!rows.length)return L.json(res,404,{error:"Commercial request not found."});
+   await L.db("commercial_requests?id=eq."+encodeURIComponent(id),{method:"PATCH",body:{status,reviewed_at:new Date().toISOString(),reviewed_by:user.id,admin_note:note}});
+   return L.json(res,200,{ok:true,status});
   }
   if(action==="set_feature"){
    const feature=String(b.feature||"");if(!["custom_templates_enabled","custom_watermark_enabled"].includes(feature))return L.json(res,400,{error:"Unknown feature."});
@@ -49,7 +99,7 @@ module.exports=async function(req,res){
    const now=Date.now(),active=subs.filter(x=>x.plan!=="free"&&x.status==="active"&&x.expires_at&&new Date(x.expires_at).getTime()>now);
    const approved=reqs.filter(x=>x.status==="approved"),rejected=reqs.filter(x=>x.status==="rejected"),pending=reqs.filter(x=>x.status==="pending");
    const approvedByUser={};approved.forEach(x=>approvedByUser[x.user_id]=(approvedByUser[x.user_id]||0)+1);
-   const byPlan={daily:{requests:0,approved:0,rejected:0,revenue_ugx:0},weekly:{requests:0,approved:0,rejected:0,revenue_ugx:0},monthly:{requests:0,approved:0,rejected:0,revenue_ugx:0}};
+   const byPlan={pro:{requests:0,approved:0,rejected:0,revenue_ugx:0},business:{requests:0,approved:0,rejected:0,revenue_ugx:0},institution:{requests:0,approved:0,rejected:0,revenue_ugx:0}};
    reqs.forEach(x=>{if(!byPlan[x.plan])return;const p=byPlan[x.plan];p.requests++;if(x.status==="approved"){p.approved++;p.revenue_ugx+=Number(x.amount_ugx||0);}if(x.status==="rejected")p.rejected++;});
    const totalRevenue=approved.reduce((sum,x)=>sum+Number(x.amount_ugx||0),0),repeatPayers=Object.values(approvedByUser).filter(n=>n>1).length,renewals=Object.values(approvedByUser).reduce((sum,n)=>sum+Math.max(0,n-1),0);
    return L.json(res,200,{generated_at:new Date().toISOString(),total_requests:reqs.length,pending_requests:pending.length,approved_payments:approved.length,rejected_requests:rejected.length,active_subscribers:active.length,total_revenue_ugx:totalRevenue,conversion_rate:reqs.length?Math.round(approved.length/reqs.length*1000)/10:0,repeat_payers:repeatPayers,renewals,by_plan:byPlan,history_limited:reqs.length>=5000||subs.length>=5000});
@@ -59,7 +109,7 @@ module.exports=async function(req,res){
    const rows=await L.db("payment_requests?select=*&order=requested_at.desc&limit=200"),ids=[...new Set((rows||[]).map(r=>r.user_id).filter(Boolean))];
    const profiles=ids.length?await L.db("profiles?select=id,email,phone&id=in.("+ids.map(encodeURIComponent).join(",")+")"):[];
    const byId=Object.fromEntries((profiles||[]).map(p=>[p.id,p]));
-   return L.json(res,200,{requests:(rows||[]).map(r=>({...r,profile:byId[r.user_id]||null})),pricing:{daily:5000,weekly:L.WEEKLY_PRICE_UGX,monthly:25000}});
+   return L.json(res,200,{requests:(rows||[]).map(r=>({...r,profile:byId[r.user_id]||null})),pricing:{pro:29000,business:79000,institution:750000}});
   }
   if(action==="admin_users"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
@@ -84,7 +134,7 @@ module.exports=async function(req,res){
   if(action==="admin_set_subscription"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
    const userId=String(b.user_id||"").trim(),plan=String(b.plan||""),duration=Number(b.duration_days||({"daily":1,"weekly":7,"monthly":30}[plan]||0));
-   if(!userId||!["daily","weekly","monthly"].includes(plan)||!Number.isInteger(duration)||duration<1||duration>365)return L.json(res,400,{error:"Choose a valid plan and a duration from 1 to 365 days."});
+   if(!userId||!["pro","business","institution"].includes(plan)||!Number.isInteger(duration)||duration<1||duration>365)return L.json(res,400,{error:"Choose a valid plan and a duration from 1 to 365 days."});
    const now=new Date(),current=await L.subscriptionFor(userId),base=current.status==="active"&&current.plan!=="free"&&current.expires_at&&new Date(current.expires_at)>now?new Date(current.expires_at):now;
    const expires=new Date(base.getTime()+duration*86400000).toISOString();
    await L.db("subscriptions?on_conflict=user_id",{method:"POST",prefer:"resolution=merge-duplicates,return=representation",body:{user_id:userId,plan,status:"active",starts_at:current.starts_at||now.toISOString(),expires_at:expires,custom_templates_enabled:true,custom_watermark_enabled:true,updated_at:now.toISOString()}});
@@ -98,7 +148,7 @@ module.exports=async function(req,res){
    if(!p||p.status!=="pending")return L.json(res,409,{error:"This request is missing or has already been reviewed."});
    const now=new Date(),status=decision==="approve"?"approved":"rejected";
    if(decision==="approve"){
-    const days={daily:1,weekly:7,monthly:30}[p.plan];if(!days||!p.amount_ugx)return L.json(res,400,{error:"The requested plan is not configured."});
+    const plan=L.planInfo(p.plan),days=plan?.duration_days;if(!days||!p.amount_ugx)return L.json(res,400,{error:"The requested plan is not configured."});
     const current=await L.subscriptionFor(p.user_id),base=current.status==="active"&&current.plan!=="free"&&current.expires_at&&new Date(current.expires_at)>now?new Date(current.expires_at):now;
     await L.db("subscriptions?on_conflict=user_id",{method:"POST",prefer:"resolution=merge-duplicates,return=representation",body:{user_id:p.user_id,plan:p.plan,status:"active",starts_at:now.toISOString(),expires_at:new Date(base.getTime()+days*86400000).toISOString(),custom_templates_enabled:true,custom_watermark_enabled:true,updated_at:now.toISOString()}});
    }
