@@ -51,8 +51,8 @@ module.exports=async function(req,res){
    const approvedByUser={};approved.forEach(x=>approvedByUser[x.user_id]=(approvedByUser[x.user_id]||0)+1);
    const byPlan={daily:{requests:0,approved:0,rejected:0,revenue_ugx:0},weekly:{requests:0,approved:0,rejected:0,revenue_ugx:0},monthly:{requests:0,approved:0,rejected:0,revenue_ugx:0}};
    reqs.forEach(x=>{if(!byPlan[x.plan])return;const p=byPlan[x.plan];p.requests++;if(x.status==="approved"){p.approved++;p.revenue_ugx+=Number(x.amount_ugx||0);}if(x.status==="rejected")p.rejected++;});
-   const totalRevenue=approved.reduce((sum,x)=>sum+Number(x.amount_ugx||0),0),repeatPayers=Object.values(approvedByUser).filter(n=>n>1).length;
-   return L.json(res,200,{generated_at:new Date().toISOString(),total_requests:reqs.length,pending_requests:pending.length,approved_payments:approved.length,rejected_requests:rejected.length,active_subscribers:active.length,total_revenue_ugx:totalRevenue,conversion_rate:reqs.length?Math.round(approved.length/reqs.length*1000)/10:0,repeat_payers:repeatPayers,by_plan:byPlan,history_limited:reqs.length>=5000||subs.length>=5000});
+   const totalRevenue=approved.reduce((sum,x)=>sum+Number(x.amount_ugx||0),0),repeatPayers=Object.values(approvedByUser).filter(n=>n>1).length,renewals=Object.values(approvedByUser).reduce((sum,n)=>sum+Math.max(0,n-1),0);
+   return L.json(res,200,{generated_at:new Date().toISOString(),total_requests:reqs.length,pending_requests:pending.length,approved_payments:approved.length,rejected_requests:rejected.length,active_subscribers:active.length,total_revenue_ugx:totalRevenue,conversion_rate:reqs.length?Math.round(approved.length/reqs.length*1000)/10:0,repeat_payers:repeatPayers,renewals,by_plan:byPlan,history_limited:reqs.length>=5000||subs.length>=5000});
   }
   if(action==="admin_list"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
