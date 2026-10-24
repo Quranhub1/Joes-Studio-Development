@@ -141,6 +141,43 @@ module.exports=async function(req,res){
    await L.db("subscriptions?on_conflict=user_id",{method:"POST",prefer:"resolution=merge-duplicates,return=representation",body:{user_id:userId,plan,status:"active",starts_at:current.starts_at||now.toISOString(),expires_at:expires,custom_templates_enabled:true,custom_watermark_enabled:true,updated_at:now.toISOString()}});
    return L.json(res,200,{ok:true,user_id:userId,plan,expires_at:expires,message:"Subscription updated successfully."});
   }
+  if(action==="admin_reset_subscription"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const userId=String(b.user_id||"").trim();
+   if(!userId)return L.json(res,400,{error:"Choose a user."});
+   const targets=await L.db("profiles?id=eq."+encodeURIComponent(userId)+"&select=id,email");
+   const target=Array.isArray(targets)?targets[0]:null;
+   if(!target)return L.json(res,404,{error:"User profile not found."});
+   if(String(target.email||"").toLowerCase()===L.ADMIN_EMAIL)return L.json(res,403,{error:"The administrator subscription cannot be changed."});
+   await L.db("subscriptions?user_id=eq."+encodeURIComponent(userId),{method:"DELETE",prefer:"return=minimal"});
+   return L.json(res,200,{ok:true,message:"Subscription revoked. The user is now on the free plan."});
+  }
+  if(action==="admin_delete_payment_request"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const requestId=String(b.request_id||"").trim();
+   if(!requestId)return L.json(res,400,{error:"Choose a payment request."});
+   const rows=await L.db("payment_requests?id=eq."+encodeURIComponent(requestId)+"&select=id,status");
+   if(!Array.isArray(rows)||!rows.length)return L.json(res,404,{error:"Payment request not found."});
+   await L.db("payment_requests?id=eq."+encodeURIComponent(requestId),{method:"DELETE",prefer:"return=minimal"});
+   return L.json(res,200,{ok:true,message:"Payment request deleted."});
+  }
+  if(action==="admin_delete_user"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const userId=String(b.user_id||"").trim();
+   if(!userId)return L.json(res,400,{error:"Choose a user."});
+   const targets=await L.db("profiles?id=eq."+encodeURIComponent(userId)+"&select=id,email");
+   const target=Array.isArray(targets)?targets[0]:null;
+   if(!target)return L.json(res,404,{error:"User profile not found."});
+   if(String(target.email||"").toLowerCase()===L.ADMIN_EMAIL)return L.json(res,403,{error:"The administrator account cannot be deleted."});
+   await L.supa("/auth/v1/admin/users/"+encodeURIComponent(userId),{method:"DELETE"});
+   await Promise.all([
+    L.db("payment_requests?user_id=eq."+encodeURIComponent(userId),{method:"DELETE",prefer:"return=minimal"}),
+    L.db("subscriptions?user_id=eq."+encodeURIComponent(userId),{method:"DELETE",prefer:"return=minimal"}),
+    L.db("monthly_usage?user_id=eq."+encodeURIComponent(userId),{method:"DELETE",prefer:"return=minimal"}),
+    L.db("profiles?id=eq."+encodeURIComponent(userId),{method:"DELETE",prefer:"return=minimal"})
+   ]);
+   return L.json(res,200,{ok:true,message:"User account and associated monetization records deleted."});
+  }
   if(action==="admin_review"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
    const id=String(b.request_id||""),decision=String(b.decision||""),note=String(b.note||"").slice(0,500);
