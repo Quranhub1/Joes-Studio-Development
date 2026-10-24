@@ -105,16 +105,21 @@ async function renderAdminUsers(){
     host.append(card);return;
    }
    card.append(make("p",{class:"muted"},"Phone: "+(u.phone||"Not supplied")));
+   if(u.is_banned)card.append(make("span",{class:"jsm-banned"},"BANNED"));
    card.append(make("p",{class:"status"},active?String(s.plan).toUpperCase()+" active until "+new Date(s.expires_at).toLocaleDateString():"No active paid subscription"));
    const controls=make("div",{class:"jsm-admin-controls"}),plan=make("select",{"aria-label":"Plan for "+(u.email||"user"),name:"admin_plan"});
    [["daily","Daily"],["weekly","Weekly"],["monthly","Monthly"]].forEach(([v,label])=>plan.append(make("option",{value:v},label)));
    const days=make("input",{type:"number",name:"admin_days",min:"1",max:"365",value:({"daily":1,"weekly":7,"monthly":30}[plan.value]),"aria-label":"Duration in days"});
    plan.addEventListener("change",()=>{days.value=({"daily":1,"weekly":7,"monthly":30}[plan.value]);});
    controls.append(plan,days,make("button",{class:"primary","data-jsm":"admin-set","data-id":u.id,type:"button"},"Grant / renew"));
-   card.append(controls);host.append(card);
+   const actions=make("div",{class:"jsm-admin-actions"});
+   actions.append(make("button",{class:u.is_banned?"primary":"danger","data-jsm":"admin-ban","data-id":u.id,"data-banned":String(!u.is_banned),type:"button"},u.is_banned?"Unban user":"Ban user"));
+   actions.append(make("input",{type:"text",name:"admin_ban_reason",placeholder:"Ban reason (optional)","aria-label":"Ban reason"}));
+   card.append(controls,actions);host.append(card);
   });
  }catch(e){host.replaceChildren(make("p",{class:"danger"},e.message));}
 }
+async function setBan(userId,card,banned){if(!userId||!card)return;const reason=card.querySelector('[name="admin_ban_reason"]')?.value||"";if(!confirm((banned?"Ban":"Unban")+" this user?"))return;try{const d=await api(BILLING,{action:"admin_set_ban",user_id:userId,banned,reason});toast(d.message||"User status updated.");await renderAdminUsers();}catch(e){toast(e.message,"error");}}
 async function setSubscription(userId,card){
  if(!userId||!card)return;
  const plan=card.querySelector('[name="admin_plan"]')?.value,duration=Number(card.querySelector('[name="admin_days"]')?.value);
