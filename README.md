@@ -40,6 +40,10 @@ The student batch workflow uses a lower-resolution portrait pass for live previe
 
 JSZip is bundled locally under `static/jszip.min.js` so ZIP-based workbook/template features do not require the JSZip CDN. The application can still contact external image-proxy services when a template contains remote images; local photos and bundled assets are preferred for offline use.
 
+## Student Batch export presets
+
+The Student Batch dialog includes reusable export presets for standard A4 ID sheets, higher-density layouts, photo-quality 600 DPI output, US Letter paper and landscape sheets. The Free plan can use the standard preset; the additional built-in presets and saving up to eight custom presets are presented as paid-plan features. Custom presets are stored in the current browser only and do not sync between devices. Always review the preview and paper/card fit before generating a production PDF.
+
 ## Performance regression checks
 
 Before a production release, follow [the performance regression checklist](tests/performance-regression-checklist.md). In particular, compare live-preview responsiveness with export quality, then generate and print batches with repeated copies. JavaScript syntax checks alone are not a substitute for a browser test or a visual portrait comparison.
