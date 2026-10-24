@@ -6,9 +6,14 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
   phone text,
+  is_banned boolean not null default false,
+  ban_reason text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.profiles add column if not exists is_banned boolean not null default false;
+alter table public.profiles add column if not exists ban_reason text;
 
 create unique index if not exists profiles_email_lower_uidx
   on public.profiles (lower(email));
