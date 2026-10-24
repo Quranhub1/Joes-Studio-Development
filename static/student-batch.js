@@ -418,6 +418,95 @@
       if (rotationValue) rotationValue.textContent = this.state.watermarkRotation + "°";
     },
 
+    ensurePhotoZipControls() {
+      const modal = document.getElementById("studentBatchModal");
+      if (!modal || modal.querySelector("#studentBatchPhotoZipPanel")) return;
+      const panel = document.createElement("section");
+      panel.id = "studentBatchPhotoZipPanel";
+      panel.className = "mx-4 mb-4 rounded-xl border border-slate-200 bg-white p-4";
+      panel.innerHTML =
+        '<div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">' +
+          '<div><div class="text-sm font-semibold text-slate-800">Import Photos from ZIP</div>' +
+          '<div class="text-[10px] text-slate-500">Select one ZIP containing student photos. Images stay in your browser and are matched by filename.</div></div>' +
+          '<div class="flex items-center gap-2"><input id="studentBatchPhotoZipInput" type="file" accept=".zip,application/zip,application/x-zip-compressed" class="hidden">' +
+          '<button id="studentBatchPhotoZipButton" type="button" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">Choose photo ZIP</button></div>' +
+        '</div><p id="studentBatchPhotoZipStatus" class="mt-2 text-[10px] text-slate-500" role="status" aria-live="polite">ZIP import supports JPEG, PNG, WebP, GIF, and BMP photos.</p>';
+      const anchor = modal.querySelector("#studentBatchFields") || modal.querySelector("#studentBatchPhotoInput");
+      if (anchor && anchor.parentElement) anchor.parentElement.insertAdjacentElement("beforebegin", panel);
+      else modal.appendChild(panel);
+      const input = panel.querySelector("#studentBatchPhotoZipInput");
+      panel.querySelector("#studentBatchPhotoZipButton")?.addEventListener("click", () => input?.click());
+      input?.addEventListener("change", async event => {
+        const file = event.target.files?.[0];
+        if (file) await this.loadPhotoZip(file);
+        event.target.value = "";
+      });
+    },
+
+    async loadPhotoZip(zipFile) {
+      const status = document.getElementById("studentBatchPhotoZipStatus");
+      const maxArchiveBytes = 100 * 1024 * 1024;
+      const maxTotalBytes = 200 * 1024 * 1024;
+      const maxFileBytes = 20 * 1024 * 1024;
+      const maxImages = 1500;
+      if (!window.JSZip?.loadAsync) {
+        this.notify("ZIP support is unavailable. Refresh the app and try again.", "error");
+        return;
+      }
+      if (zipFile.size > maxArchiveBytes) {
+        this.notify("Photo ZIP is too large. Choose an archive smaller than 100 MB.", "error");
+        return;
+      }
+      try {
+        this.showLoading("Reading photo ZIP…");
+        if (status) status.textContent = "Reading ZIP and checking image files…";
+        const archive = await window.JSZip.loadAsync(zipFile);
+        const entries = Object.values(archive.files).filter(entry =>
+          !entry.dir && !/(^|\/)__MACOSX\//i.test(entry.name) &&
+          !/(^|\/)\./.test(entry.name) &&
+          /\.(?:jpe?g|png|webp|gif|bmp)$/i.test(entry.name)
+        );
+        if (!entries.length) throw new Error("No supported images were found in this ZIP.");
+        if (entries.length > maxImages) throw new Error("This ZIP contains more than 1,500 images. Split it into smaller archives.");
+        // JSZip exposes the uncompressed size from the archive directory. Use
+        // it for a preflight check so ZIP bombs are rejected before extraction.
+        const declaredBytes = entries.reduce((sum, entry) => sum + Math.max(0, Number(entry._data?.uncompressedSize) || 0), 0);
+        if (declaredBytes > maxTotalBytes) throw new Error("Extracted images exceed 200 MB. Split the ZIP into smaller archives.");
+        const safeEntries = entries.filter(entry => {
+          const declaredSize = Number(entry._data?.uncompressedSize);
+          return !Number.isFinite(declaredSize) || declaredSize <= 0 || declaredSize <= maxFileBytes;
+        });
+        let totalBytes = 0;
+        let loaded = 0;
+        const files = [];
+        for (const entry of safeEntries) {
+          const blob = await entry.async("blob");
+          if (blob.size > maxFileBytes) continue;
+          totalBytes += blob.size;
+          if (totalBytes > maxTotalBytes) throw new Error("Extracted images exceed 200 MB. Split the ZIP into smaller archives.");
+          const name = entry.name.split("/").pop();
+          if (!name) continue;
+          const mime = blob.type || (/\.png$/i.test(name) ? "image/png" : /\.webp$/i.test(name) ? "image/webp" : /\.gif$/i.test(name) ? "image/gif" : /\.bmp$/i.test(name) ? "image/bmp" : "image/jpeg");
+          let file;
+          try { file = new File([blob], name, { type: mime, lastModified: Date.now() }); }
+          catch (_) { file = blob; file.name = name; file.type = mime; }
+          files.push(file);
+          loaded++;
+          if (status && (loaded % 25 === 0 || loaded === entries.length)) status.textContent = "Extracted " + loaded + " of " + entries.length + " images…";
+        }
+        if (!files.length) throw new Error("No usable images remained after checking file sizes.");
+        await this.loadPhotos(files);
+        if (status) status.textContent = "Imported " + files.length + " photos from " + zipFile.name + ". Matching uses each image filename.";
+        this.notify("Imported " + files.length + " photos from ZIP.", "success");
+      } catch (error) {
+        console.error("Photo ZIP import failed", error);
+        if (status) status.textContent = "ZIP import failed: " + error.message;
+        this.notify("Photo ZIP import failed: " + error.message, "error");
+      } finally {
+        this.hideLoading();
+      }
+    },
+
     ensureWatermarkControls() {
       const modal = document.getElementById("studentBatchModal");
       if (!modal || modal.querySelector("#studentBatchWatermarkPanel")) return;
@@ -716,16 +805,36 @@
       }
     },
 
+    fieldAlias(value) {
+      const key = this.normalize(value);
+      const groups = [
+        ["fullname", "studentfullname", "studentname", "nameofstudent", "employeefullname", "employeename"],
+        ["studentid", "studentnumber", "admissionnumber", "admissionno", "registrationnumber", "registrationno", "regnumber", "regno", "indexnumber", "indexno", "matricnumber", "matricno"],
+        ["dateofbirth", "birthdate", "dob"],
+        ["class", "classname", "grade", "yeargroup", "formclass"],
+        ["school", "schoolname", "institution", "institutionname"],
+        ["photo", "studentphoto", "studentimage", "picture", "passportphoto", "passportpicture", "avatar", "photofilename", "imagefilename"],
+        ["email", "emailaddress", "mail"],
+        ["phone", "phonenumber", "mobile", "mobilenumber", "telephone"],
+        ["gender", "sex"],
+        ["address", "homeaddress", "residentialaddress"]
+      ];
+      for (const group of groups) if (group.includes(key)) return group[0];
+      return key;
+    },
+
     findHeader(field) {
       const headers = this.state.headers || [];
       const key = this.normalize(field);
       if (!key) return null;
 
-      // Automatic mapping is intentionally conservative. Only an exact
-      // normalized match is accepted. Anything uncertain is left for the
-      // user to map explicitly in the mapping panel.
+      // Prefer exact matches, then use a small, explicit synonym dictionary.
+      // Ambiguous aliases are never silently mapped.
       const exact = headers.filter(header => this.normalize(header) === key);
-      return exact.length === 1 ? exact[0] : null;
+      if (exact.length === 1) return exact[0];
+      const alias = this.fieldAlias(field);
+      const candidates = headers.filter(header => this.fieldAlias(header) === alias);
+      return candidates.length === 1 ? candidates[0] : null;
     },
 
     getHeaderSuggestion(field) {
@@ -733,23 +842,29 @@
       const key = this.normalize(field);
       if (!key || !headers.length) return null;
 
-      // Provide a suggestion for the UI, but never silently apply it.
+      const alias = this.fieldAlias(field);
+      const aliasMatches = headers.filter(header => this.fieldAlias(header) === alias);
+      if (aliasMatches.length === 1) return aliasMatches[0];
+
+      // Suggestions are advisory only; low-confidence guesses are not applied.
+      const tokenSet = value =>
+        String(value ?? "").toLowerCase().match(/[a-z0-9]+/g) || [];
       const scored = headers.map(header => {
         const value = this.normalize(header);
         if (!value) return { header, score: 0 };
-        let score = 0;
-        if (value.includes(key) || key.includes(value)) score = 50;
-        let common = 0;
-        const limit = Math.min(key.length, value.length);
-        for (let i = 0; i < limit; i++) {
-          if (key[i] === value[i]) common++;
-          else break;
-        }
-        score = Math.max(score, common / Math.max(key.length, value.length) * 100);
+        if (value === key) return { header, score: 100 };
+        const left = new Set(tokenSet(field));
+        const right = new Set(tokenSet(header));
+        const intersection = [...left].filter(token => right.has(token)).length;
+        const union = new Set([...left, ...right]).size || 1;
+        let score = intersection / union * 100;
+        if (value.includes(key) || key.includes(value)) score = Math.max(score, 65);
+        const common = [...key].reduce((count, char, index) => count + (char === value[index] ? 1 : 0), 0);
+        score = Math.max(score, common / Math.max(key.length, value.length) * 45);
         return { header, score };
-      }).sort((x, y) => y.score - x.score);
+      }).sort((a, b) => b.score - a.score);
 
-      return scored[0]?.score >= 60 ? scored[0].header : null;
+      return scored[0]?.score >= 65 ? scored[0].header : null;
     },
 
     autoMapHtml() {
@@ -1178,16 +1293,19 @@
     async loadPhotos(files) {
       this.state.photoFiles.clear();
       this.state.photoFilesNormalized.clear();
+      let indexed = 0;
       for (const file of Array.from(files || [])) {
+        if (!file?.name || !/\.(?:jpe?g|png|webp|gif|bmp)$/i.test(file.name)) continue;
         this.state.photoFiles.set(file.name.toLowerCase(), file);
         this.state.photoFiles.set(file.name.replace(/\.[^.]+$/, "").toLowerCase(), file);
         const normalizedName = this.normalize(file.name.replace(/\.[^.]+$/, ""));
         if (normalizedName && !this.state.photoFilesNormalized.has(normalizedName)) {
           this.state.photoFilesNormalized.set(normalizedName, file);
         }
+        indexed++;
       }
       this.refresh();
-      this.notify(Math.floor(this.state.photoFiles.size / 2) + " photo files indexed • Excel photo fields will be matched automatically");
+      this.notify(indexed + " photo files indexed • Excel photo fields will be matched automatically");
     },
 
     async loadBadge(file) {
@@ -1991,6 +2109,7 @@
       const fieldsEl = document.getElementById("studentBatchFields");
       const sizeEl = document.getElementById("studentBatchCardSize");
       const photoEl = document.getElementById("studentBatchPhotoName");
+      this.ensurePhotoZipControls();
       this.ensureWatermarkControls();
       this.ensurePhotoEnhancementControls();
       this.ensurePhotoManualControls();
