@@ -56,19 +56,23 @@ The gallery also links to Canva, Microsoft Create, Adobe Express and SketchValle
 
 The development app now includes a Supabase-backed account and billing foundation with email/password signup, a required phone number, a user plan panel, and an admin approval dashboard. The admin email is checked server-side: `kaigwaakram123@gmail.com`.
 
-- Free plan: 2 batch actions per calendar month. The Joes Studio watermark is mandatory and cannot be removed or renamed.
-- Paid plans: daily **5,000 UGX**, monthly **25,000 UGX**. The weekly price is intentionally not enabled until the owner confirms the missing amount.
-- Payment instructions: send money to **0749846848 — KABALI MADINA**, then submit the mobile-money transaction reference. A plan is activated only after manual admin approval.
-- Approved paid accounts can access custom templates and can enable/disable the watermark and customise its text while their plan is active.
+- **Free:** 2 batch actions per calendar month. The Joes Studio watermark is mandatory and cannot be removed or renamed.
+- **Pro:** 29,000 UGX per 30 days; 300 included batch actions/month, custom background colours, white-background enhancement, premium templates and customizable watermark controls.
+- **Business:** 79,000 UGX per 30 days; 1,500 included batch actions/month, Pro features, bulk workflows and up to 5 team seats (team-seat enforcement is not yet implemented).
+- **Institution:** 750,000 UGX per year; 10,000 included batch actions/month, Business features and up to 25 seats (institution seat management is not yet self-service).
+- **Batch credit packs:** 10,000 UGX for 100 additional batch actions, usable after the included monthly allowance on any plan. Credits are added only after manual payment verification.
+- **Institution licences, template marketplace and design/setup services:** users can submit requests from Account & Plans; the admin can track their follow-up status. These are request/intake workflows, not a fully automated marketplace or multi-seat licence manager.
+- **Manual payment:** send the exact displayed amount to **0749846848 — KABALI MADINA**, then submit the mobile-money transaction reference. Subscriptions and credits activate only after the admin verifies the payment.
+- **Legacy plans:** when applying the expansion SQL, existing daily/weekly/monthly subscriptions and payment requests are migrated to Pro while retaining their expiry timestamps.
 
 ### Required backend setup (development only)
 
 The API handlers under `api/` require a serverless host such as Vercel; GitHub Pages cannot execute them. If the frontend stays on GitHub Pages, set `window.JOES_STUDIO_API_BASE` in `static/monetization-config.js` to the development API origin and configure the API host's `ALLOWED_ORIGINS` to include `https://quranhub1.github.io`. For a same-origin Vercel deployment, leave the API base empty. A Vercel project must be linked to this Development repository, not the production repository.
 
-1. Create a Supabase project and run [the monetisation SQL](supabase/monetization.sql) in the Supabase SQL Editor.
+1. Create a Supabase project and run [the base monetisation SQL](supabase/monetization.sql), then run [the monetisation expansion SQL](supabase/monetization-expansion.sql) in the Supabase SQL Editor.
 2. Add `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` as **server-side environment variables** for the development deployment. Never put the service-role key in browser code.
 3. Enable email/password signup and email verification in Supabase Auth. The phone number is stored as signup metadata; SMS OTP verification requires an SMS provider and is not enabled merely by collecting a phone number.
-4. Set `WEEKLY_PRICE_UGX` only after confirming the weekly amount. `.env.example` documents the required variables.
-5. Test signup, email verification, free monthly quotas, a pending payment, approval/rejection, expiry, renewals and Pro watermark/template controls before production.
+4. `CREDIT_PACK_PRICE_UGX` defaults to 10,000 UGX for a pack of 100 credits. `.env.example` documents the required variables.
+5. Test signup, email verification, Free (2), Pro (300), Business (1,500), Institution (10,000) monthly batch limits, credit consumption, pending subscription/credit payments, approval/rejection, expiry, renewals, institution/marketplace/service requests and paid-feature authorization before production. These are initial commercial defaults and should be reviewed against real processing costs before launch.
 
 The API is deliberately fail-closed for batch actions when authentication/billing is not configured. This code has been added to the development repository only; it has not been deployed to production.
