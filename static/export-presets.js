@@ -124,8 +124,8 @@
       presets.push({ name, settings: {
         sheetSize: String(b.state.sheetSize || "A4"),
         orientation: b.state.orientation === "landscape" ? "landscape" : "portrait",
-        cardsPerPage: Math.min(100, Math.max(1, Number(b.state.cardsPerPage) || 6)),
-        resolution: [150, 300, 600].includes(Number(b.state.resolution)) ? Number(b.state.resolution) : 300
+        cardsPerPage: Math.min(40, Math.max(1, Number(b.state.cardsPerPage) || 6)),
+        resolution: [150, 200, 300, 600].includes(Number(b.state.resolution)) ? Number(b.state.resolution) : 300
       }});
       localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
       panel.querySelector("#jsmExportPresetName").value = "";
