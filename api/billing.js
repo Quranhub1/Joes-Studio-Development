@@ -14,10 +14,9 @@ module.exports=async function(req,res){
    return L.json(res,200,{request:rows?.[0]||null,message:"Payment request submitted. Your plan remains locked until the administrator approves it."});
   }
   if(action==="consume_batch"){
-   const[s,u]=await Promise.all([L.subscriptionFor(user.id),L.usageFor(user.id)]),paid=isAdmin||(s.plan!=="free"&&s.status==="active"&&s.expires_at&&new Date(s.expires_at).getTime()>Date.now());
-   if(!paid&&u.batch_actions>=2&&u.credits<=0)return L.json(res,402,{error:"Your 2 free batch actions and purchased credits are used. Buy a credit pack or request a Pro plan."});
-   const result=await L.db("rpc/consume_batch_action",{method:"POST",body:{p_user_id:user.id,p_enforce_limit:!paid}});
-   if(result?.allowed===false)return L.json(res,402,{error:"Your free batch allowance and purchased credits are used. Buy a credit pack or request a Pro plan."});
+   const s=await L.subscriptionFor(user.id),ent=L.entitlementFor(s,isAdmin);
+   const result=await L.db("rpc/consume_batch_action_v2",{method:"POST",body:{p_user_id:user.id,p_included_limit:ent.included_batch_actions,p_bypass_limit:!!isAdmin}});
+   if(result?.allowed===false)return L.json(res,402,{error:"Your included monthly batch allowance is used. Purchase an optional credit pack or upgrade your plan."});
    return L.json(res,200,{ok:true,usage:result});
   }
   if(action==="request_credits"){
@@ -72,7 +71,7 @@ module.exports=async function(req,res){
   }
   if(action==="set_feature"){
    const feature=String(b.feature||"");if(!["custom_templates_enabled","custom_watermark_enabled"].includes(feature))return L.json(res,400,{error:"Unknown feature."});
-   const s=await L.subscriptionFor(user.id),paid=isAdmin||(s.plan!=="free"&&s.status==="active"&&new Date(s.expires_at).getTime()>Date.now());if(!paid)return L.json(res,403,{error:"This is a Pro feature. Upgrade to change this setting."});
+   const s=await L.subscriptionFor(user.id),ent=L.entitlementFor(s,isAdmin);if(!ent[feature==="custom_templates_enabled"?"custom_templates":"custom_watermark"])return L.json(res,403,{error:"This feature requires an active paid plan."});
    if(!isAdmin)await L.db("subscriptions?user_id=eq."+encodeURIComponent(user.id),{method:"PATCH",body:{[feature]:Boolean(b.enabled),updated_at:new Date().toISOString()}});
    return L.json(res,200,{ok:true,feature,enabled:Boolean(b.enabled)});
   }
@@ -82,12 +81,11 @@ module.exports=async function(req,res){
    return L.json(res,200,{payments:rows||[],subscription:sub});
   }
   if(action==="authorize_feature"){
-   const feature=String(b.feature||"");
-   if(!["custom_templates","custom_watermark"].includes(feature))return L.json(res,400,{error:"Unknown premium feature."});
-   const sub=await L.subscriptionFor(user.id),paid=isAdmin||(sub.plan!=="free"&&sub.status==="active"&&sub.expires_at&&new Date(sub.expires_at).getTime()>Date.now());
-   const enabled=feature==="custom_templates"?!!sub.custom_templates_enabled:!!sub.custom_watermark_enabled;
-   if(!paid||(!isAdmin&&!enabled))return L.json(res,403,{error:feature==="custom_templates"?"Custom templates require an active approved plan with custom templates enabled.":"Custom watermark settings require an active approved plan with custom watermark enabled."});
-   return L.json(res,200,{allowed:true,feature});
+   const feature=String(b.feature||""),allowedFeatures=["custom_templates","custom_watermark","white_background","custom_background","bulk_tools"];
+   if(!allowedFeatures.includes(feature))return L.json(res,400,{error:"Unknown premium feature."});
+   const sub=await L.subscriptionFor(user.id),ent=L.entitlementFor(sub,isAdmin),setting=feature==="custom_templates"?sub.custom_templates_enabled:feature==="custom_watermark"?sub.custom_watermark_enabled:true;
+   if(!ent[feature]||(!isAdmin&&setting===false))return L.json(res,403,{error:"This feature is not included in your active plan. Upgrade in Account & Plans to unlock it."});
+   return L.json(res,200,{allowed:true,feature,plan:ent.plan});
   }
   if(action==="admin_analytics"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
