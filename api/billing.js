@@ -133,7 +133,7 @@ module.exports=async function(req,res){
   }
   if(action==="admin_set_subscription"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
-   const userId=String(b.user_id||"").trim(),plan=String(b.plan||""),duration=Number(b.duration_days||({"daily":1,"weekly":7,"monthly":30}[plan]||0));
+   const userId=String(b.user_id||"").trim(),plan=String(b.plan||""),duration=Number(b.duration_days||({"pro":30,"business":30,"institution":365}[plan]||0));
    if(!userId||!["pro","business","institution"].includes(plan)||!Number.isInteger(duration)||duration<1||duration>365)return L.json(res,400,{error:"Choose a valid plan and a duration from 1 to 365 days."});
    const now=new Date(),current=await L.subscriptionFor(userId),base=current.status==="active"&&current.plan!=="free"&&current.expires_at&&new Date(current.expires_at)>now?new Date(current.expires_at):now;
    const expires=new Date(base.getTime()+duration*86400000).toISOString();
