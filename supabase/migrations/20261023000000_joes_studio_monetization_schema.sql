@@ -1,128 +1,48 @@
--- Joes Studio monetization schema.
--- Additive migration: creates only the tables/functions used by api/_lib.js and api/billing.js.
--- This file is not applied automatically by Vercel; review and apply to the intended Supabase project.
-
-create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  email text not null,
-  phone text,
-  is_banned boolean not null default false,
-  ban_reason text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-alter table public.profiles add column if not exists is_banned boolean not null default false;
-alter table public.profiles add column if not exists ban_reason text;
-
-create unique index if not exists profiles_email_lower_uidx
-  on public.profiles (lower(email));
-
-create table if not exists public.subscriptions (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null unique references auth.users(id) on delete cascade,
-  plan text not null default 'free'
-    check (plan in ('free', 'daily', 'weekly', 'monthly')),
-  status text not null default 'active'
-    check (status in ('active', 'expired', 'cancelled')),
-  starts_at timestamptz,
-  expires_at timestamptz,
-  custom_templates_enabled boolean not null default false,
-  custom_watermark_enabled boolean not null default false,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create index if not exists subscriptions_status_expires_idx
-  on public.subscriptions (status, expires_at);
-
-create table if not exists public.monthly_usage (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  month_key date not null,
-  batch_actions integer not null default 0 check (batch_actions >= 0),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (user_id, month_key)
-);
-
-create table if not exists public.payment_requests (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  email text not null,
-  phone text,
-  plan text not null check (plan in ('daily', 'weekly', 'monthly')),
-  amount_ugx numeric(14,2) not null check (amount_ugx > 0),
-  payment_reference text not null,
-  status text not null default 'pending'
-    check (status in ('pending', 'approved', 'rejected')),
-  requested_at timestamptz not null default now(),
-  reviewed_at timestamptz,
-  reviewed_by uuid references auth.users(id) on delete set null,
-  admin_note text
-);
-
-create index if not exists payment_requests_status_requested_idx
-  on public.payment_requests (status, requested_at desc);
-create index if not exists payment_requests_user_status_idx
-  on public.payment_requests (user_id, status);
-
--- Called by the server with the service-role key. The row lock/upsert makes the monthly
--- free-action limit atomic when multiple requests arrive at once.
-create or replace function public.consume_batch_action(
-  p_user_id uuid,
-  p_enforce_limit boolean default true
-)
-returns jsonb
-language plpgsql
-security definer
-set search_path = public, pg_temp
-as $$
-declare
-  v_month_key date := date_trunc('month', now() at time zone 'UTC')::date;
-  v_actions integer;
-begin
-  insert into public.monthly_usage (user_id, month_key, batch_actions, updated_at)
-  values (p_user_id, v_month_key, 1, now())
-  on conflict (user_id, month_key) do update
-    set batch_actions = public.monthly_usage.batch_actions + 1,
-        updated_at = now()
-    where not p_enforce_limit or public.monthly_usage.batch_actions < 2
-  returning batch_actions into v_actions;
-
-  if v_actions is null then
-    select batch_actions into v_actions
-      from public.monthly_usage
-      where user_id = p_user_id and month_key = v_month_key;
-    return jsonb_build_object(
-      'allowed', false,
-      'month_key', v_month_key,
-      'batch_actions', coalesce(v_actions, 0)
-    );
-  end if;
-
-  return jsonb_build_object(
-    'allowed', true,
-    'month_key', v_month_key,
-    'batch_actions', v_actions
-  );
-end;
-$$;
-
--- These tables are accessed by the server using the Supabase service-role key.
--- Enable RLS so browser/anon clients cannot read or write billing/profile data directly.
-alter table public.profiles enable row level security;
-alter table public.subscriptions enable row level security;
-alter table public.monthly_usage enable row level security;
-alter table public.payment_requests enable row level security;
-
-revoke all on public.profiles from anon, authenticated;
-revoke all on public.subscriptions from anon, authenticated;
-revoke all on public.monthly_usage from anon, authenticated;
-revoke all on public.payment_requests from anon, authenticated;
-
--- Do not grant direct RPC execution to browser roles. The server uses service_role.
-revoke all on function public.consume_batch_action(uuid, boolean) from public, anon, authenticated;
-grant execute on function public.consume_batch_action(uuid, boolean) to service_role;
-
-notify pgrst, 'reload schema';
+(function(){
+  "use strict";
+  if(document.getElementById("jsReloadSite"))return;
+  const style=document.createElement("style");
+  style.textContent=`
+    #jsReloadSite{position:fixed;right:16px;bottom:72px;z-index:99990;display:inline-flex;align-items:center;gap:8px;border:1px solid #e2e8f0;border-radius:999px;padding:10px 15px;background:#fff;color:#1e293b;font:650 13px/1.2 system-ui,-apple-system,sans-serif;box-shadow:0 8px 24px rgba(15,23,42,.14);cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s}
+    #jsReloadSite:hover{transform:translateY(-2px);border-color:#fda4af;box-shadow:0 12px 30px rgba(15,23,42,.18)}
+    #jsReloadOverlay{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.56);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);opacity:0;transition:opacity .2s ease}
+    #jsReloadOverlay.open{opacity:1}
+    #jsReloadCard{width:min(410px,100%);box-sizing:border-box;padding:28px 26px 24px;border:1px solid rgba(226,232,240,.9);border-radius:22px;background:#fff;color:#0f172a;text-align:center;box-shadow:0 28px 90px rgba(15,23,42,.28);transform:translateY(10px) scale(.985);transition:transform .2s ease}
+    #jsReloadOverlay.open #jsReloadCard{transform:translateY(0) scale(1)}
+    #jsReloadBrand{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 0 22px;color:#64748b;font:750 11px/1 system-ui,-apple-system,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+    #jsReloadMark{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 18px;border:1px solid #fecdd3;border-radius:18px;background:linear-gradient(145deg,#fff1f2,#ffe4e6);color:#be123c;font:700 28px/1 system-ui,-apple-system,sans-serif}
+    #jsReloadCard h2{margin:0 0 10px;font:750 23px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:-.045em;color:#0f172a}
+    #jsReloadCard p{margin:0 auto 24px;max-width:320px;color:#64748b;font:14px/1.65 system-ui,-apple-system,sans-serif}
+    #jsReloadActions{display:flex;gap:10px}
+    #jsReloadActions button{flex:1;min-height:46px;border-radius:12px;padding:11px 14px;font:700 13px system-ui,-apple-system,sans-serif;cursor:pointer;transition:background .15s,transform .15s,border-color .15s}
+    #jsReloadActions button:active{transform:scale(.98)}
+    #jsReloadCancel{border:1px solid #e2e8f0;background:#fff;color:#334155}
+    #jsReloadCancel:hover{background:#f8fafc;border-color:#cbd5e1}
+    #jsReloadConfirm{border:1px solid #be123c;background:linear-gradient(135deg,#e11d48,#be123c);color:#fff;box-shadow:0 5px 14px rgba(190,18,60,.2)}
+    #jsReloadConfirm:hover{background:linear-gradient(135deg,#be123c,#9f1239)}
+    #jsReloadActions button:focus-visible,#jsReloadSite:focus-visible{outline:3px solid #fda4af!important;outline-offset:3px}
+    @media(max-width:420px){#jsReloadCard{padding:24px 18px 20px;border-radius:18px}#jsReloadActions{flex-direction:column-reverse}}
+    @media(prefers-reduced-motion:reduce){#jsReloadSite,#jsReloadOverlay,#jsReloadCard,#jsReloadActions button{transition:none}}
+  `;
+  const button=document.createElement("button");button.id="jsReloadSite";button.type="button";button.innerHTML="<span aria-hidden=\"true\">↻</span><span>Reload site</span>";button.setAttribute("aria-label","Reload Joes Studio");
+  button.addEventListener("click",()=>{
+    if(document.getElementById("jsReloadOverlay"))return;
+    const overlay=document.createElement("div");overlay.id="jsReloadOverlay";overlay.setAttribute("role","presentation");
+    const card=document.createElement("section");card.id="jsReloadCard";card.setAttribute("role","dialog");card.setAttribute("aria-modal","true");card.setAttribute("aria-labelledby","jsReloadTitle");
+    const brand=document.createElement("div");brand.id="jsReloadBrand";brand.textContent="JOES STUDIO";
+    const mark=document.createElement("div");mark.id="jsReloadMark";mark.textContent="↻";mark.setAttribute("aria-hidden","true");
+    const title=document.createElement("h2");title.id="jsReloadTitle";title.textContent="Reload this page?";
+    const message=document.createElement("p");message.textContent="Joes Studio will refresh and start again. Any changes you have not saved may be lost.";
+    const actions=document.createElement("div");actions.id="jsReloadActions";
+    const cancel=document.createElement("button");cancel.id="jsReloadCancel";cancel.type="button";cancel.textContent="Cancel";
+    const confirm=document.createElement("button");confirm.id="jsReloadConfirm";confirm.type="button";confirm.textContent="Reload page";
+    const close=()=>{overlay.classList.remove("open");setTimeout(()=>overlay.remove(),220);button.focus();};
+    cancel.addEventListener("click",close);
+    overlay.addEventListener("click",e=>{if(e.target===overlay)close();});
+    overlay.addEventListener("keydown",e=>{if(e.key==="Escape")close();});
+    confirm.addEventListener("click",()=>{confirm.disabled=true;confirm.textContent="Reloading…";window.location.reload();});
+    actions.append(cancel,confirm);card.append(brand,mark,title,message,actions);overlay.append(card);document.body.append(style,button,overlay);
+    requestAnimationFrame(()=>{overlay.classList.add("open");confirm.focus();});
+  });
+  document.head.appendChild(style);document.body.appendChild(button);
+})();
