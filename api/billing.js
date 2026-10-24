@@ -16,7 +16,8 @@ module.exports=async function(req,res){
   }
   if(action==="consume_batch"){
    const[s,u]=await Promise.all([L.subscriptionFor(user.id),L.usageFor(user.id)]),paid=isAdmin||(s.plan!=="free"&&s.status==="active"&&new Date(s.expires_at).getTime()>Date.now());
-   if(!paid&&u.batch_actions>=2)return L.json(res,402,{error:"Your 2 free batch actions this month are used. Choose a paid plan and wait for admin approval."});
+   const monthlyLimit=isAdmin?Number.MAX_SAFE_INTEGER:!paid?2:(s.plan==="business"||s.plan==="business_annual"?500:s.plan==="hourly"?20:100);
+   if(u.batch_actions>=monthlyLimit)return L.json(res,402,{error:!paid?"Your 2 free batch actions this month are used. Choose a paid plan and wait for admin approval.":"You have reached this plan's fair-use allowance of "+monthlyLimit+" batch actions for the current month. Upgrade or contact Joes Studio for additional capacity."});
    const result=await L.db("rpc/consume_batch_action",{method:"POST",body:{p_user_id:user.id,p_enforce_limit:!paid}});
    if(result?.allowed===false)return L.json(res,402,{error:"Your free batch allowance is used for this month. Request a plan and wait for admin approval."});
    return L.json(res,200,{ok:true,usage:result});
