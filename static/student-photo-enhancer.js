@@ -20,10 +20,12 @@
     async makeBackgroundMask(image,w,h,fallbackData){
       try{
         const segmenter=await this.getSegmenter();
-        let result;
-        segmenter.segment(image,value=>{result=value;});
+        // MediaPipe Tasks Vision IMAGE mode returns the result synchronously.
+        // Passing a callback as the second argument does not populate `result`,
+        // so the old code silently fell back to the weak colour mask every time.
+        const result=segmenter.segment(image);
         const mask=result?.categoryMask;
-        const confidence=result?.confidenceMasks?.[1];
+        const confidence=result?.confidenceMasks?.[1] || result?.confidenceMasks?.[0];
         const soft=confidence?.getAsFloat32Array?.();
         const values=soft||mask?.getAsUint8Array?.();
         const mw=soft?confidence.width:mask?.width,mh=soft?confidence.height:mask?.height;
@@ -36,7 +38,8 @@
             const sx=(x/(w-1||1))*(mw-1),x0=Math.floor(sx),x1=Math.min(mw-1,x0+1),fx=sx-x0;
             const person=(values[y0*mw+x0]*(1-fx)+values[y0*mw+x1]*fx)*(1-fy)+(values[y1*mw+x0]*(1-fx)+values[y1*mw+x1]*fx)*fy;
             const p=soft?Math.max(0,Math.min(1,person)):(person>=1?1:0);
-            const t=Math.max(0,Math.min(1,(p-.18)/.64)),alpha=t*t*(3-2*t);
+            // Bias the soft person mask toward the foreground to remove grey background halos.
+            const t=Math.max(0,Math.min(1,(p-.22)/.38)),alpha=t*t*(3-2*t);
             out[y*w+x]=1-alpha;coverage+=alpha;
           }
         }
