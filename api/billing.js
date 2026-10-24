@@ -52,7 +52,7 @@ module.exports=async function(req,res){
    const rows=await L.db("credit_requests?id=eq."+encodeURIComponent(id)+"&select=*"),p=Array.isArray(rows)?rows[0]:null;
    if(!p||p.status!=="pending")return L.json(res,409,{error:"This credit request is missing or already reviewed."});
    const now=new Date(),status=decision==="approve"?"approved":"rejected";
-   if(decision==="approve")await L.db("rpc/grant_credits",{method:"POST",body:{p_user_id:p.user_id,p_credits:Number(p.credits),p_reference:String(p.payment_reference),p_admin_id:user.id}});
+   if(decision==="approve")await L.db("rpc/grant_credits",{method:"POST",body:{p_user_id:p.user_id,p_credits:Number(p.credits),p_reference:"credit-request:"+id,p_admin_id:user.id}});
    await L.db("credit_requests?id=eq."+encodeURIComponent(id),{method:"PATCH",body:{status,reviewed_at:now.toISOString(),reviewed_by:user.id,admin_note:note}});
    return L.json(res,200,{ok:true,status,message:decision==="approve"?"Credit pack approved and credited.":"Credit request rejected."});
   }
