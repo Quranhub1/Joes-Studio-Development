@@ -36,6 +36,7 @@ create table if not exists public.credit_requests (
   reviewed_by uuid references auth.users(id),
   admin_note text
 );
+create unique index if not exists credit_requests_payment_reference_unique on public.credit_requests(lower(payment_reference));
 create table if not exists public.commercial_requests (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
