@@ -186,7 +186,7 @@ module.exports=async function(req,res){
    if(decision==="approve"){
     const plan=L.planInfo(p.plan),days=plan?.duration_days;if(!days||!p.amount_ugx)return L.json(res,400,{error:"The requested plan is not configured."});
     const current=await L.subscriptionFor(p.user_id),base=current.status==="active"&&current.plan!=="free"&&current.expires_at&&new Date(current.expires_at)>now?new Date(current.expires_at):now;
-    await L.db("subscriptions?on_conflict=user_id",{method:"POST",prefer:"resolution=merge-duplicates,return=representation",body:{user_id:p.user_id,plan:p.plan,status:"active",starts_at:now.toISOString(),expires_at:new Date(base.getTime()+days*86400000).toISOString(),custom_templates_enabled:true,custom_watermark_enabled:true,updated_at:now.toISOString()}});
+    await L.db("subscriptions?on_conflict=user_id",{method:"POST",prefer:"resolution=merge-duplicates,return=representation",body:{user_id:p.user_id,plan:p.plan,status:"active",starts_at:now.toISOString(),expires_at:new Date(base.getTime()+(hours?hours*3600000:days*86400000)).toISOString(),custom_templates_enabled:true,custom_watermark_enabled:true,updated_at:now.toISOString()}});
    }
    await L.db("payment_requests?id=eq."+encodeURIComponent(id),{method:"PATCH",body:{status,reviewed_at:now.toISOString(),reviewed_by:user.id,admin_note:note}});
    return L.json(res,200,{ok:true,status});
