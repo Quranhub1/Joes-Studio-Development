@@ -36,7 +36,8 @@
             const sx=(x/(w-1||1))*(mw-1),x0=Math.floor(sx),x1=Math.min(mw-1,x0+1),fx=sx-x0;
             const person=(values[y0*mw+x0]*(1-fx)+values[y0*mw+x1]*fx)*(1-fy)+(values[y1*mw+x0]*(1-fx)+values[y1*mw+x1]*fx)*fy;
             const p=soft?Math.max(0,Math.min(1,person)):(person>=1?1:0);
-            const t=Math.max(0,Math.min(1,(p-.18)/.64)),alpha=t*t*(3-2*t);
+            // Bias the soft person mask toward the foreground to remove grey background halos.
+            const t=Math.max(0,Math.min(1,(p-.12)/.48)),alpha=t*t*(3-2*t);
             out[y*w+x]=1-alpha;coverage+=alpha;
           }
         }
