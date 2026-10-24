@@ -1,0 +1,23 @@
+{
+  "id": "./",
+  "name": "Joes Studio",
+  "short_name": "Joes Studio",
+  "description": "Design, enhance, batch process and print professional documents.",
+  "lang": "en",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
+  "categories": ["productivity", "utilities", "business"],
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
