@@ -5666,7 +5666,7 @@
               }, 100);
             });
             window.addEventListener("beforeunload", (e) => {
-              if (App.state.hasUnsavedChanges) {
+              if (App.state.hasUnsavedChanges && !window.__jsReloadConfirmed) {
                 e.preventDefault();
                 e.returnValue = "Unsaved changes";
                 return "Unsaved changes";
@@ -10722,6 +10722,6 @@
         </div>
       </div>
     </div>
-    <script src="./static/reload-popup.js?v=20261024-stylish1" defer></script>
+    <script src="./static/reload-popup.js?v=20261024-stylish2" defer></script>
   </body>
 </html>
