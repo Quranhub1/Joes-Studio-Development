@@ -532,9 +532,17 @@
         }
       }
     </style>
-  </head>
+  
+    <style id="jsmAccountFallbackStyle">
+      #jsmAccountFallback{position:fixed;left:14px;bottom:14px;z-index:99999;border:0;border-radius:10px;background:#b91c1c;color:#fff;padding:11px 16px;font:600 14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;box-shadow:0 8px 28px #0002;cursor:pointer}
+      #jsmAccountFallback:focus-visible{outline:3px solid #fca5a5;outline-offset:3px}
+      @media(max-width:600px){#jsmAccountFallback{left:12px;bottom:12px}}
+    </style>
+</head>
 
   <body class="bg-gray-50 h-screen flex flex-col text-slate-700 font-sans overflow-hidden">
+    <button id="jsmAccountFallback" type="button" aria-label="Open account sign in" onclick="(function(b){try{if(window.JoesStudioMonetization&&typeof window.JoesStudioMonetization.open==='function'){window.JoesStudioMonetization.open();return;}if(b.dataset.retrying==='true')return;b.dataset.retrying='true';b.textContent='Opening account…';var s=document.createElement('script');s.src='./static/monetization.js?v=20261024-account-recovery1';s.onload=function(){b.dataset.retrying='false';if(window.JoesStudioMonetization&&typeof window.JoesStudioMonetization.open==='function'){window.JoesStudioMonetization.open();}else{b.textContent='Sign in unavailable — refresh page';}};s.onerror=function(){b.dataset.retrying='false';b.textContent='Sign in unavailable — refresh page';};document.head.appendChild(s);}catch(e){b.textContent='Sign in unavailable — refresh page';}})(this)">Sign in / Account</button>
+
     <div id="welcomeModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop transition-opacity duration-300 p-3">
       <div class="bg-white w-[1120px] h-[720px] max-w-[97vw] max-h-[96vh] rounded-2xl shadow-2xl flex overflow-hidden">
         <div class="w-[265px] shrink-0 bg-slate-900 text-white p-6 flex flex-col justify-between relative overflow-hidden">
