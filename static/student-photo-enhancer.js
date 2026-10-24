@@ -20,8 +20,10 @@
     async makeBackgroundMask(image,w,h,fallbackData){
       try{
         const segmenter=await this.getSegmenter();
-        let result;
-        segmenter.segment(image,value=>{result=value;});
+        // IMAGE mode returns the segmentation result synchronously. Passing a
+        // callback can leave result undefined in supported MediaPipe builds,
+        // silently forcing the less accurate colour-based fallback.
+        const result=segmenter.segment(image);
         const mask=result?.categoryMask;
         const confidence=result?.confidenceMasks?.[1];
         const soft=confidence?.getAsFloat32Array?.();
