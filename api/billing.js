@@ -26,6 +26,34 @@ module.exports=async function(req,res){
    if(!isAdmin)await L.db("subscriptions?user_id=eq."+encodeURIComponent(user.id),{method:"PATCH",body:{[feature]:Boolean(b.enabled),updated_at:new Date().toISOString()}});
    return L.json(res,200,{ok:true,feature,enabled:Boolean(b.enabled)});
   }
+  if(action==="payment_history"){
+   const rows=await L.db("payment_requests?user_id=eq."+encodeURIComponent(user.id)+"&select=id,plan,amount_ugx,payment_reference,status,requested_at,reviewed_at,admin_note&order=requested_at.desc&limit=100");
+   const sub=await L.subscriptionFor(user.id);
+   return L.json(res,200,{payments:rows||[],subscription:sub});
+  }
+  if(action==="authorize_feature"){
+   const feature=String(b.feature||"");
+   if(!["custom_templates","custom_watermark"].includes(feature))return L.json(res,400,{error:"Unknown premium feature."});
+   const sub=await L.subscriptionFor(user.id),paid=isAdmin||(sub.plan!=="free"&&sub.status==="active"&&sub.expires_at&&new Date(sub.expires_at).getTime()>Date.now());
+   const enabled=feature==="custom_templates"?!!sub.custom_templates_enabled:!!sub.custom_watermark_enabled;
+   if(!paid||(!isAdmin&&!enabled))return L.json(res,403,{error:feature==="custom_templates"?"Custom templates require an active approved plan with custom templates enabled.":"Custom watermark settings require an active approved plan with custom watermark enabled."});
+   return L.json(res,200,{allowed:true,feature});
+  }
+  if(action==="admin_analytics"){
+   if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
+   const[requests,subscriptions]=await Promise.all([
+    L.db("payment_requests?select=user_id,plan,amount_ugx,status,requested_at,reviewed_at&order=requested_at.desc&limit=5000"),
+    L.db("subscriptions?select=user_id,plan,status,expires_at&limit=5000")
+   ]);
+   const reqs=Array.isArray(requests)?requests:[],subs=Array.isArray(subscriptions)?subscriptions:[];
+   const now=Date.now(),active=subs.filter(x=>x.plan!=="free"&&x.status==="active"&&x.expires_at&&new Date(x.expires_at).getTime()>now);
+   const approved=reqs.filter(x=>x.status==="approved"),rejected=reqs.filter(x=>x.status==="rejected"),pending=reqs.filter(x=>x.status==="pending");
+   const approvedByUser={};approved.forEach(x=>approvedByUser[x.user_id]=(approvedByUser[x.user_id]||0)+1);
+   const byPlan={daily:{requests:0,approved:0,rejected:0,revenue_ugx:0},weekly:{requests:0,approved:0,rejected:0,revenue_ugx:0},monthly:{requests:0,approved:0,rejected:0,revenue_ugx:0}};
+   reqs.forEach(x=>{if(!byPlan[x.plan])return;const p=byPlan[x.plan];p.requests++;if(x.status==="approved"){p.approved++;p.revenue_ugx+=Number(x.amount_ugx||0);}if(x.status==="rejected")p.rejected++;});
+   const totalRevenue=approved.reduce((sum,x)=>sum+Number(x.amount_ugx||0),0),repeatPayers=Object.values(approvedByUser).filter(n=>n>1).length;
+   return L.json(res,200,{generated_at:new Date().toISOString(),total_requests:reqs.length,pending_requests:pending.length,approved_payments:approved.length,rejected_requests:rejected.length,active_subscribers:active.length,total_revenue_ugx:totalRevenue,conversion_rate:reqs.length?Math.round(approved.length/reqs.length*1000)/10:0,repeat_payers:repeatPayers,by_plan:byPlan,history_limited:reqs.length>=5000||subs.length>=5000});
+  }
   if(action==="admin_list"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
    const rows=await L.db("payment_requests?select=*&order=requested_at.desc&limit=200"),ids=[...new Set((rows||[]).map(r=>r.user_id).filter(Boolean))];
