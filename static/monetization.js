@@ -125,7 +125,7 @@ async function renderAdminUsers(){
   const d=await api(BILLING,{action:"admin_users"});host.replaceChildren();
   if(!d.users?.length){host.append(make("p",{class:"muted"},"No registered profiles found yet."));return;}
   d.users.forEach(u=>{
-   const s=u.subscription||{},isPermanentAdmin=!!u.is_admin,active=s.status==="active"&&s.expires_at&&new Date(s.expires_at).getTime()>Date.now()&&s.plan!=="free";
+   const s=u.subscription||{},isPermanentAdmin=!!u.is_admin,active=u.plan_status==="active";
    const card=make("div",{class:"jsm-admin-user"});
    card.append(make("h3",{},isPermanentAdmin?"Joes Studio Administrator":(u.email||"Unknown user")));
    if(isPermanentAdmin){
@@ -136,7 +136,11 @@ async function renderAdminUsers(){
    }
    card.append(make("p",{class:"muted"},"Phone: "+(u.phone||"Not supplied")));
    if(u.is_banned)card.append(make("span",{class:"jsm-banned"},"BANNED"));
-   card.append(make("p",{class:"status"},active?String(s.plan).toUpperCase()+" active until "+new Date(s.expires_at).toLocaleDateString():"No active paid subscription"));
+   const planLabel=active?String(u.current_plan||s.plan).toUpperCase()+" PLAN":"FREE PLAN";
+   card.append(make("span",{class:"pill"},planLabel));
+   if(active)card.append(make("p",{class:"status"},planLabel+" active until "+new Date(u.plan_expires_at||s.expires_at).toLocaleDateString()));
+   else if(u.plan_status==="expired"&&u.previous_plan)card.append(make("p",{class:"status"},"FREE PLAN · Previous "+String(u.previous_plan).toUpperCase()+" subscription expired"+(s.expires_at?" on "+new Date(s.expires_at).toLocaleDateString():"")+"."));
+   else card.append(make("p",{class:"status"},"FREE PLAN · No active paid subscription."));
    const controls=make("div",{class:"jsm-admin-controls"}),plan=make("select",{"aria-label":"Plan for "+(u.email||"user"),name:"admin_plan"});
    [["pro","Pro"],["business","Business"],["institution","Institution annual"]].forEach(([v,label])=>plan.append(make("option",{value:v},label)));
    const days=make("input",{type:"number",name:"admin_days",min:"1",max:"365",value:({"pro":30,"business":30,"institution":365}[plan.value]),"aria-label":"Duration in days"});
