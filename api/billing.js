@@ -6,6 +6,7 @@ module.exports=async function(req,res){
  try{
   const b=L.bodyOf(req),action=String(b.action||""),{user,isAdmin}=await L.requireUser(req);await L.ensureProfile(user);
   if(action==="status"){const[s,u]=await Promise.all([L.subscriptionFor(user.id),L.usageFor(user.id)]);return L.json(res,200,L.publicStatus(user,isAdmin,s,u));}
+  if(!isAdmin&&!["request_payment","payment_history"].includes(action)){const current=await L.subscriptionFor(user.id);if(current.plan!=="free"&&(current.status!=="active"||!current.expires_at||new Date(current.expires_at).getTime()<=Date.now()))return L.json(res,403,{error:"Your subscription has expired. Renew your plan and wait for administrator approval to unlock workspace tools."});}
   if(action==="request_payment"){
    const p=L.planInfo(String(b.plan||""));if(!p)return L.json(res,400,{error:"Choose a valid plan."});
    const reference=String(b.payment_reference||"").trim().slice(0,120);if(!reference)return L.json(res,400,{error:"Enter the mobile-money transaction/reference ID after sending payment."});
