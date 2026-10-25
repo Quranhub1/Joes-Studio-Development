@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="218" height="60">
+<g stroke="none">
+<rect style="fill:#5F8AED" width="218" height="60"/>
+<rect style="fill:#00008C" width="20" height="60"/>
+<rect style="fill:#00008C" width="20" height="60" x="198"/>
+<rect style="fill:#F1BD00" width="20" height="60" x="20"/>
+<rect style="fill:#F1BD00" width="20" height="60" x="178"/>
+</g>
+<path d="m 109.05525,-0.25085387 l 0,60.29192187" style="opacity:0.25;stroke:#000;stroke-width:218;stroke-dasharray:2.05746518"/>
+</svg>

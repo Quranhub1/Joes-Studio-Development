@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg id="svg5396" version="1.1" height="60" width="218" xmlns="http://www.w3.org/2000/svg">
+  <defs id="defs5400">
+    <filter style="color-interpolation-filters:sRGB" id="filter906" x="-8.4587304e-06" width="1.0000169" y="-2.2859999e-05" height="1.0000457">
+      <feGaussianBlur stdDeviation="0.0005715" id="feGaussianBlur908"/>
+    </filter>
+  </defs>
+  <g id="layer6">
+    <rect id="rect5318" style="fill-opacity: 1; stroke: rgb(0, 0, 0); stroke-width: 2; stroke-opacity: 0.101961; fill: rgb(255, 255, 255);" height="60" width="218" y="0" x="0"/>
+    <g transform="matrix(1.2438399,0,0,0.9999955,-17.314392,-131.75878)" id="g17" style="fill:#1633aa;fill-opacity:1">
+      <path d="M 13.92 131.76 C 34.556 131.76 55.192 131.76 75.825 131.76 C 75.825 151.776 75.825 171.792 75.825 191.808 C 55.192 191.808 34.556 191.808 13.92 191.808 C 13.92 171.792 13.92 151.776 13.92 131.76 Z" style="display: inline; opacity: 1; fill-opacity: 1; fill-rule: evenodd; stroke: none; stroke-width: 0.564; stroke-linecap: butt; stroke-linejoin: round; stroke-miterlimit: 4; stroke-dasharray: none; stroke-dashoffset: 0; stroke-opacity: 1; filter: url(&quot;#filter906&quot;); fill: rgb(0, 0, 110);" id="path-2"/>
+      <path d="M 65.374 131.76 C 68.858 131.76 72.342 131.76 75.825 131.76 C 75.825 151.776 75.825 171.792 75.825 191.808 C 72.342 191.808 68.858 191.808 65.374 191.808 C 65.374 171.792 65.374 151.776 65.374 131.76 Z" style="display: inline; opacity: 1; fill-opacity: 1; fill-rule: evenodd; stroke: none; stroke-width: 0.564; stroke-linecap: butt; stroke-linejoin: round; stroke-miterlimit: 4; stroke-dasharray: none; stroke-dashoffset: 0; stroke-opacity: 1; filter: url(&quot;#filter906&quot;); fill: rgb(0, 180, 0);" id="path-3"/>
+      <path d="M 127.279 131.76 C 147.915 131.76 168.551 131.76 189.184 131.76 C 189.184 151.776 189.184 171.792 189.184 191.808 C 168.551 191.808 147.915 191.808 127.279 191.808 C 127.279 171.792 127.279 151.776 127.279 131.76 Z" style="display: inline; opacity: 1; fill-opacity: 1; fill-rule: evenodd; stroke: none; stroke-width: 0.564; stroke-linecap: butt; stroke-linejoin: round; stroke-miterlimit: 4; stroke-dasharray: none; stroke-dashoffset: 0; stroke-opacity: 1; filter: url(&quot;#filter906&quot;); fill: rgb(218, 0, 0);" id="path17"/>
+      <path d="M 127.279 131.76 C 130.763 131.76 134.247 131.76 137.731 131.76 C 137.731 151.776 137.731 171.792 137.731 191.808 C 134.247 191.808 130.763 191.808 127.279 191.808 C 127.279 171.792 127.279 151.776 127.279 131.76 Z" style="display: inline; opacity: 1; fill-opacity: 1; fill-rule: evenodd; stroke: none; stroke-width: 0.564; stroke-linecap: butt; stroke-linejoin: round; stroke-miterlimit: 4; stroke-dasharray: none; stroke-dashoffset: 0; stroke-opacity: 1; filter: url(&quot;#filter906&quot;); fill: rgb(247, 198, 0);" id="path-1"/>
+    </g>
+  </g>
+  <g id="layer5">
+    <path id="path5320" style="opacity:0.3;stroke:#000000;stroke-width:218;stroke-dasharray:2.07" d="M 109,0 V 60"/>
+  </g>
+</svg>
