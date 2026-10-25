@@ -10739,5 +10739,15 @@
     </div>
     <script src="./static/pwa-install.js?v=20261024-pwa1" defer></script>
     <script src="./static/reload-popup.js?v=20261024-stylish2" defer></script>
+    <script src="./static/offline-status.js?v=20261025-cachefix1" defer></script>
+    <script>
+      if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("./sw.js").catch(function (error) {
+            console.warn("Joes Studio offline support could not be enabled:", error);
+          });
+        });
+      }
+    </script>
   </body>
 </html>
