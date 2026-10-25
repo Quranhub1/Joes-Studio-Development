@@ -3,7 +3,7 @@
 const API_BASE=String(window.JOES_STUDIO_API_BASE||"").trim().replace(/\/+$/,"");const AUTH=API_BASE+"/api/auth",BILLING=API_BASE+"/api/billing",ADMIN="kaigwaakram123@gmail.com";
 const state={session:null,status:null,mode:"login",busy:false};
 try{state.session=JSON.parse(localStorage.getItem("joesStudioSession")||sessionStorage.getItem("joesStudioSession")||"null");}catch(_){}
-const make=(tag,attrs,text)=>{const n=document.createElement(tag);Object.entries(attrs||{}).forEach(([k,v])=>{if(k==="class")n.className=v;else n.setAttribute(k,v);});if(text!==undefined)n.textContent=text;return n;};
+const make=(tag,attrs,...children)=>{const n=document.createElement(tag);Object.entries(attrs||{}).forEach(([k,v])=>{if(k==="class")n.className=v;else if(v!==undefined&&v!==null)n.setAttribute(k,String(v));});children.flat(Infinity).forEach(child=>{if(child===undefined||child===null||child===false)return;if(child instanceof Node)n.appendChild(child);else n.appendChild(document.createTextNode(String(child)));});return n;};
 let toastTimer=null,toastNode=null;
 function toast(m,t){
  if(toastTimer)clearTimeout(toastTimer);
@@ -98,7 +98,7 @@ async function renderHistory(){
    c.append(make("p",{class:"muted"},"Submitted: "+(p.requested_at?new Date(p.requested_at).toLocaleString():"—")));
    c.append(make("p",{},"Transaction reference: "+(p.payment_reference||"—")));
    if(p.reviewed_at)c.append(make("p",{class:"muted"},"Reviewed: "+new Date(p.reviewed_at).toLocaleString()));
-   if(p.admin_note)c.append(make("p",{class:"muted"},"Admin note: "+p.admin_note));
+   if(p.admin_note){const adminNote=String(p.admin_note).trim();if(adminNote&&!/^\[object HTML[A-Za-z]*Element\]$/.test(adminNote))c.append(make("p",{class:"muted"},"Admin note: "+adminNote));}
    if(p.status==="rejected")c.append(make("p",{class:"danger"},"This request was rejected. Check the reference/payment details and submit a new request if needed."));
    host.append(c);
   });
