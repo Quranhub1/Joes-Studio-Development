@@ -1234,5 +1234,137 @@
     "license": "Public domain",
     "licenseUrl": "",
     "downloadedFile": "./templates/web-certificates/diploma-plc-newer-logo-svg.svg"
+  },
+  {
+    "id": "commons-certificate-monopoly-stock-certificate-color-svg",
+    "name": "Monopoly Stock Certificate Color",
+    "desc": "Color SVG preview of a Stock Certificate from en::File:Monopoly Stock Certificate Color.pdf.  Black and white and color PDFs available:\n300px\n\n300px",
+    "category": "Certificates",
+    "type": "svg-template",
+    "thumbnail": "./templates/web-certificates/monopoly-stock-certificate-color-svg.svg",
+    "url": "./templates/web-certificates/monopoly-stock-certificate-color-svg.svg",
+    "tags": [
+      "certificate",
+      "downloaded",
+      "Wikimedia Commons",
+      "CC BY-SA 3.0"
+    ],
+    "style": "Original downloaded SVG artwork",
+    "sourceName": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Monopoly_Stock_Certificate_Color.svg",
+    "creator": "The original uploader was Imzadi1979 at English Wikibooks.",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "downloadedFile": "./templates/web-certificates/monopoly-stock-certificate-color-svg.svg"
+  },
+  {
+    "id": "commons-certificate-monopoly-stock-certificate-svg",
+    "name": "Monopoly Stock Certificate",
+    "desc": "SVG preview of a Stock Certificate from en::File:Monopoly Stock Certificate.pdf.  Black and white and color PDFs available:\n300px\n\n300px",
+    "category": "Certificates",
+    "type": "svg-template",
+    "thumbnail": "./templates/web-certificates/monopoly-stock-certificate-svg.svg",
+    "url": "./templates/web-certificates/monopoly-stock-certificate-svg.svg",
+    "tags": [
+      "certificate",
+      "downloaded",
+      "Wikimedia Commons",
+      "CC BY-SA 3.0"
+    ],
+    "style": "Original downloaded SVG artwork",
+    "sourceName": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Monopoly_Stock_Certificate.svg",
+    "creator": "The original uploader was Imzadi1979 at English Wikibooks.",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "downloadedFile": "./templates/web-certificates/monopoly-stock-certificate-svg.svg"
+  },
+  {
+    "id": "commons-certificate-national-savings-certificate-svg",
+    "name": "National Savings Certificate",
+    "desc": "National Savings Certificate",
+    "category": "Certificates",
+    "type": "svg-template",
+    "thumbnail": "./templates/web-certificates/national-savings-certificate-svg.svg",
+    "url": "./templates/web-certificates/national-savings-certificate-svg.svg",
+    "tags": [
+      "certificate",
+      "downloaded",
+      "Wikimedia Commons",
+      "Public domain"
+    ],
+    "style": "Original downloaded SVG artwork",
+    "sourceName": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:National_Savings_Certificate.svg",
+    "creator": "Intellectual Carbohydrate",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "downloadedFile": "./templates/web-certificates/national-savings-certificate-svg.svg"
+  },
+  {
+    "id": "commons-certificate-diploma-plc-logo-svg",
+    "name": "Diploma plc logo",
+    "desc": "Diploma plc logo",
+    "category": "Certificates",
+    "type": "svg-template",
+    "thumbnail": "./templates/web-certificates/diploma-plc-logo-svg.svg",
+    "url": "./templates/web-certificates/diploma-plc-logo-svg.svg",
+    "tags": [
+      "certificate",
+      "downloaded",
+      "Wikimedia Commons",
+      "Public domain"
+    ],
+    "style": "Original downloaded SVG artwork",
+    "sourceName": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Diploma_plc_logo.svg",
+    "creator": "Benstown",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "downloadedFile": "./templates/web-certificates/diploma-plc-logo-svg.svg"
+  },
+  {
+    "id": "commons-certificate-diploma-plc-newer-logo-svg",
+    "name": "Diploma plc newer logo",
+    "desc": "Logo der Diploma plc",
+    "category": "Certificates",
+    "type": "svg-template",
+    "thumbnail": "./templates/web-certificates/diploma-plc-newer-logo-svg.svg",
+    "url": "./templates/web-certificates/diploma-plc-newer-logo-svg.svg",
+    "tags": [
+      "certificate",
+      "downloaded",
+      "Wikimedia Commons",
+      "Public domain"
+    ],
+    "style": "Original downloaded SVG artwork",
+    "sourceName": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Diploma_plc_newer_logo.svg",
+    "creator": "Diploma plc",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "downloadedFile": "./templates/web-certificates/diploma-plc-newer-logo-svg.svg"
+  },
+  {
+    "id": "commons-certificate-emblema-diploma-svg",
+    "name": "Emblema-diploma",
+    "desc": "Emblema Diploma",
+    "category": "Certificates",
+    "type": "svg-template",
+    "thumbnail": "./templates/web-certificates/emblema-diploma-svg.svg",
+    "url": "./templates/web-certificates/emblema-diploma-svg.svg",
+    "tags": [
+      "certificate",
+      "downloaded",
+      "Wikimedia Commons",
+      "Public domain"
+    ],
+    "style": "Original downloaded SVG artwork",
+    "sourceName": "Wikimedia Commons",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Emblema-diploma.svg",
+    "creator": "Soydecano25",
+    "license": "Public domain",
+    "licenseUrl": "",
+    "downloadedFile": "./templates/web-certificates/emblema-diploma-svg.svg"
   }
 ]
