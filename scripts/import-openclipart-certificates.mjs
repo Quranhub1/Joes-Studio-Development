@@ -16,14 +16,46 @@ const MAX_ASSETS = Math.max(1, Math.min(1000, Number(process.env.MAX_CERTIFICATE
 const API = "https://commons.wikimedia.org/w/api.php";
 const USER_AGENT = "JoesStudioCertificateLibrary/2.0 (licensed artwork importer; https://github.com/Quranhub1/Joes-Studio-Development)";
 const searches = [
-  '"certificate of achievement" filemime:svg',
-  '"certificate of completion" filemime:svg',
-  '"certificate of appreciation" filemime:svg',
-  '"certificate template" filemime:svg',
-  '"diploma certificate" filemime:svg',
-  '"certificate frame" filemime:svg',
-  '"award certificate" filemime:svg',
-  '"certificate border" filemime:svg'
+  'certificate filemime:svg',
+  'diploma filemime:svg',
+  'award certificate filemime:svg',
+  'certificate of achievement filemime:svg',
+  'certificate of completion filemime:svg',
+  'certificate of appreciation filemime:svg',
+  'certificate template filemime:svg',
+  'diploma certificate filemime:svg',
+  'certificate frame filemime:svg',
+  'certificate border filemime:svg',
+  'school certificate filemime:svg',
+  'graduation certificate filemime:svg',
+  'training certificate filemime:svg',
+  'participation certificate filemime:svg',
+  'merit certificate filemime:svg',
+  'recognition certificate filemime:svg',
+  'award diploma filemime:svg',
+  'achievement award filemime:svg',
+  'certificate design filemime:svg',
+  'certificate ornamental border filemime:svg',
+  'certificate of excellence filemime:svg',
+  'certificate of attendance filemime:svg',
+  'certificate of service filemime:svg',
+  'certificate of merit filemime:svg',
+  'certificate of honor filemime:svg',
+  'certificate of participation filemime:svg',
+  'certificate of appreciation template filemime:svg',
+  'diploma template filemime:svg',
+  'academic diploma filemime:svg',
+  'award document filemime:svg',
+  'certificate parchment filemime:svg',
+  'certificate landscape filemime:svg',
+  'certificate portrait filemime:svg',
+  'certificate blank filemime:svg',
+  'certificate printable filemime:svg',
+  'certificate vector filemime:svg',
+  'certificate layout filemime:svg',
+  'certificate illustration filemime:svg',
+  'award certificate border filemime:svg',
+  'honor certificate filemime:svg'
 ];
 const allowedLicense = /public domain|CC0|CC BY(?:-SA)?(?: 2\.0| 3\.0| 4\.0)?/i;
 const rejectTitle = /logo|logotype|emblem|coat of arms|icon|symbol|monopoly|stock certificate|savings certificate|seal only|badge only|flag|diagram|chart|map|font|typeface/i;
@@ -77,7 +109,7 @@ async function main() {
   for (const term of searches) {
     const params = new URLSearchParams({
       action: "query", format: "json", generator: "search", gsrsearch: term,
-      gsrnamespace: "6", gsrlimit: "50", prop: "imageinfo",
+      gsrnamespace: "6", gsrlimit: "500", prop: "imageinfo",
       iiprop: "url|extmetadata"
     });
     try {
@@ -111,7 +143,7 @@ async function main() {
   const imported = [];
   const usedNames = new Set();
   const seenHashes = new Set();
-  for (const item of [...candidates.values()].slice(0, MAX_ASSETS)) {
+  for (const item of candidates.values()) {\n    if (imported.length >= MAX_ASSETS) break;
     const base = slugify(item.title) || "certificate-artwork";
     let filename = `${base}.svg`;
     let n = 2;
