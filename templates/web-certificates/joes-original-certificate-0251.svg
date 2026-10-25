@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="595" viewBox="0 0 840 595" role="img" aria-label="Academic Distinction certificate design">
+<rect width="840" height="595" fill="#FEFCE8"/>
+<rect x="0" y="0" width="840" height="595" fill="none" stroke="#FACC15" stroke-width="1" opacity=".3"/>
+<rect x="24" y="24" width="792" height="547" fill="none" stroke="#854D0E" stroke-width="5"/><rect x="40" y="40" width="760" height="515" fill="none" stroke="#FACC15" stroke-width="1.5"/><path d="M55 82H765M55 515H765" stroke="#FACC15" stroke-width="1"/>
+<path d="M388 87H452V125Q420 148 388 125Z" fill="#FACC15"/><path d="M395 125L385 157L410 145L420 158L420 137M445 125L455 157L430 145L420 158" fill="#FACC15"/><text x="420" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="18" fill="#FEFCE8">★</text>
+<text x="420" y="205" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="4" fill="#854D0E">JOES STUDIO • CERTIFICATE</text>
+<text x="420" y="252" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#854D0E">Academic Distinction</text>
+<path d="M315 176H525" stroke="#FACC15" stroke-width="1.5"/><path d="M410 176l10 -5 10 5 -10 5z" fill="#FACC15"/>
+<text x="420" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="1" fill="#FEFCE8">.</text>
+<text x="420" y="287" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" letter-spacing="1.6" fill="#854D0E">THIS CERTIFICATE IS PROUDLY PRESENTED TO</text>
+<path d="M170 343H670" stroke="#FACC15" stroke-width="1.6"/>
+<text x="420" y="331" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-style="italic" fill="#854D0E">Recipient Name</text>
+<text x="420" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.1" fill="#854D0E">FOR SCHOLARLY ACHIEVEMENT</text>
+<text x="420" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#854D0E">In recognition of commitment, achievement, and dedication.</text>
+<path d="M180 466H350M490 466H660" stroke="#777" stroke-width="1.2"/><text x="265" y="486" text-anchor="middle" font-size="11" fill="#666">DIRECTOR / INSTRUCTOR</text><text x="575" y="486" text-anchor="middle" font-size="11" fill="#666">ISSUE DATE</text>
+<text x="420" y="531" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" letter-spacing="2" fill="#FACC15">ISSUED WITH PRIDE AND APPRECIATION</text>
+</svg>

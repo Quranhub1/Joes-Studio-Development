@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="595" viewBox="0 0 840 595" role="img" aria-label="Certificate of Participation certificate design">
+<rect width="840" height="595" fill="#FFFAEB"/>
+<rect x="0" y="0" width="840" height="595" fill="none" stroke="#D6B36A" stroke-width="1" opacity=".3"/>
+<g transform="translate(30 30) scale(1 1)" fill="none" stroke="#D6B36A" stroke-width="2"><path d="M0 44V0H44"/><path d="M7 31V7H31"/><circle cx="8" cy="8" r="3" fill="#D6B36A"/></g><g transform="translate(810 30) scale(-1 1)" fill="none" stroke="#D6B36A" stroke-width="2"><path d="M0 44V0H44"/><path d="M7 31V7H31"/><circle cx="8" cy="8" r="3" fill="#D6B36A"/></g><g transform="translate(30 565) scale(1 -1)" fill="none" stroke="#D6B36A" stroke-width="2"><path d="M0 44V0H44"/><path d="M7 31V7H31"/><circle cx="8" cy="8" r="3" fill="#D6B36A"/></g><g transform="translate(810 565) scale(-1 -1)" fill="none" stroke="#D6B36A" stroke-width="2"><path d="M0 44V0H44"/><path d="M7 31V7H31"/><circle cx="8" cy="8" r="3" fill="#D6B36A"/></g>
+<g fill="none" stroke="#D6B36A" stroke-width="2.5"><path d="M388 148Q350 120 375 89M452 148Q490 120 465 89"/><path d="M380 135l-17 -3 5 -16 16 8M375 117l-9 -15 14 -9 9 15M460 135l17 -3 -5 -16 -16 8M465 117l9 -15 -14 -9 -9 15"/><circle cx="420" cy="119" r="24"/></g><path d="M410 108l10 -10 10 10v17l-10 8-10-8z" fill="#D6B36A"/>
+<text x="420" y="205" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="4" fill="#7C4A03">JOES STUDIO • CERTIFICATE</text>
+<text x="420" y="252" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="29" font-weight="bold" fill="#7C4A03">Certificate of Participation</text>
+<path d="M315 176H525" stroke="#D6B36A" stroke-width="1.5"/><path d="M410 176l10 -5 10 5 -10 5z" fill="#D6B36A"/>
+<text x="420" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="1" fill="#FFFAEB">.</text>
+<text x="420" y="287" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" letter-spacing="1.6" fill="#7C4A03">THIS CERTIFICATE IS PROUDLY PRESENTED TO</text>
+<path d="M170 343H670" stroke="#D6B36A" stroke-width="1.6"/>
+<text x="420" y="331" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-style="italic" fill="#7C4A03">Recipient Name</text>
+<text x="420" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.1" fill="#7C4A03">FOR ACTIVE PARTICIPATION</text>
+<text x="420" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#7C4A03">In recognition of commitment, achievement, and dedication.</text>
+<path d="M170 466H330M510 466H670" stroke="#777" stroke-width="1.2"/><text x="250" y="486" text-anchor="middle" font-size="11" fill="#666">AUTHORISED SIGNATURE</text><text x="590" y="486" text-anchor="middle" font-size="11" fill="#666">DATE</text>
+<text x="420" y="531" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" letter-spacing="2" fill="#D6B36A">ISSUED WITH PRIDE AND APPRECIATION</text>
+</svg>
