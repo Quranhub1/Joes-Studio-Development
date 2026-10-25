@@ -292,5 +292,149 @@
       "A4",
       "custom design"
     ]
+  },
+  {
+    "id": "certificate-emerald-laureate",
+    "name": "Emerald Laureate Certificate",
+    "desc": "Premium emerald, ivory and gold certificate with a refined double frame, award seal and editable recipient, achievement, signatures and certificate number.",
+    "style": "Emerald and champagne gold",
+    "url": "./templates/certificate_emerald_laureate.paper",
+    "thumbnail": "./templates/previews/certificate-emerald-laureate.svg",
+    "tags": [
+      "certificate",
+      "emerald",
+      "luxury",
+      "award",
+      "achievement",
+      "premium"
+    ],
+    "title": "CERTIFICATE OF EXCELLENCE",
+    "sub": "FOR EXCEPTIONAL PERFORMANCE AND CONTRIBUTION",
+    "category": "Certificates",
+    "type": "template"
+  },
+  {
+    "id": "certificate-midnight-royal",
+    "name": "Midnight Royal Certificate",
+    "desc": "High-contrast midnight blue and antique gold award certificate with formal typography, ornamental seal and editable presentation fields.",
+    "style": "Midnight navy and antique gold",
+    "url": "./templates/certificate_midnight_royal.paper",
+    "thumbnail": "./templates/previews/certificate-midnight-royal.svg",
+    "tags": [
+      "certificate",
+      "midnight",
+      "navy",
+      "gold",
+      "royal",
+      "formal"
+    ],
+    "title": "CERTIFICATE OF DISTINCTION",
+    "sub": "IN RECOGNITION OF OUTSTANDING MERIT",
+    "category": "Certificates",
+    "type": "template"
+  },
+  {
+    "id": "certificate-burgundy-academic",
+    "name": "Burgundy Academic Honour",
+    "desc": "Formal academic certificate in burgundy, ivory and warm gold, designed for graduation, academic distinction and institutional awards.",
+    "style": "Burgundy, ivory and gold",
+    "url": "./templates/certificate_burgundy_academic.paper",
+    "thumbnail": "./templates/previews/certificate-burgundy-academic.svg",
+    "tags": [
+      "academic",
+      "graduation",
+      "diploma",
+      "burgundy",
+      "honour",
+      "certificate"
+    ],
+    "title": "CERTIFICATE OF ACADEMIC HONOUR",
+    "sub": "AWARDED IN RECOGNITION OF SCHOLARLY ACHIEVEMENT",
+    "category": "Certificates",
+    "type": "template"
+  },
+  {
+    "id": "id-corporate-navy-pro",
+    "name": "Executive Navy Staff ID",
+    "desc": "Polished corporate ID card with navy header, photo frame, clear identity hierarchy and editable staff details.",
+    "style": "Executive navy and ice blue",
+    "url": "./templates/id_corporate_navy_pro.json",
+    "thumbnail": "./templates/previews/id-corporate-navy-pro.svg",
+    "tags": [
+      "ID",
+      "staff",
+      "employee",
+      "corporate",
+      "navy",
+      "professional"
+    ],
+    "heading": "STAFF IDENTIFICATION",
+    "org": "YOUR ORGANISATION",
+    "foot": "OFFICIAL STAFF IDENTIFICATION",
+    "category": "Student IDs & Badges",
+    "type": "template"
+  },
+  {
+    "id": "id-emerald-campus",
+    "name": "Emerald Campus Student ID",
+    "desc": "Contemporary student ID with rich emerald branding, structured student details and a dedicated portrait area.",
+    "style": "Emerald and ivory",
+    "url": "./templates/id_emerald_campus.json",
+    "thumbnail": "./templates/previews/id-emerald-campus.svg",
+    "tags": [
+      "ID",
+      "student",
+      "school",
+      "campus",
+      "emerald",
+      "education"
+    ],
+    "heading": "STUDENT IDENTIFICATION",
+    "org": "YOUR SCHOOL / INSTITUTION",
+    "foot": "STUDENT ID • SAMPLE DESIGN",
+    "category": "Student IDs & Badges",
+    "type": "template"
+  },
+  {
+    "id": "id-obsidian-gold",
+    "name": "Obsidian Gold Premium ID",
+    "desc": "Premium black and gold ID card for executives, members and VIP staff, with a strong header and clean readable identity fields.",
+    "style": "Obsidian black and gold",
+    "url": "./templates/id_obsidian_gold.json",
+    "thumbnail": "./templates/previews/id-obsidian-gold.svg",
+    "tags": [
+      "ID",
+      "executive",
+      "VIP",
+      "membership",
+      "black",
+      "gold"
+    ],
+    "heading": "PREMIUM IDENTITY",
+    "org": "YOUR ORGANISATION",
+    "foot": "AUTHORISED IDENTIFICATION",
+    "category": "Student IDs & Badges",
+    "type": "template"
+  },
+  {
+    "id": "id-event-cobalt",
+    "name": "Cobalt Event & Crew Pass",
+    "desc": "Bold cobalt event credential for organisers, crew and conference staff, designed for quick visual recognition.",
+    "style": "Cobalt and bright white",
+    "url": "./templates/id_event_cobalt.json",
+    "thumbnail": "./templates/previews/id-event-cobalt.svg",
+    "tags": [
+      "ID",
+      "event",
+      "crew",
+      "conference",
+      "staff pass",
+      "cobalt"
+    ],
+    "heading": "EVENT CREW PASS",
+    "org": "EVENT / ORGANISER",
+    "foot": "CREW • ACCESS PASS",
+    "category": "Student IDs & Badges",
+    "type": "template"
   }
 ]
