@@ -49,9 +49,32 @@ function isFlagged(item) {
   const text = JSON.stringify([item?.tags, item?.tag, item?.flags, item?.status, item?.description]).toLowerCase();
   return /pd_issue|need-review|nsfw|not safe for work/.test(text);
 }
+async function fetchWithRetry(url, options = {}, attempts = 4) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: AbortSignal.timeout(25000),
+      });
+      if (response.ok) return response;
+      const error = new Error(`HTTP ${response.status} from ${url}`);
+      // Retry temporary upstream and rate-limit errors, but fail fast for bad requests.
+      if (response.status < 500 && response.status !== 429) throw error;
+      lastError = error;
+    } catch (error) {
+      lastError = error;
+    }
+    if (attempt < attempts) {
+      const delayMs = Math.min(1000 * (2 ** (attempt - 1)), 8000);
+      console.warn(`Request attempt ${attempt}/${attempts} failed for ${url}: ${lastError?.cause?.message || lastError?.message || lastError}. Retrying in ${delayMs}ms.`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  throw new Error(`Request failed after ${attempts} attempts for ${url}: ${lastError?.cause?.message || lastError?.message || lastError}`);
+}
 async function fetchJson(url) {
-  const response = await fetch(url, { headers });
-  if (!response.ok) throw new Error(`HTTP ${response.status} from ${url}`);
+  const response = await fetchWithRetry(url, { headers });
   return response.json();
 }
 async function search(term) {
@@ -107,8 +130,7 @@ for (const item of [...found.values()].slice(0, MAX_ASSETS)) {
   try {
     let svg;
     try {
-      const response = await fetch(`https://openclipart.org/download/${item.itemId}`, { headers, redirect: "follow" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const response = await fetchWithRetry(`https://openclipart.org/download/${item.itemId}`, { headers, redirect: "follow" });
       svg = await response.text();
     } catch (error) {
       throw new Error(`download failed: ${error.message}`);
