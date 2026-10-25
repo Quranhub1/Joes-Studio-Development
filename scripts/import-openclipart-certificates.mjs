@@ -27,7 +27,7 @@ const slugify = (s) => String(s).normalize("NFKD").replace(/[^a-zA-Z0-9]+/g, "-"
 const plain = (s) => String(s || "").replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&#039;/g, "'").replace(/&quot;/g, '"').trim();
 async function getJson(url) {
   const response = await fetch(url, { headers: { "User-Agent": USER_AGENT, "Accept": "application/json" } });
-  if (!response.ok) throw new Error(\`Wikimedia Commons API returned HTTP \${response.status}\`);
+  if (!response.ok) throw new Error(`Wikimedia Commons API returned HTTP ${response.status}`);
   return response.json();
 }
 async function main() {
@@ -45,7 +45,7 @@ async function main() {
       iiprop: "url|extmetadata"
     });
     try {
-      const data = await getJson(\`\${API}?\${params}\`);
+      const data = await getJson(`${API}?${params}`);
       for (const page of Object.values(data.query?.pages || {})) {
         const title = page.title || "";
         const info = page.imageinfo?.[0];
@@ -59,12 +59,12 @@ async function main() {
         const description = plain(meta.ImageDescription?.value || title.replace(/^File:/, ""));
         candidates.set(title, {
           title: title.replace(/^File:/, ""),
-          sourceUrl: info.descriptionurl || \`https://commons.wikimedia.org/wiki/\${encodeURIComponent(title.replace(/ /g, "_"))}\`,
+          sourceUrl: info.descriptionurl || `https://commons.wikimedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`,
           downloadUrl: info.url, author, license, licenseUrl, description
         });
       }
     } catch (error) {
-      console.warn(\`Search failed for "\${term}": \${error.message}\`);
+      console.warn(`Search failed for "${term}": ${error.message}`);
     }
   }
 
@@ -74,35 +74,35 @@ async function main() {
   const usedNames = new Set();
   for (const item of [...candidates.values()].slice(0, MAX_ASSETS)) {
     const base = slugify(item.title) || "certificate-artwork";
-    let filename = \`\${base}.svg\`;
+    let filename = `${base}.svg`;
     let n = 2;
-    while (usedNames.has(filename)) filename = \`\${base}-\${n++}.svg\`;
+    while (usedNames.has(filename)) filename = `${base}-${n++}.svg`;
     usedNames.add(filename);
     try {
       const response = await fetch(item.downloadUrl, { headers: { "User-Agent": USER_AGENT } });
-      if (!response.ok) throw new Error(\`download HTTP \${response.status}\`);
+      if (!response.ok) throw new Error(`download HTTP ${response.status}`);
       const svg = await response.text();
       if (!/<svg[\s>]/i.test(svg) || svg.length < 100) throw new Error("download was not a valid SVG document");
       // Save the downloaded source artwork without replacing its design or text.
       await fs.writeFile(path.join(outputDir, filename), svg, "utf8");
-      const id = \`commons-certificate-\${slugify(item.title).slice(0, 70)}\`;
+      const id = `commons-certificate-${slugify(item.title).slice(0, 70)}`;
       const entry = {
         id, name: item.title.replace(/\.svg$/i, ""),
         desc: item.description || "Certificate artwork downloaded from Wikimedia Commons.",
         category: "Certificates", type: "svg-template",
-        thumbnail: \`./templates/web-certificates/\${filename}\`,
-        url: \`./templates/web-certificates/\${filename}\`,
+        thumbnail: `./templates/web-certificates/${filename}`,
+        url: `./templates/web-certificates/${filename}`,
         tags: ["certificate", "downloaded", "Wikimedia Commons", item.license],
         style: "Original downloaded SVG artwork",
         sourceName: "Wikimedia Commons", sourceUrl: item.sourceUrl,
         creator: item.author, license: item.license, licenseUrl: item.licenseUrl,
-        downloadedFile: \`./templates/web-certificates/\${filename}\`
+        downloadedFile: `./templates/web-certificates/${filename}`
       };
       retained.push(entry);
       imported.push({ id, name: entry.name, localFile: entry.downloadedFile, sourceUrl: item.sourceUrl, creator: item.author, license: item.license, licenseUrl: item.licenseUrl });
-      console.log(\`Downloaded: \${item.title}\`);
+      console.log(`Downloaded: ${item.title}`);
     } catch (error) {
-      console.warn(\`Skipping \${item.title}: \${error.message}\`);
+      console.warn(`Skipping ${item.title}: ${error.message}`);
     }
   }
 
@@ -118,7 +118,7 @@ async function main() {
     licensePolicy: "Only items with identifiable public-domain, CC0, CC BY, or CC BY-SA licences are imported",
     items: imported
   }, null, 2) + "\n");
-  console.log(\`Imported \${imported.length} real SVG files from Wikimedia Commons.\`);
+  console.log(`Imported ${imported.length} real SVG files from Wikimedia Commons.`);
   if (!imported.length) throw new Error("No licensed certificate SVGs were downloaded. No synthetic fallback is created; inspect API/network or broaden the source search.");
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });
