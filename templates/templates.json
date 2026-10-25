@@ -436,5 +436,715 @@
     "foot": "CREW • ACCESS PASS",
     "category": "Student IDs & Badges",
     "type": "template"
+  },
+  {
+    "id": "certificate-design-01",
+    "name": "01 · Academic Laurel Certificate",
+    "desc": "Original editable certificate design for academic excellence. Includes recipient, institution, date and signature areas. Georgia typography with laurel decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-01.svg",
+    "url": "./templates/certificate_design_01.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "academic",
+      "excellence",
+      "academic laurel"
+    ],
+    "style": "Academic Laurel · #153e35 / #c9a45c"
+  },
+  {
+    "id": "certificate-design-02",
+    "name": "02 · Midnight Prestige Certificate",
+    "desc": "Original editable certificate design for completion. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-02.svg",
+    "url": "./templates/certificate_design_02.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "completion",
+      "midnight prestige"
+    ],
+    "style": "Midnight Prestige · #17233f / #d6b66e"
+  },
+  {
+    "id": "certificate-design-03",
+    "name": "03 · Burgundy Scholar Certificate",
+    "desc": "Original editable certificate design for professional development. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-03.svg",
+    "url": "./templates/certificate_design_03.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "professional",
+      "development",
+      "burgundy scholar"
+    ],
+    "style": "Burgundy Scholar · #762d43 / #d9b68a"
+  },
+  {
+    "id": "certificate-design-04",
+    "name": "04 · Royal Sapphire Certificate",
+    "desc": "Original editable certificate design for achievement. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-04.svg",
+    "url": "./templates/certificate_design_04.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "achievement",
+      "royal sapphire"
+    ],
+    "style": "Royal Sapphire · #174b83 / #e0bd62"
+  },
+  {
+    "id": "certificate-design-05",
+    "name": "05 · Modern Monochrome Certificate",
+    "desc": "Original editable certificate design for participation. Includes recipient, institution, date and signature areas. Arial typography with minimal decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-05.svg",
+    "url": "./templates/certificate_design_05.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "participation",
+      "modern monochrome"
+    ],
+    "style": "Modern Monochrome · #252a31 / #aeb6c2"
+  },
+  {
+    "id": "certificate-design-06",
+    "name": "06 · Forest Merit Certificate",
+    "desc": "Original editable certificate design for appreciation. Includes recipient, institution, date and signature areas. Georgia typography with botanical decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-06.svg",
+    "url": "./templates/certificate_design_06.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "appreciation",
+      "forest merit"
+    ],
+    "style": "Forest Merit · #245443 / #d6c38b"
+  },
+  {
+    "id": "certificate-design-07",
+    "name": "07 · Rose Gold Honor Certificate",
+    "desc": "Original editable certificate design for leadership. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-07.svg",
+    "url": "./templates/certificate_design_07.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "leadership",
+      "rose gold honor"
+    ],
+    "style": "Rose Gold Honor · #8b4a55 / #d7a18f"
+  },
+  {
+    "id": "certificate-design-08",
+    "name": "08 · Oceanic Achievement Certificate",
+    "desc": "Original editable certificate design for excellence. Includes recipient, institution, date and signature areas. Arial typography with waves decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-08.svg",
+    "url": "./templates/certificate_design_08.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "excellence",
+      "oceanic achievement"
+    ],
+    "style": "Oceanic Achievement · #116b78 / #e3c77c"
+  },
+  {
+    "id": "certificate-design-09",
+    "name": "09 · Violet Distinction Certificate",
+    "desc": "Original editable certificate design for merit. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-09.svg",
+    "url": "./templates/certificate_design_09.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "merit",
+      "violet distinction"
+    ],
+    "style": "Violet Distinction · #4d397e / #cbb6ec"
+  },
+  {
+    "id": "certificate-design-10",
+    "name": "10 · Copper Heritage Certificate",
+    "desc": "Original editable certificate design for service. Includes recipient, institution, date and signature areas. Georgia typography with ornate decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-10.svg",
+    "url": "./templates/certificate_design_10.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "service",
+      "copper heritage"
+    ],
+    "style": "Copper Heritage · #80492f / #d5a16a"
+  },
+  {
+    "id": "certificate-design-11",
+    "name": "11 · Emerald Excellence Certificate",
+    "desc": "Original editable certificate design for training. Includes recipient, institution, date and signature areas. Georgia typography with laurel decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-11.svg",
+    "url": "./templates/certificate_design_11.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "training",
+      "emerald excellence"
+    ],
+    "style": "Emerald Excellence · #08735b / #d5b75c"
+  },
+  {
+    "id": "certificate-design-12",
+    "name": "12 · Cobalt Modern Certificate",
+    "desc": "Original editable certificate design for recognition. Includes recipient, institution, date and signature areas. Arial typography with geometric decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-12.svg",
+    "url": "./templates/certificate_design_12.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "recognition",
+      "cobalt modern"
+    ],
+    "style": "Cobalt Modern · #174fbd / #91c6f4"
+  },
+  {
+    "id": "certificate-design-13",
+    "name": "13 · Charcoal Executive Certificate",
+    "desc": "Original editable certificate design for innovation. Includes recipient, institution, date and signature areas. Arial typography with minimal decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-13.svg",
+    "url": "./templates/certificate_design_13.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "innovation",
+      "charcoal executive"
+    ],
+    "style": "Charcoal Executive · #252b35 / #c6a86a"
+  },
+  {
+    "id": "certificate-design-14",
+    "name": "14 · Sage Sustainability Certificate",
+    "desc": "Original editable certificate design for achievement in research. Includes recipient, institution, date and signature areas. Georgia typography with botanical decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-14.svg",
+    "url": "./templates/certificate_design_14.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "achievement",
+      "in",
+      "research",
+      "sage sustainability"
+    ],
+    "style": "Sage Sustainability · #53705b / #d9c9a1"
+  },
+  {
+    "id": "certificate-design-15",
+    "name": "15 · Coral Celebration Certificate",
+    "desc": "Original editable certificate design for teaching excellence. Includes recipient, institution, date and signature areas. Georgia typography with waves decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-15.svg",
+    "url": "./templates/certificate_design_15.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "teaching",
+      "excellence",
+      "coral celebration"
+    ],
+    "style": "Coral Celebration · #b84f48 / #f0c58c"
+  },
+  {
+    "id": "certificate-design-16",
+    "name": "16 · Indigo Fellowship Certificate",
+    "desc": "Original editable certificate design for volunteer service. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-16.svg",
+    "url": "./templates/certificate_design_16.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "volunteer",
+      "service",
+      "indigo fellowship"
+    ],
+    "style": "Indigo Fellowship · #303a78 / #d5bf87"
+  },
+  {
+    "id": "certificate-design-17",
+    "name": "17 · Teal Innovation Certificate",
+    "desc": "Original editable certificate design for workplace safety. Includes recipient, institution, date and signature areas. Arial typography with geometric decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-17.svg",
+    "url": "./templates/certificate_design_17.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "workplace",
+      "safety",
+      "teal innovation"
+    ],
+    "style": "Teal Innovation · #087e83 / #e8c46b"
+  },
+  {
+    "id": "certificate-design-18",
+    "name": "18 · Plum Leadership Certificate",
+    "desc": "Original editable certificate design for digital skills. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-18.svg",
+    "url": "./templates/certificate_design_18.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "digital",
+      "skills",
+      "plum leadership"
+    ],
+    "style": "Plum Leadership · #623d62 / #d8b9a3"
+  },
+  {
+    "id": "certificate-design-19",
+    "name": "19 · Sandstone Legacy Certificate",
+    "desc": "Original editable certificate design for community impact. Includes recipient, institution, date and signature areas. Georgia typography with ornate decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-19.svg",
+    "url": "./templates/certificate_design_19.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "community",
+      "impact",
+      "sandstone legacy"
+    ],
+    "style": "Sandstone Legacy · #82694d / #c8a96c"
+  },
+  {
+    "id": "certificate-design-20",
+    "name": "20 · Arctic Silver Certificate",
+    "desc": "Original editable certificate design for outstanding performance. Includes recipient, institution, date and signature areas. Arial typography with minimal decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-20.svg",
+    "url": "./templates/certificate_design_20.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "outstanding",
+      "performance",
+      "arctic silver"
+    ],
+    "style": "Arctic Silver · #526578 / #d7e0e8"
+  },
+  {
+    "id": "certificate-design-21",
+    "name": "21 · Crimson Valor Certificate",
+    "desc": "Original editable certificate design for internship completion. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-21.svg",
+    "url": "./templates/certificate_design_21.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "internship",
+      "completion",
+      "crimson valor"
+    ],
+    "style": "Crimson Valor · #8e2837 / #e5c36c"
+  },
+  {
+    "id": "certificate-design-22",
+    "name": "22 · Golden Jubilee Certificate",
+    "desc": "Original editable certificate design for clinical placement. Includes recipient, institution, date and signature areas. Georgia typography with ornate decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-22.svg",
+    "url": "./templates/certificate_design_22.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "clinical",
+      "placement",
+      "golden jubilee"
+    ],
+    "style": "Golden Jubilee · #74531b / #e3c66f"
+  },
+  {
+    "id": "certificate-design-23",
+    "name": "23 · Blue Horizon Certificate",
+    "desc": "Original editable certificate design for workshop attendance. Includes recipient, institution, date and signature areas. Arial typography with waves decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-23.svg",
+    "url": "./templates/certificate_design_23.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "workshop",
+      "attendance",
+      "blue horizon"
+    ],
+    "style": "Blue Horizon · #2d6289 / #9ccbd7"
+  },
+  {
+    "id": "certificate-design-24",
+    "name": "24 · Olive Heritage Certificate",
+    "desc": "Original editable certificate design for seminar participation. Includes recipient, institution, date and signature areas. Georgia typography with botanical decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-24.svg",
+    "url": "./templates/certificate_design_24.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "seminar",
+      "participation",
+      "olive heritage"
+    ],
+    "style": "Olive Heritage · #626b32 / #d8bd77"
+  },
+  {
+    "id": "certificate-design-25",
+    "name": "25 · Electric Azure Certificate",
+    "desc": "Original editable certificate design for project completion. Includes recipient, institution, date and signature areas. Arial typography with geometric decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-25.svg",
+    "url": "./templates/certificate_design_25.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "project",
+      "completion",
+      "electric azure"
+    ],
+    "style": "Electric Azure · #1748a8 / #8ec9ff"
+  },
+  {
+    "id": "certificate-design-26",
+    "name": "26 · Champagne Formal Certificate",
+    "desc": "Original editable certificate design for financial literacy. Includes recipient, institution, date and signature areas. Georgia typography with ornate decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-26.svg",
+    "url": "./templates/certificate_design_26.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "financial",
+      "literacy",
+      "champagne formal"
+    ],
+    "style": "Champagne Formal · #8d7652 / #d6c29b"
+  },
+  {
+    "id": "certificate-design-27",
+    "name": "27 · Black Tie Award Certificate",
+    "desc": "Original editable certificate design for entrepreneurship. Includes recipient, institution, date and signature areas. Georgia typography with minimal decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-27.svg",
+    "url": "./templates/certificate_design_27.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "entrepreneurship",
+      "black tie award"
+    ],
+    "style": "Black Tie Award · #17191e / #bda56d"
+  },
+  {
+    "id": "certificate-design-28",
+    "name": "28 · Orchid Recognition Certificate",
+    "desc": "Original editable certificate design for environmental stewardship. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-28.svg",
+    "url": "./templates/certificate_design_28.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "environmental",
+      "stewardship",
+      "orchid recognition"
+    ],
+    "style": "Orchid Recognition · #794d8c / #e2c0df"
+  },
+  {
+    "id": "certificate-design-29",
+    "name": "29 · Tropical Jade Certificate",
+    "desc": "Original editable certificate design for sports achievement. Includes recipient, institution, date and signature areas. Arial typography with botanical decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-29.svg",
+    "url": "./templates/certificate_design_29.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "sports",
+      "achievement",
+      "tropical jade"
+    ],
+    "style": "Tropical Jade · #16806d / #edc36d"
+  },
+  {
+    "id": "certificate-design-30",
+    "name": "30 · Steel Blue Merit Certificate",
+    "desc": "Original editable certificate design for arts & creativity. Includes recipient, institution, date and signature areas. Arial typography with minimal decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-30.svg",
+    "url": "./templates/certificate_design_30.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "arts",
+      "and",
+      "creativity",
+      "steel blue merit"
+    ],
+    "style": "Steel Blue Merit · #405a78 / #c1d0df"
+  },
+  {
+    "id": "certificate-design-31",
+    "name": "31 · Autumn Ember Certificate",
+    "desc": "Original editable certificate design for language proficiency. Includes recipient, institution, date and signature areas. Georgia typography with waves decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-31.svg",
+    "url": "./templates/certificate_design_31.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "language",
+      "proficiency",
+      "autumn ember"
+    ],
+    "style": "Autumn Ember · #93452f / #dfb16b"
+  },
+  {
+    "id": "certificate-design-32",
+    "name": "32 · Skyline Achievement Certificate",
+    "desc": "Original editable certificate design for customer service. Includes recipient, institution, date and signature areas. Arial typography with geometric decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-32.svg",
+    "url": "./templates/certificate_design_32.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "customer",
+      "service",
+      "skyline achievement"
+    ],
+    "style": "Skyline Achievement · #276b9a / #f0c46d"
+  },
+  {
+    "id": "certificate-design-33",
+    "name": "33 · Deep Sea Distinction Certificate",
+    "desc": "Original editable certificate design for mentorship. Includes recipient, institution, date and signature areas. Georgia typography with waves decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-33.svg",
+    "url": "./templates/certificate_design_33.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "mentorship",
+      "deep sea distinction"
+    ],
+    "style": "Deep Sea Distinction · #103f55 / #d1b26a"
+  },
+  {
+    "id": "certificate-design-34",
+    "name": "34 · Lavender Grace Certificate",
+    "desc": "Original editable certificate design for equality & inclusion. Includes recipient, institution, date and signature areas. Georgia typography with classic decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-34.svg",
+    "url": "./templates/certificate_design_34.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "equality",
+      "and",
+      "inclusion",
+      "lavender grace"
+    ],
+    "style": "Lavender Grace · #6960a7 / #d8c9ef"
+  },
+  {
+    "id": "certificate-design-35",
+    "name": "35 · Pine & Brass Certificate",
+    "desc": "Original editable certificate design for quality improvement. Includes recipient, institution, date and signature areas. Georgia typography with botanical decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-35.svg",
+    "url": "./templates/certificate_design_35.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "quality",
+      "improvement",
+      "pine brass"
+    ],
+    "style": "Pine & Brass · #1e4a3c / #b8a06a"
+  },
+  {
+    "id": "certificate-design-36",
+    "name": "36 · Terracotta Honor Certificate",
+    "desc": "Original editable certificate design for research ethics. Includes recipient, institution, date and signature areas. Georgia typography with ornate decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-36.svg",
+    "url": "./templates/certificate_design_36.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "research",
+      "ethics",
+      "terracotta honor"
+    ],
+    "style": "Terracotta Honor · #a34f3d / #e2b17e"
+  },
+  {
+    "id": "certificate-design-37",
+    "name": "37 · Digital Future Certificate",
+    "desc": "Original editable certificate design for public health awareness. Includes recipient, institution, date and signature areas. Arial typography with geometric decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-37.svg",
+    "url": "./templates/certificate_design_37.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "public",
+      "health",
+      "awareness",
+      "digital future"
+    ],
+    "style": "Digital Future · #243b68 / #5ed6cf"
+  },
+  {
+    "id": "certificate-design-38",
+    "name": "38 · Pearl Elegance Certificate",
+    "desc": "Original editable certificate design for teamwork. Includes recipient, institution, date and signature areas. Georgia typography with minimal decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-38.svg",
+    "url": "./templates/certificate_design_38.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "teamwork",
+      "pearl elegance"
+    ],
+    "style": "Pearl Elegance · #7c6c6a / #d9c8c0"
+  },
+  {
+    "id": "certificate-design-39",
+    "name": "39 · Regal Amethyst Certificate",
+    "desc": "Original editable certificate design for lifelong learning. Includes recipient, institution, date and signature areas. Georgia typography with ornate decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-39.svg",
+    "url": "./templates/certificate_design_39.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "lifelong",
+      "learning",
+      "regal amethyst"
+    ],
+    "style": "Regal Amethyst · #43316b / #d3b66c"
+  },
+  {
+    "id": "certificate-design-40",
+    "name": "40 · Global Impact Certificate",
+    "desc": "Original editable certificate design for special commendation. Includes recipient, institution, date and signature areas. Arial typography with geometric decorative styling.",
+    "category": "Certificates",
+    "type": "template",
+    "thumbnail": "./templates/previews/certificate-design-40.svg",
+    "url": "./templates/certificate_design_40.paper",
+    "tags": [
+      "certificate",
+      "certificate",
+      "of",
+      "special",
+      "commendation",
+      "global impact"
+    ],
+    "style": "Global Impact · #165b66 / #d8b969"
   }
 ]
