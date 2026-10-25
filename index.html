@@ -26,7 +26,7 @@
     <script src="./static/jszip.min.js?v=20261022"></script>
     <script src="./static/idb-keyval.umd.js"></script>
     <script src="./static/bwip-js.min.js"></script>
-    <script src="static/student-ai-upscaler.js?v=20261023-realesr1"></script><script src="static/student-photo-enhancer.js?v=20261024-whitebgfix2"></script><script src="./static/student-batch.js?v=20261024-batch-zipmap1"></script><script src="./static/monetization-config.js?v=20261023-api-base1"></script><script src="./static/monetization.js?v=20261025-payment-history-domfix1"></script>
+    <script src="static/student-ai-upscaler.js?v=20261023-realesr1"></script><script src="static/student-photo-enhancer.js?v=20261024-whitebgfix2"></script><script src="./static/student-batch.js?v=20261024-batch-zipmap1"></script><script src="./static/monetization-config.js?v=20261023-api-base1"></script><script src="./static/monetization.js?v=20261025-admin-dom-artifacts1"></script>
     <link rel="preload" href="./static/SourceHanSerifCN-Bold.ttf" as="font" type="font/ttf" crossorigin />
     <style>
       /* Hide base scrollbar */
@@ -548,7 +548,7 @@
 </head>
 
   <body class="bg-gray-50 h-screen flex flex-col text-slate-700 font-sans overflow-hidden">
-    <button id="jsmAccountFallback" type="button" aria-label="Open Account and Plans" onclick="(function(b){try{if(window.JoesStudioMonetization&&typeof window.JoesStudioMonetization.open==='function'){window.JoesStudioMonetization.open();return;}if(b.dataset.retrying==='true')return;b.dataset.retrying='true';b.textContent='Opening account…';var s=document.createElement('script');s.src='./static/monetization.js?v=20261025-auth-required1';s.onload=function(){b.dataset.retrying='false';if(window.JoesStudioMonetization&&typeof window.JoesStudioMonetization.open==='function'){window.JoesStudioMonetization.open();}else{b.textContent='Sign in unavailable — refresh page';}};s.onerror=function(){b.dataset.retrying='false';b.textContent='Sign in unavailable — refresh page';};document.head.appendChild(s);}catch(e){b.textContent='Sign in unavailable — refresh page';}})(this)">Account &amp; Plans</button>
+    <button id="jsmAccountFallback" type="button" aria-label="Open Account and Plans" onclick="(function(b){try{if(window.JoesStudioMonetization&&typeof window.JoesStudioMonetization.open==='function'){window.JoesStudioMonetization.open();return;}if(b.dataset.retrying==='true')return;b.dataset.retrying='true';b.textContent='Opening account…';var s=document.createElement('script');s.src='./static/monetization.js?v=20261025-admin-dom-artifacts1';s.onload=function(){b.dataset.retrying='false';if(window.JoesStudioMonetization&&typeof window.JoesStudioMonetization.open==='function'){window.JoesStudioMonetization.open();}else{b.textContent='Sign in unavailable — refresh page';}};s.onerror=function(){b.dataset.retrying='false';b.textContent='Sign in unavailable — refresh page';};document.head.appendChild(s);}catch(e){b.textContent='Sign in unavailable — refresh page';}})(this)">Account &amp; Plans</button>
 
     <div id="welcomeModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop transition-opacity duration-300 p-3">
       <div class="bg-white w-[1120px] h-[720px] max-w-[97vw] max-h-[96vh] rounded-2xl shadow-2xl flex overflow-hidden">
