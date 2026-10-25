@@ -1,13 +1,10 @@
-name: Populate bundled certificate design library
+name: Populate and verify original certificate design library
 
 on:
   push:
     branches:
       - main
       - feat/licensed-web-certificate-library
-    paths:
-      - "scripts/import-openclipart-certificates.mjs"
-      - ".github/workflows/import-certificate-library.yml"
   workflow_dispatch:
     inputs:
       max_assets:
