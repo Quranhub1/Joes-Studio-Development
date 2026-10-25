@@ -117,7 +117,16 @@ module.exports=async function(req,res){
     L.db("subscriptions?select=*&limit=500")
    ]);
    const byUser=Object.fromEntries((subscriptions||[]).map(s=>[s.user_id,s]));
-   return L.json(res,200,{users:(profiles||[]).map(p=>({...p,is_admin:String(p.email||"").toLowerCase()===L.ADMIN_EMAIL,subscription:byUser[p.id]||null}))});
+   const now=Date.now();
+   return L.json(res,200,{users:(profiles||[]).map(p=>{
+    const is_admin=String(p.email||"").toLowerCase()===L.ADMIN_EMAIL;
+    const raw=byUser[p.id]||{user_id:p.id,plan:"free",status:"active",starts_at:null,expires_at:null};
+    const expiry=raw.expires_at?new Date(raw.expires_at).getTime():null;
+    const paidActive=!is_admin&&["pro","business","institution"].includes(raw.plan)&&raw.status==="active"&&expiry!==null&&expiry>now;
+    const current_plan=is_admin?"administrator":paidActive?raw.plan:"free";
+    const plan_status=is_admin?"permanent":paidActive?"active":raw.plan!=="free"&&(raw.status==="expired"||(expiry!==null&&expiry<=now))?"expired":"free";
+    return {...p,is_admin,subscription:raw,current_plan,plan_status,plan_expires_at:paidActive?raw.expires_at:null,previous_plan:!paidActive&&raw.plan!=="free"?raw.plan:null};
+   })});
   }
   if(action==="admin_set_ban"){
    if(!isAdmin)return L.json(res,403,{error:"Administrator access required."});
