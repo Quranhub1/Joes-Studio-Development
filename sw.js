@@ -1,6 +1,6 @@
 "use strict";
 const CACHE_PREFIX = "joes-studio-shell-";
-const CACHE_NAME = CACHE_PREFIX + "v2";
+const CACHE_NAME = CACHE_PREFIX + "v3";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -47,6 +47,12 @@ self.addEventListener("activate", event => {
   );
 });
 
+function assetCacheKey(url) {
+  // HTML references versioned assets with query strings. Normalize to the path so
+  // unversioned app-shell entries also satisfy those requests offline.
+  return url.origin + url.pathname;
+}
+
 function isCacheableAsset(request, url) {
   if (request.method !== "GET" || url.origin !== self.location.origin) return false;
   if (url.pathname.indexOf("/api/") !== -1) return false;
@@ -74,14 +80,20 @@ self.addEventListener("fetch", event => {
 
   if (isCacheableAsset(request, url)) {
     event.respondWith(
-      caches.match(request).then(cached => {
-        const networkUpdate = fetch(request).then(response => {
-          if (response && response.ok && response.type === "basic" && !response.headers.get("Cache-Control")?.includes("no-store")) {
-            caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone())).catch(() => {});
-          }
-          return response;
+      caches.open(CACHE_NAME).then(cache => {
+        const key = assetCacheKey(url);
+        return cache.match(key).then(cached => {
+          const networkUpdate = fetch(request).then(response => {
+            if (response && response.ok && response.type === "basic" && !response.headers.get("Cache-Control")?.includes("no-store")) {
+              cache.put(key, response.clone()).catch(() => {});
+            }
+            return response;
+          }).catch(error => {
+            if (cached) return cached;
+            throw error;
+          });
+          return cached || networkUpdate;
         });
-        return cached || networkUpdate;
       })
     );
     return;
