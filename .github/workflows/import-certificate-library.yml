@@ -1,6 +1,8 @@
 name: Populate and verify original certificate design library
 
 on:
+  schedule:
+    - cron: "17 * * * *"
   push:
     branches:
       - main
