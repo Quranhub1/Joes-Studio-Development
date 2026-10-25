@@ -1,5 +1,319 @@
 [
   {
+    "id": "student-id-kshs",
+    "name": "KSHS Student ID Card",
+    "desc": "Editable green student identification layout using KSHS name styling; add the official logo from Logos & Branding.",
+    "category": "Student IDs & Badges",
+    "type": "template",
+    "thumbnail": "./templates/previews/student-id-green.svg",
+    "url": "./templates/student_id_kshs.json",
+    "tags": [
+      "KSHS",
+      "student",
+      "ID",
+      "health school"
+    ],
+    "style": "Green"
+  },
+  {
+    "id": "health-trainee-id",
+    "name": "Health Trainee ID Card",
+    "desc": "Student/trainee ID card for health training and clinical placement identification.",
+    "category": "Student IDs & Badges",
+    "type": "template",
+    "thumbnail": "./templates/previews/student-id-green.svg",
+    "url": "./templates/health_trainee_id.json",
+    "tags": [
+      "trainee",
+      "health",
+      "placement",
+      "student"
+    ],
+    "style": "Clinical"
+  },
+  {
+    "id": "staff-visitor-badge",
+    "name": "Staff & Visitor Badge",
+    "desc": "Reusable identity badge for staff, visitors, events and facility access.",
+    "category": "Student IDs & Badges",
+    "type": "template",
+    "thumbnail": "./templates/previews/student-id-blue.svg",
+    "url": "./templates/staff_visitor_badge.json",
+    "tags": [
+      "staff",
+      "visitor",
+      "badge",
+      "pass"
+    ],
+    "style": "Red accent"
+  },
+  {
+    "id": "examination-card-kshs-teal",
+    "name": "KSHS Examination Card — Teal",
+    "desc": "130 × 60 mm landscape examination card with editable student details, passport-photo placeholder and badge placeholder. Uses system fonts only; insert an approved local KSHS badge when needed.",
+    "category": "Examination Cards",
+    "type": "template",
+    "thumbnail": "./templates/previews/examination-card-kshs-teal.svg",
+    "url": "./templates/examination_card_kshs_teal.json",
+    "tags": [
+      "examination",
+      "exam card",
+      "KSHS",
+      "student",
+      "passport photo",
+      "registration number",
+      "teal",
+      "130x60mm"
+    ],
+    "style": "Light teal with black rules"
+  },
+  {
+    "id": "examination-card-kshs-white",
+    "name": "KSHS Examination Card — White",
+    "desc": "A white-background variant of the KSHS 130 × 60 mm examination card, with editable name, registration number, sex, sitting, course and issuer fields. Uses system fonts only.",
+    "category": "Examination Cards",
+    "type": "template",
+    "thumbnail": "./templates/previews/examination-card-kshs-white.svg",
+    "url": "./templates/examination_card_kshs_white.json",
+    "tags": [
+      "examination",
+      "exam card",
+      "KSHS",
+      "student",
+      "white",
+      "passport photo",
+      "registration number"
+    ],
+    "style": "White with teal accent"
+  },
+  {
+    "id": "examination-card-generic-teal",
+    "name": "Editable Examination Card — Any Institution",
+    "desc": "Customisable 130 × 60 mm examination card with generic institution text, editable student fields and photo/badge placeholders. Suitable as a starting point for other schools.",
+    "category": "Examination Cards",
+    "type": "template",
+    "thumbnail": "./templates/previews/examination-card-generic-teal.svg",
+    "url": "./templates/examination_card_generic_teal.json",
+    "tags": [
+      "examination",
+      "exam card",
+      "custom school",
+      "student",
+      "passport photo",
+      "registration number",
+      "generic"
+    ],
+    "style": "Custom institution teal"
+  },
+  {
+    "id": "letterhead-official",
+    "name": "Official A4 Letterhead",
+    "desc": "Institution letterhead with logo placement, reference, subject, signature and contact footer.",
+    "category": "Official Documents",
+    "type": "template",
+    "thumbnail": "./templates/previews/letterhead.svg",
+    "url": "./templates/letterhead_official.paper",
+    "tags": [
+      "letterhead",
+      "official letter",
+      "correspondence"
+    ],
+    "style": "Navy and gold"
+  },
+  {
+    "id": "internal-memo",
+    "name": "Internal Memorandum",
+    "desc": "A structured A4 memo with To, From, Date, Subject, purpose, background and action items.",
+    "category": "Official Documents",
+    "type": "template",
+    "thumbnail": "./templates/previews/memo.svg",
+    "url": "./templates/internal_memo.paper",
+    "tags": [
+      "memo",
+      "internal",
+      "notice",
+      "office"
+    ],
+    "style": "Slate"
+  },
+  {
+    "id": "logo-nda-uganda",
+    "name": "National Drug Authority (NDA)",
+    "desc": "NDA Uganda logo asset. Insert into an existing design or into a new blank page; source is the NDA HCMS website.",
+    "category": "Logos & Branding",
+    "type": "logo-asset",
+    "thumbnail": "https://hcm.nda.or.ug/assets/images/nda_uganda_logo.png",
+    "src": "https://hcm.nda.or.ug/assets/images/nda_uganda_logo.png",
+    "sourceName": "NDA Uganda",
+    "sourceUrl": "https://www.nda.or.ug/",
+    "tags": [
+      "NDA",
+      "National Drug Authority",
+      "pharmacy",
+      "regulator"
+    ]
+  },
+  {
+    "id": "logo-uhpab",
+    "name": "Uganda Health Professions Assessment Board (UHPAB)",
+    "desc": "UHPAB logo artwork from its public app icon. Insert as an image asset; verify current official artwork before formal use.",
+    "category": "Logos & Branding",
+    "type": "logo-asset",
+    "thumbnail": "https://www.appcreator24.com/srv/imgs/gen/3811715_ico.png?v=3",
+    "src": "https://www.appcreator24.com/srv/imgs/gen/3811715_ico.png?v=3",
+    "sourceName": "UHPAB app icon",
+    "sourceUrl": "https://uhpab.go.ug/",
+    "tags": [
+      "UHPAB",
+      "assessment",
+      "health professions"
+    ]
+  },
+  {
+    "id": "logo-kshs",
+    "name": "Kampala School of Health Sciences (KSHS)",
+    "desc": "KSHS profile logo asset. Insert into a design; use the school's approved artwork and brand rules for official documents.",
+    "category": "Logos & Branding",
+    "type": "logo-asset",
+    "thumbnail": "https://pbs.twimg.com/profile_images/1393572280526069774/fVy9514x.jpg",
+    "src": "https://pbs.twimg.com/profile_images/1393572280526069774/fVy9514x.jpg",
+    "sourceName": "KSHS official social profile",
+    "sourceUrl": "https://x.com/kshsUganda",
+    "tags": [
+      "KSHS",
+      "Kampala School of Health Sciences",
+      "medical school"
+    ]
+  },
+  {
+    "id": "logo-uvtab",
+    "name": "Uganda Vocational and Technical Assessment Board (UVTAB)",
+    "desc": "UVTAB logo from the board's assessment portal. Insert as an image asset; use official marks only with authorization.",
+    "category": "Logos & Branding",
+    "type": "logo-asset",
+    "thumbnail": "https://assessment.uvtab.go.ug/static/img/uvtab_logo.png",
+    "src": "https://assessment.uvtab.go.ug/static/img/uvtab_logo.png",
+    "sourceName": "UVTAB assessment portal",
+    "sourceUrl": "https://www.uvtab.go.ug/",
+    "tags": [
+      "UVTAB",
+      "TVET",
+      "assessment",
+      "technical education"
+    ]
+  },
+  {
+    "id": "logo-custom-upload",
+    "name": "Add Your Own Logo",
+    "desc": "Choose your own PNG, JPG, WebP or SVG logo from your device. It will be embedded into the current canvas.",
+    "category": "Logos & Branding",
+    "type": "logo-upload",
+    "thumbnail": "./templates/previews/logo-upload.svg",
+    "tags": [
+      "custom",
+      "institution",
+      "upload",
+      "brand"
+    ]
+  },
+  {
+    "id": "blank-a4-gallery",
+    "name": "Blank A4 Canvas",
+    "desc": "Start from a clean editable A4 page when you want to design from scratch.",
+    "category": "Start Here",
+    "type": "blank",
+    "thumbnail": "./templates/previews/letterhead.svg",
+    "tags": [
+      "blank",
+      "A4",
+      "custom design"
+    ]
+  },
+  {
+    "id": "id-corporate-navy-pro",
+    "name": "Executive Navy Staff ID",
+    "desc": "Polished corporate ID card with navy header, photo frame, clear identity hierarchy and editable staff details.",
+    "style": "Executive navy and ice blue",
+    "url": "./templates/id_corporate_navy_pro.json",
+    "thumbnail": "./templates/previews/id-corporate-navy-pro.svg",
+    "tags": [
+      "ID",
+      "staff",
+      "employee",
+      "corporate",
+      "navy",
+      "professional"
+    ],
+    "heading": "STAFF IDENTIFICATION",
+    "org": "YOUR ORGANISATION",
+    "foot": "OFFICIAL STAFF IDENTIFICATION",
+    "category": "Student IDs & Badges",
+    "type": "template"
+  },
+  {
+    "id": "id-emerald-campus",
+    "name": "Emerald Campus Student ID",
+    "desc": "Contemporary student ID with rich emerald branding, structured student details and a dedicated portrait area.",
+    "style": "Emerald and ivory",
+    "url": "./templates/id_emerald_campus.json",
+    "thumbnail": "./templates/previews/id-emerald-campus.svg",
+    "tags": [
+      "ID",
+      "student",
+      "school",
+      "campus",
+      "emerald",
+      "education"
+    ],
+    "heading": "STUDENT IDENTIFICATION",
+    "org": "YOUR SCHOOL / INSTITUTION",
+    "foot": "STUDENT ID • SAMPLE DESIGN",
+    "category": "Student IDs & Badges",
+    "type": "template"
+  },
+  {
+    "id": "id-obsidian-gold",
+    "name": "Obsidian Gold Premium ID",
+    "desc": "Premium black and gold ID card for executives, members and VIP staff, with a strong header and clean readable identity fields.",
+    "style": "Obsidian black and gold",
+    "url": "./templates/id_obsidian_gold.json",
+    "thumbnail": "./templates/previews/id-obsidian-gold.svg",
+    "tags": [
+      "ID",
+      "executive",
+      "VIP",
+      "membership",
+      "black",
+      "gold"
+    ],
+    "heading": "PREMIUM IDENTITY",
+    "org": "YOUR ORGANISATION",
+    "foot": "AUTHORISED IDENTIFICATION",
+    "category": "Student IDs & Badges",
+    "type": "template"
+  },
+  {
+    "id": "id-event-cobalt",
+    "name": "Cobalt Event & Crew Pass",
+    "desc": "Bold cobalt event credential for organisers, crew and conference staff, designed for quick visual recognition.",
+    "style": "Cobalt and bright white",
+    "url": "./templates/id_event_cobalt.json",
+    "thumbnail": "./templates/previews/id-event-cobalt.svg",
+    "tags": [
+      "ID",
+      "event",
+      "crew",
+      "conference",
+      "staff pass",
+      "cobalt"
+    ],
+    "heading": "EVENT CREW PASS",
+    "org": "EVENT / ORGANISER",
+    "foot": "CREW • ACCESS PASS",
+    "category": "Student IDs & Badges",
+    "type": "template"
+  },
+  {
     "id": "commons-certificate-wlmth-2013-svg",
     "name": "WLMTH-2013",
     "desc": "Trophy/Certificate template for WLM-TH 2013",
