@@ -111,10 +111,12 @@ const generated = [];
 for (let i = 0; i < COUNT; i++) {
   const serial = i + 1;
   const id = `joes-original-certificate-${String(serial).padStart(4, "0")}`;
-  const [title, subtitle] = titles[i % titles.length];
-  const palette = palettes[Math.floor(i / titles.length) % palettes.length];
-  const frame = frames[Math.floor(i / (titles.length * 2)) % frames.length];
-  const ornament = ornaments[Math.floor(i / 2) % ornaments.length];
+  // Interleave the design dimensions instead of repeating a short block of layouts.
+  // This yields distinct title/palette/frame/emblem combinations across the 1,000 set.
+  const [title, subtitle] = titles[(i * 7 + Math.floor(i / 10)) % titles.length];
+  const palette = palettes[(i * 13 + Math.floor(i / 20)) % palettes.length];
+  const frame = frames[(i * 3 + Math.floor(i / 7)) % frames.length];
+  const ornament = ornaments[(i * 7 + Math.floor(i / 11)) % ornaments.length];
   const variant = Math.floor(i / (titles.length * palettes.length)) + 1;
   const name = `${title} — Design ${String(serial).padStart(4, "0")}`;
   const localFile = `./templates/web-certificates/${id}.svg`;
@@ -125,8 +127,8 @@ for (let i = 0; i < COUNT; i++) {
       id, name,
       desc: `Original editable vector certificate design. Variant ${variant}; includes recipient, recognition text, issue date and signature areas. All artwork is bundled locally and can be customised in Joes Studio.`,
       category: "Certificates", type: "svg-template", thumbnail: localFile, url: localFile,
-      tags: ["certificate", "original design", title.toLowerCase(), frame, ornament, `palette-${Math.floor(i / titles.length) % palettes.length + 1}`, "editable", "vector"],
-      style: `${frame} frame · ${ornament} emblem · palette ${Math.floor(i / titles.length) % palettes.length + 1}`,
+      tags: ["certificate", "original design", title.toLowerCase(), frame, ornament, `palette-${(i * 13 + Math.floor(i / 20)) % palettes.length + 1}`, "editable", "vector"],
+      style: `${frame} frame · ${ornament} emblem · palette ${(i * 13 + Math.floor(i / 20)) % palettes.length + 1}`,
       sourceName: "Joes Studio Original Vector Library", sourceUrl: "https://joesstudio.vercel.app/",
       creator: "Joes Studio", license: "Original Joes Studio design", licenseUrl: "",
     });
