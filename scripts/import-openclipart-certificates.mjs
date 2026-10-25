@@ -26,7 +26,7 @@ const SEARCH_TERMS = [
   "wedding certificate", "ornate certificate", "certificate template",
   "award border", "diploma border", "certificate ornament",
 ];
-const headers = { "User-Agent": "JoesStudio-TemplateLibrary/1.0 (certificate asset importer)" };
+const headers = { "User-Agent": "JoesStudio-TemplateLibrary/1.1 (https://github.com/Quranhub1/Joes-Studio-Development; certificate asset importer)" };
 
 function getTitle(item, id) {
   const title = String(item?.title || item?.name || item?.description || `Certificate design ${id}`);
@@ -36,13 +36,15 @@ function isFlagged(item) {
   const text = JSON.stringify([item?.tags, item?.tag, item?.flags, item?.status, item?.description]).toLowerCase();
   return /pd_issue|need-review|nsfw|not safe for work/.test(text);
 }
-async function fetchWithRetry(url, options = {}, attempts = 4) {
+async function fetchWithRetry(url, options = {}, attempts = 2, timeoutMs = 12000) {
   let lastError;
+  const { timeoutMs: _timeoutMs, ...fetchOptions } = options;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
       const response = await fetch(url, {
-        ...options,
-        signal: AbortSignal.timeout(25000),
+        ...fetchOptions,
+        headers: { ...headers, ...(fetchOptions.headers || {}) },
+        signal: AbortSignal.timeout(timeoutMs),
       });
       if (response.ok) return response;
       const error = new Error(`HTTP ${response.status} from ${url}`);
@@ -52,16 +54,18 @@ async function fetchWithRetry(url, options = {}, attempts = 4) {
       lastError = error;
     }
     if (attempt < attempts) {
-      const delayMs = Math.min(1000 * (2 ** (attempt - 1)), 8000);
-      console.warn(`Request attempt ${attempt}/${attempts} failed for ${url}: ${lastError?.cause?.message || lastError?.message || lastError}. Retrying in ${delayMs}ms.`);
+      const delayMs = 750 * attempt;
+      console.warn(`Request attempt ${attempt}/${attempts} failed: ${lastError?.cause?.message || lastError?.message || lastError}. Retrying in ${delayMs}ms.`);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
-  throw new Error(`Request failed after ${attempts} attempts for ${url}: ${lastError?.cause?.message || lastError?.message || lastError}`);
+  throw new Error(`Request failed after ${attempts} attempts: ${lastError?.cause?.message || lastError?.message || lastError}`);
 }
 async function fetchJson(url) {
-  const response = await fetchWithRetry(url, { headers });
-  return response.json();
+  const response = await fetchWithRetry(url, {}, 2, 12000);
+  const data = await response.json();
+  if (data?.error) throw new Error(`Wikimedia API error: ${data.error.info || data.error.code}`);
+  return data;
 }
 function cleanMetadata(value) {
   return String(value || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim().slice(0, 500);
@@ -115,25 +119,32 @@ async function searchCommons(term) {
 await fs.mkdir(outputDir, { recursive: true });
 const found = new Map();
 const searchErrors = [];
-for (const term of SEARCH_TERMS) {
-  try {
-    const items = await searchCommons(term);
-    for (const item of items) {
-      if (!item.itemId || isFlagged(item)) continue;
-      const existing = found.get(item.itemId);
-      const metadata = {
-        ...item,
-        searchTerms: [...new Set([...(existing?.searchTerms || []), term])],
-      };
-      found.set(item.itemId, { ...existing, ...metadata, searchTerms: metadata.searchTerms });
+// Run a small number of independent searches concurrently: a single slow API request
+// must not stall the entire import for many minutes.
+let nextTermIndex = 0;
+const workerCount = Math.min(3, SEARCH_TERMS.length);
+async function searchWorker() {
+  while (nextTermIndex < SEARCH_TERMS.length && found.size < MAX_ASSETS) {
+    const term = SEARCH_TERMS[nextTermIndex++];
+    try {
+      const items = await searchCommons(term);
+      for (const item of items) {
+        if (!item.itemId || isFlagged(item)) continue;
+        const existing = found.get(item.itemId);
+        const metadata = {
+          ...item,
+          searchTerms: [...new Set([...(existing?.searchTerms || []), term])],
+        };
+        found.set(item.itemId, { ...existing, ...metadata, searchTerms: metadata.searchTerms });
+      }
+      console.log(`Commons search "${term}" returned ${items.length} reusable SVGs.`);
+    } catch (error) {
+      searchErrors.push({ term, error: String(error?.message || error) });
+      console.warn(`Wikimedia Commons search failed for "${term}": ${error.message}`);
     }
-    console.log(`Commons search "${term}" returned ${items.length} reusable SVGs.`);
-  } catch (error) {
-    searchErrors.push({ term, error: String(error?.message || error) });
-    console.warn(`Wikimedia Commons search failed for "${term}": ${error.message}`);
   }
-  if (found.size >= MAX_ASSETS) break;
 }
+await Promise.all(Array.from({ length: workerCount }, () => searchWorker()));
 if (!found.size) {
   throw new Error("No reusable SVG results were discovered from Wikimedia Commons. Nothing was changed; check the API/network.");
 }
@@ -149,7 +160,7 @@ for (const item of [...found.values()].slice(0, MAX_ASSETS)) {
   try {
     let svg;
     try {
-      const response = await fetchWithRetry(item.downloadUrl, { headers, redirect: "follow" });
+      const response = await fetchWithRetry(item.downloadUrl, { redirect: "follow" }, 2, 20000);
       svg = await response.text();
     } catch (error) {
       throw new Error(`download failed: ${error.message}`);
