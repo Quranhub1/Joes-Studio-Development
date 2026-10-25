@@ -143,7 +143,8 @@ async function main() {
   const imported = [];
   const usedNames = new Set();
   const seenHashes = new Set();
-  for (const item of candidates.values()) {\n    if (imported.length >= MAX_ASSETS) break;
+  for (const item of candidates.values()) {
+    if (imported.length >= MAX_ASSETS) break;
     const base = slugify(item.title) || "certificate-artwork";
     let filename = `${base}.svg`;
     let n = 2;
