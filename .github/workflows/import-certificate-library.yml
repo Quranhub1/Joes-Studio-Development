@@ -1,4 +1,4 @@
-name: Populate and verify original certificate design library
+name: Generate and bundle original certificate design library
 
 on:
   schedule:
@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       max_assets:
-        description: "Maximum unique certificate designs to bundle (default 1000)"
+        description: "Number of original certificate SVG designs to generate (default 1000)"
         required: false
         default: "1000"
 
@@ -20,13 +20,13 @@ permissions:
   contents: write
 
 concurrency:
-  group: populate-certificate-library-${{ github.ref_name }}
+  group: populate-certificate-library-v2-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   import-library:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 15
     steps:
       - name: Check out studio source
         uses: actions/checkout@v4
@@ -39,12 +39,12 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Discover and bundle certificate SVGs
+      - name: Generate 1,000 original local certificate SVGs
         env:
           MAX_CERTIFICATE_ASSETS: ${{ github.event.inputs.max_assets || '1000' }}
         run: node scripts/import-openclipart-certificates.mjs
 
-      - name: Commit bundled gallery assets
+      - name: Commit generated certificate gallery
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
