@@ -25,7 +25,7 @@ const searches = [
   '"award certificate" filemime:svg',
   '"certificate border" filemime:svg'
 ];
-const allowedLicense = /public domain|CC0|CC BY(?:-SA)?(?: 2\\.0| 3\\.0| 4\\.0)?/i;
+const allowedLicense = /public domain|CC0|CC BY(?:-SA)?(?: 2\.0| 3\.0| 4\.0)?/i;
 const rejectTitle = /logo|logotype|emblem|coat of arms|icon|symbol|monopoly|stock certificate|savings certificate|seal only|badge only|flag|diagram|chart|map|font|typeface/i;
 const slugify = (s) => String(s).normalize("NFKD").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase().slice(0, 80);
 const plain = (s) => String(s || "").replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&#039;/g, "'").replace(/&quot;/g, '"').replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).trim();
@@ -63,14 +63,14 @@ function usableCertificate(title, description, svg) {
     const ratio = dims[2] / dims[3];
     if (ratio < 0.65 || ratio > 2.2) return false;
   }
-  const visualElements = (svg.match(/<(?:path|rect|circle|ellipse|polygon|polyline|line|text|image)\\b/gi) || []).length;
+  const visualElements = (svg.match(/<(?:path|rect|circle|ellipse|polygon|polyline|line|text|image)\b/gi) || []).length;
   return visualElements >= 5;
 }
 async function main() {
   await fs.mkdir(outputDir, { recursive: true });
   const existingFiles = await fs.readdir(outputDir);
   for (const name of existingFiles) {
-    if (/^joes-original-certificate-\\d+\\.svg$/i.test(name)) await fs.rm(path.join(outputDir, name), { force: true });
+    if (/^joes-original-certificate-\d+\.svg$/i.test(name)) await fs.rm(path.join(outputDir, name), { force: true });
   }
 
   const candidates = new Map();
@@ -85,7 +85,7 @@ async function main() {
       for (const page of Object.values(data.query?.pages || {})) {
         const title = page.title || "";
         const info = page.imageinfo?.[0];
-        if (!info?.url || !/\\.svg(?:$|\\?)/i.test(info.url) || rejectTitle.test(title)) continue;
+        if (!info?.url || !/\.svg(?:$|\?)/i.test(info.url) || rejectTitle.test(title)) continue;
         const meta = info.extmetadata || {};
         const license = plain(meta.LicenseShortName?.value || meta.License?.value || "");
         if (!allowedLicense.test(license)) continue;
@@ -120,7 +120,7 @@ async function main() {
     try {
       const response = await fetchRetry(item.downloadUrl, { headers: { Accept: "image/svg+xml,text/plain;q=0.9,*/*;q=0.8" } });
       const svg = await response.text();
-      if (!/<svg[\\s>]/i.test(svg.slice(0, 5000)) || svg.length < 300) throw new Error("not a valid SVG document");
+      if (!/<svg[\s>]/i.test(svg.slice(0, 5000)) || svg.length < 300) throw new Error("not a valid SVG document");
       if (!usableCertificate(item.title, item.description, svg)) throw new Error("not a usable certificate layout (logo/icon or unsuitable page shape)");
       const digest = crypto.createHash("sha256").update(svg).digest("hex");
       if (seenHashes.has(digest)) throw new Error("duplicate artwork");
@@ -130,7 +130,7 @@ async function main() {
       const id = `commons-certificate-${slugify(item.title).slice(0, 65)}`;
       const localFile = `./templates/web-certificates/${filename}`;
       const entry = {
-        id, name: item.title.replace(/\\.svg$/i, "").replace(/_/g, " "),
+        id, name: item.title.replace(/\.svg$/i, "").replace(/_/g, " "),
         desc: item.description || "Original certificate layout downloaded from Wikimedia Commons.",
         category: "Certificates", type: "svg-template", thumbnail: localFile, url: localFile,
         tags: ["certificate", "original download", "editable vector", item.license],
@@ -147,10 +147,12 @@ async function main() {
     await sleep(1100);
   }
 
+  if (!imported.length) throw new Error("No suitable licensed certificate layouts were downloaded. Existing catalogue is retained, and no synthetic fallback is created.");
+
   // Delete old downloaded assets not present in the new verified catalogue.
   const activeFiles = new Set(imported.map((item) => path.basename(item.localFile)));
   for (const name of await fs.readdir(outputDir)) {
-    if (name.endsWith(".svg") && !activeFiles.has(name) && !/^joes-original-certificate-\\d+\\.svg$/i.test(name)) {
+    if (name.endsWith(".svg") && !activeFiles.has(name) && !/^joes-original-certificate-\d+\.svg$/i.test(name)) {
       // Keep only importer-owned files; unrelated curated files are not touched.
       const oldManifest = await fs.readFile(manifestPath, "utf8").catch(() => "{}");
       let oldItems = [];
@@ -158,7 +160,7 @@ async function main() {
       if (oldItems.some((item) => path.basename(item.localFile || "") === name)) await fs.rm(path.join(outputDir, name), { force: true });
     }
   }
-  await fs.writeFile(cataloguePath, JSON.stringify(retained, null, 2) + "\\n");
+  await fs.writeFile(cataloguePath, JSON.stringify(retained, null, 2) + "\n");
   await fs.writeFile(manifestPath, JSON.stringify({
     title: "Joes Studio Original Certificate Artwork Library",
     source: "Verified original SVG artwork downloaded from Wikimedia Commons",
@@ -167,8 +169,7 @@ async function main() {
     totalCertificateTemplates: retained.filter((item) => item.category === "Certificates").length,
     licensePolicy: "Only public-domain, CC0, CC BY, or CC BY-SA assets with source/creator/licence metadata are eligible",
     items: imported
-  }, null, 2) + "\\n");
+  }, null, 2) + "\n");
   console.log(`Imported ${imported.length} valid, unique certificate layouts.`);
-  if (!imported.length) throw new Error("No suitable licensed certificate layouts were downloaded. Existing catalogue is retained, and no synthetic fallback is created.");
 }
 main().catch((error) => { console.error(error); process.exitCode = 1; });
