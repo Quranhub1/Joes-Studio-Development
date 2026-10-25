@@ -10284,6 +10284,10 @@
               this.uploadLogoAsset();
               return;
             }
+            if (item.type === "svg-template") {
+              await this.loadSvgTemplate(item);
+              return;
+            }
             if (item.type === "blank" || !item.url) {
               await this.createBlankPage();
               return;
@@ -10307,6 +10311,83 @@
               App.ui.hideLoading();
             } finally {
               if (!projectLoaderOwnsLoading) App.ui.hideLoading();
+            }
+          },
+
+          loadSvgTemplate: async function (item) {
+            App.ui.showLoading("Opening " + item.name + "...");
+            try {
+              await App.dataSource.close();
+              const response = await fetch(item.url, { cache: "no-cache" });
+              if (!response.ok) throw new Error("SVG template HTTP " + response.status);
+              const svgText = await response.text();
+              if (!/<svg[\\s>]/i.test(svgText.slice(0, 2000))) {
+                throw new Error("The bundled file is not a valid SVG template.");
+              }
+
+              // Use the normal blank-page setup, then import the downloaded SVG as
+              // editable Fabric vector artwork. Text that the source converted to
+              // outlines remains vector artwork; users can add normal editable text.
+              const defaults = {
+                paperSize: "A4",
+                paperOrientation: true,
+                marginTop: 25,
+                marginBottom: 25,
+                marginLeft: 20,
+                marginRight: 20,
+                paperBgColor: "#ffffff"
+              };
+              App.paper.changeType("blank", true);
+              Object.entries(defaults).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element) element.type === "checkbox" ? (element.checked = value) : (element.value = value);
+              });
+              App.paper.updateSize();
+              App.canvas.clear();
+              App.paper.drawPaper();
+
+              await new Promise((resolve, reject) => {
+                fabric.loadSVGFromString(svgText, (objects, options) => {
+                  try {
+                    const validObjects = (objects || []).filter(Boolean);
+                    if (!validObjects.length) throw new Error("The SVG contains no editable vector objects.");
+                    const artwork = fabric.util.groupSVGElements(validObjects, options || {});
+                    const targetWidth = App.canvas.getWidth() * 0.94;
+                    const targetHeight = App.canvas.getHeight() * 0.9;
+                    const sourceWidth = Math.max(1, artwork.width || options?.width || targetWidth);
+                    const sourceHeight = Math.max(1, artwork.height || options?.height || targetHeight);
+                    const scale = Math.min(targetWidth / sourceWidth, targetHeight / sourceHeight);
+                    artwork.set({
+                      originX: "center",
+                      originY: "center",
+                      left: App.canvas.getWidth() / 2,
+                      top: App.canvas.getHeight() / 2,
+                      scaleX: scale,
+                      scaleY: scale,
+                      selectable: true,
+                      evented: true,
+                      objectCaching: false
+                    });
+                    artwork.setCoords();
+                    App.canvas.add(artwork);
+                    App.canvas.setActiveObject(artwork);
+                    App.canvas.requestRenderAll();
+                    App.ui.hideModal("welcomeModal");
+                    App.ui.updateLayerList();
+                    App.ui.updateInspector();
+                    App.history.reset();
+                    resolve();
+                  } catch (error) {
+                    reject(error);
+                  }
+                });
+              });
+              Utils.toast("Template opened. Select the vector artwork to resize, recolour or ungroup it; add editable text with the text tools.", "success");
+            } catch (error) {
+              console.error("SVG template loading failed", item.url, error);
+              Utils.toast("Could not open " + item.name + ". " + (error.message || ""), "error");
+            } finally {
+              App.ui.hideLoading();
             }
           },
 
