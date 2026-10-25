@@ -10239,7 +10239,8 @@
               type.className = "absolute bottom-2 left-2 rounded-full px-2 py-0.5 bg-white/95 text-slate-600 text-[9px] font-bold uppercase tracking-wide border border-slate-200 shadow-sm";
               type.textContent = item.type === "logo-asset" ? "Official logo asset" :
                 item.type === "logo-upload" ? "Your own logo" :
-                item.type === "blank" ? "Blank canvas" : (item.category || "Template");
+                item.type === "blank" ? "Blank canvas" :
+                item.type === "svg-template" ? "Original SVG artwork" : (item.category || "Template");
               preview.appendChild(type);
 
               const title = document.createElement("h3");
@@ -10265,6 +10266,23 @@
                 source.addEventListener("click", (event) => event.stopPropagation());
                 source.addEventListener("keydown", (event) => event.stopPropagation());
                 card.appendChild(source);
+              }
+              if (item.type === "svg-template" && (item.license || item.creator)) {
+                const attribution = document.createElement("p");
+                attribution.className = "text-[10px] leading-4 text-slate-500";
+                attribution.textContent = [item.license || "Licence not listed", item.creator ? "by " + item.creator : ""].filter(Boolean).join(" · ");
+                card.appendChild(attribution);
+                if (item.licenseUrl) {
+                  const licenseLink = document.createElement("a");
+                  licenseLink.href = item.licenseUrl;
+                  licenseLink.target = "_blank";
+                  licenseLink.rel = "noopener noreferrer";
+                  licenseLink.className = "text-[10px] text-blue-700 hover:underline";
+                  licenseLink.textContent = "View licence";
+                  licenseLink.addEventListener("click", (event) => event.stopPropagation());
+                  licenseLink.addEventListener("keydown", (event) => event.stopPropagation());
+                  card.appendChild(licenseLink);
+                }
               }
               grid.appendChild(card);
             });
