@@ -3,6 +3,7 @@ name: Populate bundled certificate design library
 on:
   push:
     branches:
+      - main
       - feat/licensed-web-certificate-library
     paths:
       - "scripts/import-openclipart-certificates.mjs"
@@ -18,7 +19,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: populate-certificate-library
+  group: populate-certificate-library-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -29,7 +30,7 @@ jobs:
       - name: Check out studio source
         uses: actions/checkout@v4
         with:
-          ref: feat/licensed-web-certificate-library
+          ref: ${{ github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node
@@ -51,5 +52,5 @@ jobs:
             echo "No new bundled certificate assets to commit."
           else
             git commit -m "Bundle discovered certificate designs into Joes Studio"
-            git push origin HEAD:feat/licensed-web-certificate-library
+            git push origin HEAD:${{ github.ref_name }}
           fi
