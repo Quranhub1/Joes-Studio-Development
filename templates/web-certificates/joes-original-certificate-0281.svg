@@ -1,16 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="595" viewBox="0 0 840 595" role="img" aria-label="Certificate of Achievement certificate design">
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="595" viewBox="0 0 840 595" role="img" aria-label="Training Completion certificate design">
 <rect width="840" height="595" fill="#FDF4FF"/>
 <rect x="0" y="0" width="840" height="595" fill="none" stroke="#E9A8D4" stroke-width="1" opacity=".3"/>
-<rect x="30" y="30" width="780" height="535" fill="none" stroke="#E9A8D4" stroke-width="1.4"/>
-<circle cx="420" cy="125" r="36" fill="#FDF4FF" stroke="#E9A8D4" stroke-width="3"/><circle cx="420" cy="125" r="27" fill="none" stroke="#E9A8D4" stroke-width="1.5"/><path d="M420 101L426 117L443 118L430 129L434 145L420 136L406 145L410 129L397 118L414 117Z" fill="#E9A8D4"/>
+<rect x="24" y="24" width="792" height="547" fill="none" stroke="#4A044E" stroke-width="3"/><rect x="34" y="34" width="772" height="527" fill="none" stroke="#E9A8D4" stroke-width="1.5"/>
+<path d="M388 87H452V125Q420 148 388 125Z" fill="#E9A8D4"/><path d="M395 125L385 157L410 145L420 158L420 137M445 125L455 157L430 145L420 158" fill="#E9A8D4"/><text x="420" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="18" fill="#FDF4FF">★</text>
 <text x="420" y="205" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="4" fill="#4A044E">JOES STUDIO • CERTIFICATE</text>
-<text x="420" y="252" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="33" font-weight="bold" fill="#4A044E">Certificate of Achievement</text>
+<text x="420" y="252" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="bold" fill="#4A044E">Training Completion</text>
 <path d="M270 177H570" stroke="#E9A8D4" stroke-width="1.5"/><circle cx="420" cy="177" r="4" fill="#E9A8D4"/>
 <text x="420" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="1" fill="#FDF4FF">.</text>
 <text x="420" y="287" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" letter-spacing="1.6" fill="#4A044E">THIS CERTIFICATE IS PROUDLY PRESENTED TO</text>
 <path d="M170 343H670" stroke="#E9A8D4" stroke-width="1.6"/>
 <text x="420" y="331" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="27" font-style="italic" fill="#4A044E">Recipient Name</text>
-<text x="420" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.1" fill="#4A044E">IN RECOGNITION OF EXCELLENCE</text>
+<text x="420" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.1" fill="#4A044E">HAS COMPLETED THE REQUIRED TRAINING</text>
 <text x="420" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#4A044E">In recognition of commitment, achievement, and dedication.</text>
 <path d="M180 466H350M490 466H660" stroke="#777" stroke-width="1.2"/><text x="265" y="486" text-anchor="middle" font-size="11" fill="#666">DIRECTOR / INSTRUCTOR</text><text x="575" y="486" text-anchor="middle" font-size="11" fill="#666">ISSUE DATE</text>
 <text x="420" y="531" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" letter-spacing="2" fill="#E9A8D4">ISSUED WITH PRIDE AND APPRECIATION</text>

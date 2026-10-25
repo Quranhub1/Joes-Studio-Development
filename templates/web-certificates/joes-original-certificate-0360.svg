@@ -1,17 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="595" viewBox="0 0 840 595" role="img" aria-label="Special Commendation certificate design">
-<rect width="840" height="595" fill="#FFF7ED"/>
-<rect x="0" y="0" width="840" height="595" fill="none" stroke="#FDBA74" stroke-width="1" opacity=".3"/>
-<path d="M24 24H816V572H24Z M40 40H800V556H40Z M60 60H780V536H60Z" fill="none" stroke="#FDBA74" stroke-width="1.5"/><path d="M24 24L110 110M816 24L730 110M24 572L110 486M816 572L730 486" stroke="#9A3412" stroke-width="3"/>
-<circle cx="420" cy="120" r="4" fill="#FDBA74"/><path d="M390 120H405M435 120H450" stroke="#FDBA74" stroke-width="2"/>
-<text x="420" y="205" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="12" letter-spacing="4" fill="#9A3412">JOES STUDIO • CERTIFICATE</text>
-<text x="420" y="252" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="bold" fill="#9A3412">Special Commendation</text>
-<path d="M315 176H525" stroke="#FDBA74" stroke-width="1.5"/><path d="M410 176l10 -5 10 5 -10 5z" fill="#FDBA74"/>
-<text x="420" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="1" fill="#FFF7ED">.</text>
-<text x="420" y="287" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" letter-spacing="1.6" fill="#9A3412">THIS CERTIFICATE IS PROUDLY PRESENTED TO</text>
-<path d="M170 343H670" stroke="#FDBA74" stroke-width="1.6"/>
-<text x="420" y="331" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-style="italic" fill="#9A3412">Recipient Name</text>
-<text x="420" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.1" fill="#9A3412">FOR A NOTABLE CONTRIBUTION</text>
-<text x="420" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#9A3412">In recognition of commitment, achievement, and dedication.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="595" viewBox="0 0 840 595" role="img" aria-label="Training Completion certificate design">
+<rect width="840" height="595" fill="#F7F4FF"/>
+<rect x="0" y="0" width="840" height="595" fill="none" stroke="#B9A7E8" stroke-width="1" opacity=".3"/>
+<path d="M24 24H816V572H24Z M40 40H800V556H40Z M60 60H780V536H60Z" fill="none" stroke="#B9A7E8" stroke-width="1.5"/><path d="M24 24L110 110M816 24L730 110M24 572L110 486M816 572L730 486" stroke="#3B2F63" stroke-width="3"/>
+<path d="M388 87H452V125Q420 148 388 125Z" fill="#B9A7E8"/><path d="M395 125L385 157L410 145L420 158L420 137M445 125L455 157L430 145L420 158" fill="#B9A7E8"/><text x="420" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="18" fill="#F7F4FF">★</text>
+<text x="420" y="205" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="12" letter-spacing="4" fill="#3B2F63">JOES STUDIO • CERTIFICATE</text>
+<text x="420" y="252" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="bold" fill="#3B2F63">Training Completion</text>
+<path d="M315 176H525" stroke="#B9A7E8" stroke-width="1.5"/><path d="M410 176l10 -5 10 5 -10 5z" fill="#B9A7E8"/>
+<text x="420" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="1" fill="#F7F4FF">.</text>
+<text x="420" y="287" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" letter-spacing="1.6" fill="#3B2F63">THIS CERTIFICATE IS PROUDLY PRESENTED TO</text>
+<path d="M170 343H670" stroke="#B9A7E8" stroke-width="1.6"/>
+<text x="420" y="331" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-style="italic" fill="#3B2F63">Recipient Name</text>
+<text x="420" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.1" fill="#3B2F63">HAS COMPLETED THE REQUIRED TRAINING</text>
+<text x="420" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#3B2F63">In recognition of commitment, achievement, and dedication.</text>
 <path d="M170 466H330M510 466H670" stroke="#777" stroke-width="1.2"/><text x="250" y="486" text-anchor="middle" font-size="11" fill="#666">AUTHORISED SIGNATURE</text><text x="590" y="486" text-anchor="middle" font-size="11" fill="#666">DATE</text>
-<text x="420" y="531" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="11" letter-spacing="2" fill="#FDBA74">ISSUED WITH PRIDE AND APPRECIATION</text>
+<text x="420" y="531" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="11" letter-spacing="2" fill="#B9A7E8">ISSUED WITH PRIDE AND APPRECIATION</text>
 </svg>

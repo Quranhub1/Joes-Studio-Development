@@ -1,17 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="840" height="595" viewBox="0 0 840 595" role="img" aria-label="Professional Development certificate design">
-<rect width="840" height="595" fill="#F8F2E4"/>
-<rect x="0" y="0" width="840" height="595" fill="none" stroke="#C6A04A" stroke-width="1" opacity=".3"/>
-<rect x="24" y="24" width="792" height="547" fill="none" stroke="#17365D" stroke-width="3"/><rect x="34" y="34" width="772" height="527" fill="none" stroke="#C6A04A" stroke-width="1.5"/>
-<path d="M420 84L430 108L456 110L436 127L442 152L420 139L398 152L404 127L384 110L410 108Z" fill="#C6A04A"/><circle cx="420" cy="119" r="42" fill="none" stroke="#C6A04A" stroke-width="1.5"/>
-<text x="420" y="205" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="12" letter-spacing="4" fill="#17365D">JOES STUDIO • CERTIFICATE</text>
-<text x="420" y="252" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="33" font-weight="bold" fill="#17365D">Professional Development</text>
-<path d="M315 176H525" stroke="#C6A04A" stroke-width="1.5"/><path d="M410 176l10 -5 10 5 -10 5z" fill="#C6A04A"/>
-<text x="420" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="1" fill="#F8F2E4">.</text>
-<text x="420" y="287" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" letter-spacing="1.6" fill="#17365D">THIS CERTIFICATE IS PROUDLY PRESENTED TO</text>
-<path d="M170 343H670" stroke="#C6A04A" stroke-width="1.6"/>
-<text x="420" y="331" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-style="italic" fill="#17365D">Recipient Name</text>
-<text x="420" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.1" fill="#17365D">FOR CONTINUING LEARNING AND GROWTH</text>
-<text x="420" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#17365D">In recognition of commitment, achievement, and dedication.</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="595" viewBox="0 0 840 595" role="img" aria-label="Certificate of Appreciation certificate design">
+<rect width="840" height="595" fill="#F8FAFC"/>
+<rect x="0" y="0" width="840" height="595" fill="none" stroke="#E2C08D" stroke-width="1" opacity=".3"/>
+<path d="M24 24H816V572H24Z M40 40H800V556H40Z M60 60H780V536H60Z" fill="none" stroke="#E2C08D" stroke-width="1.5"/><path d="M24 24L110 110M816 24L730 110M24 572L110 486M816 572L730 486" stroke="#334155" stroke-width="3"/>
+<g transform="translate(420 122)" fill="#E2C08D"><ellipse rx="7" ry="20" transform="rotate(0) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(30) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(60) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(90) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(120) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(150) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(180) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(210) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(240) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(270) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(300) translate(0 -17)"/><ellipse rx="7" ry="20" transform="rotate(330) translate(0 -17)"/><circle r="17" fill="#F8FAFC" stroke="#E2C08D" stroke-width="3"/><circle r="8"/></g>
+<text x="420" y="205" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="12" letter-spacing="4" fill="#334155">JOES STUDIO • CERTIFICATE</text>
+<text x="420" y="252" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="33" font-weight="bold" fill="#334155">Certificate of Appreciation</text>
+<path d="M315 176H525" stroke="#E2C08D" stroke-width="1.5"/><path d="M410 176l10 -5 10 5 -10 5z" fill="#E2C08D"/>
+<text x="420" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="1" fill="#F8FAFC">.</text>
+<text x="420" y="287" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" letter-spacing="1.6" fill="#334155">THIS CERTIFICATE IS PROUDLY PRESENTED TO</text>
+<path d="M170 343H670" stroke="#E2C08D" stroke-width="1.6"/>
+<text x="420" y="331" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="27" font-style="italic" fill="#334155">Recipient Name</text>
+<text x="420" y="374" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" letter-spacing="1.1" fill="#334155">WITH GRATITUDE AND RECOGNITION</text>
+<text x="420" y="405" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#334155">In recognition of commitment, achievement, and dedication.</text>
 <path d="M180 466H350M490 466H660" stroke="#777" stroke-width="1.2"/><text x="265" y="486" text-anchor="middle" font-size="11" fill="#666">DIRECTOR / INSTRUCTOR</text><text x="575" y="486" text-anchor="middle" font-size="11" fill="#666">ISSUE DATE</text>
-<text x="420" y="531" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="11" letter-spacing="2" fill="#C6A04A">ISSUED WITH PRIDE AND APPRECIATION</text>
+<text x="420" y="531" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="11" letter-spacing="2" fill="#E2C08D">ISSUED WITH PRIDE AND APPRECIATION</text>
 </svg>
