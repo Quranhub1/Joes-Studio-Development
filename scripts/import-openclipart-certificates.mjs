@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Populate Joes Studio with a large local, searchable library of original
- * OpenClipart SVG certificate/border designs. No user-side downloads are needed.
+ * Populate Joes Studio with a local, searchable library of reusable
+ * Wikimedia Commons SVG certificate/border designs. No user-side downloads are needed.
  *
  * Run in a network-enabled Node 20+ build/CI environment:
  *   node scripts/import-openclipart-certificates.mjs
@@ -26,7 +26,7 @@ const SEARCH_TERMS = [
   "wedding certificate", "ornate certificate", "certificate template",
   "award border", "diploma border", "certificate ornament",
 ];
-const headers = { "User-Agent": "JoesStudio-TemplateLibrary/1.0 (local asset importer)" };
+const headers = { "User-Agent": "JoesStudio-TemplateLibrary/1.0 (certificate asset importer)" };
 
 function getTitle(item, id) {
   const title = String(item?.title || item?.name || item?.description || `Certificate design ${id}`);
@@ -136,36 +136,6 @@ for (const term of SEARCH_TERMS) {
 }
 if (!found.size) {
   throw new Error("No reusable SVG results were discovered from Wikimedia Commons. Nothing was changed; check the API/network.");
-}
-
-await fs.mkdir(outputDir, { recursive: true });
-const found = new Map();
-const searchErrors = [];
-for (const term of SEARCH_TERMS) {
-  try {
-    const items = await search(term);
-    for (const item of items) {
-      const itemId = extractId(item);
-      if (!itemId || isFlagged(item)) continue;
-      const existing = found.get(itemId);
-      const metadata = {
-        itemId,
-        name: getTitle(item, itemId),
-        creator: item?.artist_name || item?.creator || item?.author || item?.artist || "OpenClipart contributor",
-        sourceUrl: item?.detail_link || item?.page_url || `https://openclipart.org/detail/${itemId}`,
-        tags: Array.isArray(item?.tags) ? item.tags.map(String).slice(0, 20) : [term],
-        searchTerms: [...new Set([...(existing?.searchTerms || []), term])],
-      };
-      found.set(itemId, { ...existing, ...metadata, searchTerms: metadata.searchTerms });
-    }
-  } catch (error) {
-    searchErrors.push({ term, error: String(error?.message || error) });
-    console.warn(`Search failed for "${term}": ${error.message}`);
-  }
-  if (found.size >= MAX_ASSETS) break;
-}
-if (!found.size) {
-  throw new Error("No OpenClipart results were discovered. Nothing was changed; check the upstream search endpoint.");
 }
 
 const existingCatalogue = JSON.parse(await fs.readFile(cataloguePath, "utf8"));
